@@ -8,3 +8,7 @@ class NotIntegerCoordinates(Exception):
 
 class GraphHasNoCoordinatesForVertices(Exception):
     pass
+
+
+class BadInitParameters(Exception):
+    pass
