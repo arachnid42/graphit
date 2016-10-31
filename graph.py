@@ -1,3 +1,4 @@
+from math import sqrt
 from exceptions import *
 
 
@@ -32,13 +33,24 @@ class VertexNode(object):
 class EdgeNode(object):
     """ A class to hold graph edge data such as weight and reference node """
 
-    def __init__(self, node, weight):
-        self.node = node
+    def __init__(self, vertex_node, weight=None):
+        self.vertex_node = vertex_node
         self.weight = weight
 
+    def set_weight(self, weight):
+        self.weight = weight
+
+    def set_vertex_node(self, vertex_node):
+        self.vertex_node = vertex_node
 
 class Graph(object):
-    """ Graph class that keeps track over oll the graph components """
+    """ Graph class that keeps track over oll the graph components
+
+    Default weight of an edge with coordinates enabled is Euclidean
+    distance between respective coordinates of two vertices that the
+    edge connects.
+
+    """
 
     def __init__(self, directed=False, coordinates=False, explicit_weight=False, aggregate_weight=False):
         """ Init method of a class
@@ -81,6 +93,8 @@ class Graph(object):
                    of type integer.
         :exception NoCoordinatesPassed - raised when no coordinates flag is enabled and no
                    coordinates (x and y) are passed.
+
+        :return True - vertex was added successfully. False otherwise.
         """
 
         # if the vertex with the same label and/or coordinates
@@ -104,19 +118,58 @@ class Graph(object):
             self.mapper[VertexNode(label)] = []
             return True
 
-    def add_edge(self, va_label, vb_label):
+    def add_edge(self, va_label, vb_label, weight=None):
+        """ Add an edge between vertices A and B to a graph
+
+        :param va_label - string label of a vertex A
+        :param vb_label - string label of a vertex B
+        :param weight - int weight of a vertex if
+               use_explicit_weight is enabled.
+               Ignored otherwise. Defaults to None.
+
+        :return True - edge was added successfully.
+                False otherwise.
+        """
+
         node_a = self.find_vertex_node_by_label(va_label)
         node_b = self.find_vertex_node_by_label(vb_label)
         if not node_a or not node_b:
             print("Both or one of the nodes doesn't exist in a graph! Edge is not added.")
             return False
         else:
-            if not self.__is_connected(node_a, node_b):
-                self.mapper[node_a].append(node_b)
-            if not self.is_directed:
-                if not self.__is_connected(node_b, node_a):
-                    self.mapper[node_b].append(node_a)
-            return True
+            return self.__add_edge(node_a, node_b, weight)
+
+    def __add_edge(self, node_a, node_b, weight):
+        """ Handle backend job to add an edge between two nodes
+
+        Counts in use_explicit_weight and aggregated_weight flags to
+        add an edge and it's weight in a right way
+
+        :param node_a - VertexNode object that holds a node A
+        :param node_b - VertexNode object that holds a node B
+        :param weight - weight of an edge
+
+        :return True - edge was added successfully.
+                False otherwise.
+        """
+
+        if not self.__is_connected(node_a, node_b):
+            edge_node = EdgeNode(node_b)
+            if self.use_explicit_weight:
+                if isinstance(weight, int):
+                    edge_node.set_weight(weight)
+                else:
+                    raise BadEdgeWeight("Edge weight is not an integer!")
+            else:
+                if self.has_coordinates:
+                    na_coords = node_a.get_coordinates()
+                    nb_coords = node_b.get_coordinates()
+                    def_weight = sqrt((na_coords(0)-nb_coords(0))**2 - (na_coords(1)-nb_coords(1))**2)
+                    edge_node.set_weight(def_weight)
+            #TODO: connect nodes with edge_node
+        elif self.aggregate_weight:
+            pass
+            #TODO: modify edgenode weight
 
     def find_vertex_node_by_label(self, label):
         for node in self.mapper:

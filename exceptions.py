@@ -12,3 +12,7 @@ class GraphHasNoCoordinatesForVertices(Exception):
 
 class BadInitParameters(Exception):
     pass
+
+
+class BadEdgeWeight(Exception):
+    pass
