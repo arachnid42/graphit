@@ -3,7 +3,7 @@
 from graph import Graph
 
 # creating an undirected graph with vertices coordinates instance
-graph1 = Graph(coordinates=True, )
+graph1 = Graph(coordinates=True)
 
 # parse an input file and create a graph
 with open("data/graph1.txt") as f:

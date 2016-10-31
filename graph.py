@@ -7,6 +7,13 @@ class VertexNodeData(object):
     """ An optional class to hold a graph vertex data if coordinates are enabled """
 
     def __init__(self, label, x, y):
+        """ Class instance initialization
+
+        :param label - string vertex label
+        :param x - x coordinate of a vertex
+        :param y - y coordinate of a vertex
+
+        """
         self.label = label
         self.x = x
         self.y = y
@@ -16,15 +23,33 @@ class VertexNode(object):
     """ A class to hold a graph vertex """
 
     def __init__(self, data):
+        """ Class instance initialization
+
+        :param data - label of a vertex if has_coordinates is
+               False. Otherwise VertexNodeData object.
+
+        """
         self.__data = data
 
     def get_label(self):
+        """ Return a label of a vertex
+
+        :return: string label of a vertex
+
+        """
         if isinstance(self.__data, VertexNodeData):
             return self.__data.label
         else:
             return self.__data
 
     def get_coordinates(self):
+        """ Return coordinates of a vertex
+
+        :return: tuple of (x,y) coordinates of a
+                 vertex if has_coordinates is True.
+                 Otherwise returns None.
+
+        """
         if isinstance(self.__data, VertexNodeData):
             return self.__data.x, self.__data.y
         else:
@@ -35,11 +60,20 @@ class EdgeNode(object):
     """ A class to hold graph edge data such as weight and reference node """
 
     def __init__(self, vertex_node, weight=None):
+        """ Class instance initialization
+
+        :param vertex_node - VertexNode object that holds
+               a vertex that this edge is pointing to
+        :param weight - weight of an edge. Defaults to None
+               but can't remain None due to a class architecture.
+
+        """
         self.vertex_node = vertex_node
         self.weight = weight
 
     def __str__(self):
         return "Edge to %s with weight %s" % (self.vertex_node.get_label(), str(self.weight))
+
 
 class Graph(object):
     """ Graph class that keeps track over oll the graph components
@@ -167,15 +201,15 @@ class Graph(object):
         else:
             edge_node = EdgeNode(node_b)
             if self.use_explicit_weight:
-                if isinstance(weight, int):
+                if isinstance(weight, int) or isinstance(weight, float):
                     edge_node.weight = weight
                 else:
-                    raise BadEdgeWeight("Edge weight is not an integer!")
+                    raise BadEdgeWeight("Edge weight is not a number!")
             else:
                 if self.has_coordinates:
                     na_coords = node_a.get_coordinates()
                     nb_coords = node_b.get_coordinates()
-                    def_weight = sqrt((na_coords[0]-nb_coords[0])**2 + (na_coords[1]-nb_coords[1])**2)
+                    def_weight = sqrt((na_coords[0] - nb_coords[0]) ** 2 + (na_coords[1] - nb_coords[1]) ** 2)
                     edge_node.weight = def_weight
 
             if not self.__is_connected(node_a, node_b):
@@ -205,8 +239,8 @@ class Graph(object):
     def __is_connected(self, node_a, node_b):
         """ Backend private method for determining whether two vertices are connected
 
-        :param node_a - VertexNode object that holds first node
-        :param node_b - VertexNode object that holds second node
+        :param node_a - VertexNode object that holds node A
+        :param node_b - VertexNode object that holds node B
 
         :return True - nodes are connected; False - otherwise
         """
@@ -217,7 +251,13 @@ class Graph(object):
         return False
 
     def __get_edge(self, node_a, node_b):
-        """ Return an edge between two node object given that it exists """
+        """ Return an edge between two node object given that it exists
+
+        :param node_a - VertexNode object that holds node A
+        :param node_b - VertexNode object that holds node B
+
+        :return: EdgeNode that connects node A and node B
+        """
 
         for edge_node in self.mapper[node_a]:
             if edge_node.vertex_node == node_b:
@@ -238,10 +278,11 @@ class Graph(object):
         for vertex_node, edge_nodes in self.mapper.items():
             for edge_node in edge_nodes:
                 edges_count += 1
-                edges += str(vertex_node.get_label()) + "\t" + str(edge_node.vertex_node.get_label()) + "\n"
+                edges += str(vertex_node.get_label()) + "\t" + str(edge_node.vertex_node.get_label()) + "\t" + \
+                         str(edge_node.weight) + "\n"
 
         if not self.is_directed:
             edges_count //= 2
 
         stats += "edges: " + str(edges_count) + "\n"
-        return "%s\n%s" % (edges, stats)
+        return "%s\n%s\n%s" % (vertices, edges, stats)
