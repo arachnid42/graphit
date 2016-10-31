@@ -1,4 +1,5 @@
 from math import sqrt
+from copy import copy
 from exceptions import *
 
 
@@ -37,11 +38,8 @@ class EdgeNode(object):
         self.vertex_node = vertex_node
         self.weight = weight
 
-    def set_weight(self, weight):
-        self.weight = weight
-
-    def set_vertex_node(self, vertex_node):
-        self.vertex_node = vertex_node
+    def __str__(self):
+        return "Edge to %s with weight %s" % (self.vertex_node.get_label(), str(self.weight))
 
 class Graph(object):
     """ Graph class that keeps track over oll the graph components
@@ -127,8 +125,9 @@ class Graph(object):
                use_explicit_weight is enabled.
                Ignored otherwise. Defaults to None.
 
-        :return True - edge was added successfully.
-                False otherwise.
+        :return True - edge was added successfully or
+                it's weight was incremented. False
+                otherwise.
         """
 
         node_a = self.find_vertex_node_by_label(va_label)
@@ -149,27 +148,44 @@ class Graph(object):
         :param node_b - VertexNode object that holds a node B
         :param weight - weight of an edge
 
-        :return True - edge was added successfully.
-                False otherwise.
+        :return True - edge was added successfully or
+        it's weight was incremented. False
+        otherwise.
         """
 
-        if not self.__is_connected(node_a, node_b):
+        if self.__is_connected(node_a, node_b) and self.__is_connected(node_b, node_a):
+            if self.aggregate_weight:
+                edge_node = self.__get_edge(node_a, node_b)
+                edge_node.set_weight(edge_node.weight + weight)
+                if not self.is_directed:
+                    edge_node = self.__get_edge(node_b, node_a)
+                    edge_node.set_weight(edge_node.weight + weight)
+                print("Edge was already present but it's weight was incremented")
+                return True
+            else:
+                return False
+        else:
             edge_node = EdgeNode(node_b)
             if self.use_explicit_weight:
                 if isinstance(weight, int):
-                    edge_node.set_weight(weight)
+                    edge_node.weight = weight
                 else:
                     raise BadEdgeWeight("Edge weight is not an integer!")
             else:
                 if self.has_coordinates:
                     na_coords = node_a.get_coordinates()
                     nb_coords = node_b.get_coordinates()
-                    def_weight = sqrt((na_coords(0)-nb_coords(0))**2 - (na_coords(1)-nb_coords(1))**2)
-                    edge_node.set_weight(def_weight)
-            #TODO: connect nodes with edge_node
-        elif self.aggregate_weight:
-            pass
-            #TODO: modify edgenode weight
+                    def_weight = sqrt((na_coords[0]-nb_coords[0])**2 + (na_coords[1]-nb_coords[1])**2)
+                    edge_node.weight = def_weight
+
+            if not self.__is_connected(node_a, node_b):
+                self.mapper[node_a].append(edge_node)
+            if not self.is_directed:
+                if not self.__is_connected(node_b, node_a):
+                    edge_node_copy = copy(edge_node)
+                    edge_node_copy.vertex_node = node_a
+                    self.mapper[node_b].append(edge_node_copy)
+            return True
 
     def find_vertex_node_by_label(self, label):
         for node in self.mapper:
@@ -195,9 +211,17 @@ class Graph(object):
         :return True - nodes are connected; False - otherwise
         """
 
-        if node_b in self.mapper[node_a]:
-            return True
+        for edge_node in self.mapper[node_a]:
+            if edge_node.vertex_node == node_b:
+                return True
         return False
+
+    def __get_edge(self, node_a, node_b):
+        """ Return an edge between two node object given that it exists """
+
+        for edge_node in self.mapper[node_a]:
+            if edge_node.vertex_node == node_b:
+                return edge_node
 
     def __str__(self):
 
@@ -208,16 +232,16 @@ class Graph(object):
         # variable to hold edges count
         edges_count = 0
 
-        for node in self.mapper:
-            vertices += str(node.get_label()) + "\t" + str(node.get_coordinates()) + "\n"
+        for vertex_node in self.mapper:
+            vertices += str(vertex_node.get_label()) + "\t" + str(vertex_node.get_coordinates()) + "\n"
 
-        for node, neighbours in self.mapper.items():
-            for neighbour in neighbours:
+        for vertex_node, edge_nodes in self.mapper.items():
+            for edge_node in edge_nodes:
                 edges_count += 1
-                edges += str(node.get_label()) + "\t" + str(neighbour.get_label()) + "\n"
+                edges += str(vertex_node.get_label()) + "\t" + str(edge_node.vertex_node.get_label()) + "\n"
 
         if not self.is_directed:
             edges_count //= 2
 
         stats += "edges: " + str(edges_count) + "\n"
-        return "%s\n%s\n%s" % (vertices, edges, stats)
+        return "%s\n%s" % (edges, stats)
