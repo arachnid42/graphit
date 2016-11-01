@@ -1,5 +1,7 @@
-from math import sqrt
+from math import sqrt, isinf, isnan
 from copy import copy
+import numpy as np
+from itertools import permutations
 from exceptions import *
 
 
@@ -262,6 +264,111 @@ class Graph(object):
         for edge_node in self.mapper[node_a]:
             if edge_node.vertex_node == node_b:
                 return edge_node
+
+    def build_adjacency_matrix(self, print_out=False):
+        """ Build an adjacency matrix of the graph
+
+        :param print_out - boolean print a matrix to a console.
+               Defaults to False.
+
+        :return: NumPy matrix that represents adjacency matrix
+                 of the graph
+        """
+
+        # init a matrix
+        n = self.get_vertices_count()
+        matrix = np.zeros(shape=(n, n))
+
+        # prepare a list of label-index mapping
+        key_list = sorted([k.get_label() for k in self.mapper])
+
+        for vertex_node, edge_nodes in self.mapper.items():
+            for edge_node in edge_nodes:
+                matrix[key_list.index(vertex_node.get_label())][key_list.index(edge_node.vertex_node.get_label())] = 1
+
+        if print_out:
+            print(self.matrix_to_string(key_list, matrix))
+        return matrix
+
+    def build_2hop_matrix(self, print_out=False):
+        """ Build a 2-hop matrix of the graph
+
+       :param print_out - boolean print a matrix to a console.
+              Defaults to False.
+
+       :return: NumPy matrix that represents 2-hop matrix
+                of the graph
+       """
+
+        adj_mtrx = self.build_adjacency_matrix()
+        hop_mtrx = np.linalg.matrix_power(adj_mtrx, 2)
+
+        if print_out:
+            print(self.matrix_to_string(sorted([k.get_label() for k in self.mapper]), hop_mtrx))
+        return hop_mtrx
+
+    @staticmethod
+    def matrix_to_string(key_list, matrix):
+        """ Form a string representation of an adjacency matrix of the graph
+
+        :param key_list - list of sorted vertex labels of the graph
+        :param matrix - numpy matrix that holds adjacancy matrix of
+               the graph object.
+
+        :return: string adjacency matrix representation with labels
+
+        """
+
+        str = "  "
+        for label in key_list:
+            str += "%s " % label
+        str += "\n"
+
+        for row, i in zip(matrix, key_list):
+            str += "%s " % i
+            for item in row:
+                if isinf(item)or isnan(item):
+                    str += "- "
+                    continue
+                str += "%s " % int(item)
+            str += "\n"
+
+        return str
+
+    def get_vertices_count(self):
+        """ Return an amount of vertices in the graph
+
+        :return: int amount of vertices in the graph
+        """
+
+        return len(self.mapper)
+
+    def floyd_warshall_shortest_paths(self, print_out=False):
+        """ Calculate all the shortest paths between all possible (i,j) vertices pairs
+
+        Uses Floyd-Warshall algorithm with a fixed weight of edges equal to 1. Read more at
+        https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
+
+        :return NumPy matrix of shortest distances between any of two vertices
+        """
+
+        n = self.get_vertices_count()  # getting an amount of vertices in the graph
+        vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
+        dist = np.full((n, n), np.inf)
+
+        for vertex_node, edge_nodes in self.mapper.items():
+            for edge_node in edge_nodes:
+                dist[vert_list.index(vertex_node.get_label())][vert_list.index(edge_node.vertex_node.get_label())] = 1
+
+        for k in range(0, n):
+            for i in range(0, n):
+                for j in range(0, n):
+                    if dist[i][k] + dist[k][j] < dist[i][j]:
+                        dist[i][j] = dist[i][k] + dist[k][j]
+
+        if print_out:
+            print(self.matrix_to_string(vert_list, dist))
+        return dist
 
     def __str__(self):
 
