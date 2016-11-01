@@ -4,6 +4,9 @@ import numpy as np
 from itertools import permutations
 from exceptions import *
 
+# TODO: create a dedicated instance variable to hold a list of sorted vertex labels
+# TODO: as it's used in the majority of nitty-gritty stuff in this class
+
 
 class VertexNodeData(object):
     """ An optional class to hold a graph vertex data if coordinates are enabled """
@@ -349,26 +352,83 @@ class Graph(object):
         Uses Floyd-Warshall algorithm with a fixed weight of edges equal to 1. Read more at
         https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 
-        :return NumPy matrix of shortest distances between any of two vertices
+        :return tuple of NumPy matrix of shortest distances between any of two vertices and
+                NumPy next matrix to use for a path recovery
+
         """
 
         n = self.get_vertices_count()  # getting an amount of vertices in the graph
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
         dist = np.full((n, n), np.inf)
+        next = np.full((n, n), np.nan)
 
         for vertex_node, edge_nodes in self.mapper.items():
             for edge_node in edge_nodes:
                 dist[vert_list.index(vertex_node.get_label())][vert_list.index(edge_node.vertex_node.get_label())] = 1
+                next[vert_list.index(vertex_node.get_label())][vert_list.index(edge_node.vertex_node.get_label())] = \
+                    ord(edge_node.vertex_node.get_label())
 
         for k in range(0, n):
             for i in range(0, n):
                 for j in range(0, n):
                     if dist[i][k] + dist[k][j] < dist[i][j]:
                         dist[i][j] = dist[i][k] + dist[k][j]
+                        next[i][j] = next[i][k]
 
         if print_out:
             print(self.matrix_to_string(vert_list, dist))
-        return dist
+            print(self.matrix_to_string(vert_list, next))
+        return dist, next
+
+    def get_shortest_path(self, va_label, vb_label, next):
+        """ Return a shortest path between two nodes using a next matrix from the floyd_warshall_shortest_paths()
+
+        :param va_label - string label of a node A
+        :param vb_label - string label of a node B
+        :param next - NumPy array from floyd_warshall_shortest_paths()
+
+        :return list of labels that indicate the shortest path between
+                A and B. Return empty list if there is no path.
+        """
+
+        vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
+        if isnan(next[vert_list.index(va_label)][vert_list.index(vb_label)]):
+            return []
+        path = [va_label]
+        while va_label != vb_label:
+            va_label = chr(int(next[vert_list.index(va_label)][vert_list.index(vb_label)]))
+            path.append(va_label)
+        return path
+
+    def calculate_betweenness_of_vertices(self, next):
+        """ TODO: docs """
+
+        vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
+        shortest_paths = self.get_all_shortest_paths(next)
+
+        # dictionary to hold a betweenness for avery vertex
+        vert_betweenness = {}
+
+        for vert in vert_list:
+            btwns = 0
+            for path in shortest_paths:
+                if vert in path:
+                    btwns += 1
+            if not self.is_directed:
+                btwns //= 2
+            vert_betweenness[vert] = btwns
+
+        return vert_betweenness
+
+    def get_all_shortest_paths(self, next):
+        """ TODO: docs """
+
+        vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
+        shortest_paths = []
+        for vertex_pair in permutations(vert_list, 2):
+            shortest_paths.append(self.get_shortest_path(vertex_pair[0], vertex_pair[1], next))
+
+        return shortest_paths
 
     def __str__(self):
 
