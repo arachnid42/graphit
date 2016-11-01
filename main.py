@@ -5,7 +5,7 @@ import numpy as np
 import operator
 
 # creating an undirected graph with vertices coordinates instance
-graph1 = Graph(coordinates=True, directed=False)
+graph1 = Graph(coordinates=True, directed=True)
 
 # parse an input file and create a graph
 with open("data/graph1.txt") as f:
@@ -26,13 +26,20 @@ with open("data/graph1.txt") as f:
 # print("\n# 2-hop matrix")
 # graph1.build_2hop_matrix(print_out=True)
 
-algo_result = graph1.floyd_warshall_shortest_paths(print_out=True)
-dist_mtrx = algo_result[0]
-next_mtrx = algo_result[1]
+# algo_result = graph1.floyd_warshall_shortest_paths(print_out=True)
+# dist_mtrx = algo_result[0]
+# next_mtrx = algo_result[1]
+#
+# dist_mtrx[dist_mtrx == np.inf] = 0
+# print("The graph diameter is %i" % int(dist_mtrx.max()))
 
-dist_mtrx[dist_mtrx == np.inf] = 0
-print("The graph diameter is %i" % int(dist_mtrx.max()))
+# vertices_btwns = graph1.calculate_betweenness_of_vertices(next_mtrx)
+# max_btwn_key = max(vertices_btwns.items(), key=operator.itemgetter(1))[0]
+#
+# for vertex, b in vertices_btwns.items():
+#     print("Vertex %s has betweenness %i" % (vertex, b))
+# print()
+# print("A vertex with max betweenness is %s with %i score" % (max_btwn_key, vertices_btwns[max_btwn_key]))
 
-vertices_btwns = graph1.calculate_betweenness_of_vertices(next_mtrx)
-max_btwn_key = max(vertices_btwns.items(), key=operator.itemgetter(1))[0]
-print("A vertex with max betweenness is %s with %i score" % (max_btwn_key, vertices_btwns[max_btwn_key]))
+adj_mtx = graph1.build_adjacency_matrix(print_out=True)
+tr_cl_mtx = graph1.build_transitive_closure(adj_mtx, print_out=True)

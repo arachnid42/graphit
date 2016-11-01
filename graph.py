@@ -430,6 +430,19 @@ class Graph(object):
 
         return shortest_paths
 
+    def build_transitive_closure(self, adj_mtx, print_out=False):
+        """ TODO: docs """
+
+        n = self.get_vertices_count()
+        for i in range(0, n):
+            for s in range(0, n):
+                for t in range(0, n):
+                    if adj_mtx[s][i] and adj_mtx[i][t]: adj_mtx[s][t] = 1
+
+        if print_out:
+            print(self.matrix_to_string(sorted([k.get_label() for k in self.mapper]), adj_mtx))
+        return adj_mtx
+
     def __str__(self):
 
         stats = "# stats\nvertices: " + str(len(self.mapper)) + "\n"
