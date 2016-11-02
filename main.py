@@ -8,7 +8,7 @@ import operator
 graph1 = Graph(coordinates=True, directed=True)
 
 # parse an input file and create a graph
-with open("data/graph1.txt") as f:
+with open("data/graph2.txt") as f:
     for line in f:
         if line[0] == "#" or not line:
             continue
