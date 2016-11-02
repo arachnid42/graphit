@@ -4,3 +4,5 @@ app/data/
 nohup.out
 *.pyc
 *.css.map
+.vagrant/
+.sass-cache
