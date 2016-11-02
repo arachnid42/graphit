@@ -3,27 +3,54 @@ from copy import copy
 import numpy as np
 from itertools import permutations
 
-# TODO: create a dedicated instance variable to hold a list of sorted vertex labels
-# TODO: as it's used in the majority of nitty-gritty stuff in this class
-
 
 class NoCoordinatesPassed(Exception):
+    """ Custom exception
+
+    No coordinates passed during a vertex
+    creation while they are necessary.
+
+    """
     pass
 
 
 class NotIntegerCoordinates(Exception):
+    """ Custom exception
+
+    Passed in coordinates are not of type
+    integer which is not acceptable exception
+
+    """
     pass
 
 
 class GraphHasNoCoordinatesForVertices(Exception):
+    """ Custom exception
+
+    Called functionality requires graph vertices
+    to have coordinates but they don't have them
+
+    """
     pass
 
 
 class BadInitParameters(Exception):
+    """ Custom exception
+
+    Passed in parameters are not of the type
+    that is required
+
+    """
     pass
 
 
 class BadEdgeWeight(Exception):
+    """ Custom exception
+
+    Passed in edge weight is not an acceptable
+    value
+
+    """
     pass
 
 
@@ -408,6 +435,7 @@ class Graph(object):
 
         :return list of labels that indicate the shortest path between
                 A and B. Return empty list if there is no path.
+
         """
 
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
@@ -420,7 +448,14 @@ class Graph(object):
         return path
 
     def calculate_betweenness_of_vertices(self, next):
-        """ TODO: docs """
+        """ Calculate a betweenness for every graph's vertex
+
+        :param next - NumPy array from floyd_warshall_shortest_paths()
+
+        :return dictionary of betweenness values for each vertex (where
+                vertex label is a key and it's betweenness is a value)
+
+        """
 
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
         shortest_paths = self.get_all_shortest_paths(next)
@@ -440,7 +475,14 @@ class Graph(object):
         return vert_betweenness
 
     def get_all_shortest_paths(self, next):
-        """ TODO: docs """
+        """ Get all shortest paths between all the possible vertex pairs
+
+        :param next - NumPy array from floyd_warshall_shortest_paths()
+
+        :return list of all shortest paths between all the possible
+                vertex pairs
+                
+        """
 
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
         shortest_paths = []
