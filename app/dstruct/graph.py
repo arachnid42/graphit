@@ -2,10 +2,29 @@ from math import sqrt, isinf, isnan
 from copy import copy
 import numpy as np
 from itertools import permutations
-from exceptions import *
 
 # TODO: create a dedicated instance variable to hold a list of sorted vertex labels
 # TODO: as it's used in the majority of nitty-gritty stuff in this class
+
+
+class NoCoordinatesPassed(Exception):
+    pass
+
+
+class NotIntegerCoordinates(Exception):
+    pass
+
+
+class GraphHasNoCoordinatesForVertices(Exception):
+    pass
+
+
+class BadInitParameters(Exception):
+    pass
+
+
+class BadEdgeWeight(Exception):
+    pass
 
 
 class VertexNodeData(object):

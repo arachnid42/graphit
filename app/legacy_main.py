@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-from graph import Graph
-import numpy as np
-import operator
+from app.dstruct.graph import Graph
 
 # creating an undirected graph with vertices coordinates instance
 graph1 = Graph(coordinates=True, directed=True)
