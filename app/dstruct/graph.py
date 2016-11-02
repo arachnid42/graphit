@@ -3,6 +3,21 @@ from copy import copy
 import numpy as np
 from itertools import permutations
 
+""" graph.py
+
+    Graph module that represents a directed/undirected graph
+    data structure with a support of vertex coordinates and
+    edge weights (Euclidean distance or explicit value) as
+    well as weights aggregation.
+
+    The key feature of this module is key aggregation that
+    allows to compose a graph on the fly while  keeping track
+    on how many entries in a parsed data "mention" a particular
+    edge in graph (which could correspond to a movement from one
+    point to another).
+
+    """
+
 
 class NoCoordinatesPassed(Exception):
     """ Custom exception
@@ -481,7 +496,7 @@ class Graph(object):
 
         :return list of all shortest paths between all the possible
                 vertex pairs
-                
+
         """
 
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
