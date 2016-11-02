@@ -1,5 +1,6 @@
 # setting a path to provision scripts
 PROV_BASE = "#{File.dirname(__FILE__)}/vconf/"
+STARTUP_SCRIPT = 'startup.sh'
 
 # prioritized set of provision scripts to run
 PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_peewee", "install_sass", "install_jq"]
@@ -31,7 +32,13 @@ Vagrant.configure(2) do |config|
   env_mod_cmds = "echo -n > #{env_mod_file} && "
 
   # cd to a project directory during vagrant ssh
-  env_mod_cmds << "echo 'cd /vagrant' >> #{env_mod_file} && "
+  env_mod_cmds << "echo 'cd /vagrant' >> #{env_mod_file} &&"
+
+  # making startup script executable
+  env_mod_cmds << "echo 'sudo chmod +x #{STARTUP_SCRIPT}' >> #{env_mod_file} &&"
+
+  # making flask_init.py executable
+  env_mod_cmds << "echo 'sudo chmod +x flask_init.py' >> #{env_mod_file}"
 
   # writing environment modifications to the guest
   config.vm.provision "cust_env_setup", type: "shell", inline: env_mod_cmds
