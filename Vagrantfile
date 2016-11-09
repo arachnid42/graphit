@@ -1,9 +1,10 @@
 # setting a path to provision scripts
 PROV_BASE = "#{File.dirname(__FILE__)}/vconf/"
 STARTUP_SCRIPT = 'startup.sh'
+RUN_TESTS_SCRIPT = 'run_tests.sh'
 
 # prioritized set of provision scripts to run
-PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_peewee", "install_sass", "install_jq"]
+PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_peewee", "install_sass", "install_jq", "install_numpy"]
 
 # default location for a bash script that would add envvars and aliases to the guest
 env_mod_file = '/etc/profile.d/env_mod.sh'
@@ -36,6 +37,9 @@ Vagrant.configure(2) do |config|
 
   # making startup script executable
   env_mod_cmds << "echo 'sudo chmod +x #{STARTUP_SCRIPT}' >> #{env_mod_file} &&"
+
+  # making tests script executable
+  env_mod_cmds << "echo 'sudo chmod +x #{RUN_TESTS_SCRIPT }' >> #{env_mod_file} &&"
 
   # making flask_init.py executable
   env_mod_cmds << "echo 'sudo chmod +x flask_init.py' >> #{env_mod_file}"

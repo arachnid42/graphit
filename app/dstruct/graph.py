@@ -1,7 +1,6 @@
-from math import sqrt, isinf, isnan, inf
+from math import sqrt, isinf, isnan
 from copy import copy
 import numpy as np
-import operator
 from itertools import permutations
 
 """ graph.py
@@ -68,6 +67,7 @@ class BadEdgeWeight(Exception):
 
     """
     pass
+
 
 class FailedToParseInputData(Exception):
     """ Custom exception
@@ -203,29 +203,31 @@ class Graph(object):
         :exception NoCoordinatesPassed - raised when no coordinates flag is enabled and no
                    coordinates (x and y) are passed.
 
-        :return True - vertex was added successfully. False otherwise.
+        :return VertexNode of a vertex inserted or None if insertion has failed.
         """
+
+        # arguments check
+        if self.has_coordinates and (x is None or y is None):
+            raise NoCoordinatesPassed("No vertex coordinates passed while required!")
+        if self.has_coordinates and not (isinstance(x, int) and isinstance(y, int)):
+            raise NotIntegerCoordinates("Vertex coordinates must be integers!")
 
         # if the vertex with the same label and/or coordinates
         # present in a graph, don't insert this vertex
-        if self.find_vertex_node_by_label(label) or self.find_vertex_node_by_coordinates(x, y):
+        if self.find_vertex_node_by_label(label) or (self.find_vertex_node_by_coordinates(x, y) if
+                                                     self.has_coordinates else False):
             print("Vertex with passed label/coordinates is already exist")
-            return False
+            return None
 
-        # validation of vertex data is passed
         # creating a vertex in a graph
         if self.has_coordinates:
-            if x is not None and y is not None:
-                if isinstance(x, int) and isinstance(y, int):
-                    self.mapper[VertexNode(VertexNodeData(label, x, y))] = []
-                    return True
-                else:
-                    raise NotIntegerCoordinates("Vertex coordinates must be integers!")
-            else:
-                raise NoCoordinatesPassed("No vertex coordinates passed while required!")
+            v_node = VertexNode(VertexNodeData(label, x, y))
+            self.mapper[v_node] = []
+            return v_node
         else:
-            self.mapper[VertexNode(label)] = []
-            return True
+            v_node = VertexNode(label)
+            self.mapper[v_node] = []
+            return v_node
 
     def add_edge(self, va_label, vb_label, weight=None):
         """ Add an edge between vertices A and B to a graph
@@ -305,6 +307,19 @@ class Graph(object):
         return None
 
     def find_vertex_node_by_coordinates(self, x, y):
+        """ Find VertexNode given it's coordinates if it exists
+
+        :param x - int x coordinate
+        :param y - int y coordinate
+
+        :return VertexNode node that has coordinates (x,y). If
+                there is no such node returns None.
+
+        :exception GraphHasNoCoordinatesForVertices - method was
+                   called despite a fact that this graph instance
+                   doesn't store coordinates for it's vertices.
+        """
+
         if not self.has_coordinates:
             raise GraphHasNoCoordinatesForVertices("The graph instance has vertices with no coordinates!")
         else:
@@ -312,6 +327,7 @@ class Graph(object):
                 coords = node.get_coordinates()
                 if coords[0] == x and coords[1] == y:
                     return node
+            return None
 
     def __is_connected(self, node_a, node_b):
         """ Backend private method for determining whether two vertices are connected
@@ -482,8 +498,8 @@ class Graph(object):
         visited = []
 
         for vert_label in vert_list:
-            g_score[vert_label] = inf
-            f_score[vert_label] = inf
+            g_score[vert_label] = float("Inf")
+            f_score[vert_label] = float("Inf")
         g_score[va_label] = 0
         f_score[va_label] = self.calculate_euclidean_distance(va_label, vb_label)
 
@@ -557,7 +573,7 @@ class Graph(object):
 
         a_coords = self.find_vertex_node_by_label(va_label).get_coordinates()
         b_coords = self.find_vertex_node_by_label(vb_label).get_coordinates()
-        return sqrt((a_coords[0]-b_coords[0])**2 + (a_coords[1]-b_coords[1])**2)
+        return sqrt((a_coords[0] - b_coords[0]) ** 2 + (a_coords[1] - b_coords[1]) ** 2)
 
     def get_shortest_path(self, va_label, vb_label, nxt):
         """ Return a shortest path between two nodes using a next matrix from the floyd_warshall_shortest_paths()
