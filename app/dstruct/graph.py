@@ -238,16 +238,21 @@ class Graph(object):
                use_explicit_weight is enabled.
                Ignored otherwise. Defaults to None.
 
-        :return True - edge was added successfully or
-                it's weight was incremented. False
-                otherwise.
+        :return - tuple of EdgeNodes of edges if
+                  they were added or their weights
+                  were successful in occasion of
+                  undirected graph.
+                - EdgeNode of edge added or it's
+                  weight was updated when graph is
+                  directed.
+                - None if edge was not added
         """
 
         node_a = self.find_vertex_node_by_label(va_label)
         node_b = self.find_vertex_node_by_label(vb_label)
         if not node_a or not node_b:
             print("Both or one of the nodes doesn't exist in a graph! Edge is not added.")
-            return False
+            return None
         else:
             return self.__add_edge(node_a, node_b, weight)
 
@@ -261,9 +266,12 @@ class Graph(object):
         :param node_b - VertexNode object that holds a node B
         :param weight - weight of an edge
 
-        :return True - edge was added successfully or
-        it's weight was incremented. False
-        otherwise.
+        :return - tuple of EdgeNodes of edges if they were added
+                  or their weights were successful in occasion of
+                  undirected graph.
+                - EdgeNode of edge added or it's weight was updated
+                  when graph is directed.
+                - None if edge was not added
         """
 
         if self.__is_connected(node_a, node_b) and self.__is_connected(node_b, node_a):
@@ -271,12 +279,13 @@ class Graph(object):
                 edge_node = self.__get_edge(node_a, node_b)
                 edge_node.set_weight(edge_node.weight + weight)
                 if not self.is_directed:
-                    edge_node = self.__get_edge(node_b, node_a)
-                    edge_node.set_weight(edge_node.weight + weight)
+                    edge_node_b = self.__get_edge(node_b, node_a)
+                    edge_node_b.set_weight(edge_node.weight + weight)
+                    return edge_node, edge_node_b
                 print("Edge was already present but it's weight was incremented")
-                return True
+                return edge_node
             else:
-                return False
+                return None
         else:
             edge_node = EdgeNode(node_b)
             if self.use_explicit_weight:
@@ -298,7 +307,8 @@ class Graph(object):
                     edge_node_copy = copy(edge_node)
                     edge_node_copy.vertex_node = node_a
                     self.mapper[node_b].append(edge_node_copy)
-            return True
+                    return edge_node, edge_node_copy
+            return edge_node
 
     def find_vertex_node_by_label(self, label):
         for node in self.mapper:

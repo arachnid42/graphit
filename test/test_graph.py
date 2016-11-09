@@ -54,6 +54,18 @@ class TestGraph(unittest.TestCase):
         self.assertRaises(NotIntegerCoordinates, graph.add_vertex, "whay!", "one", 2)
         self.assertRaises(NoCoordinatesPassed, graph.add_vertex, "whay!")
 
+    def test_add_edge(self):
+        """ Testing addition of edges to a graph """
+
+        # test addition of edges to unweighted,
+        # undirected graph without vertex coordinates
+        graph = Graph()
+        self.assertEqual(graph.add_edge("A", "B"), None)
+        node_a = graph.add_vertex("A")
+        node_b = graph.add_vertex("B")
+        self.assertTrue(graph.add_edge("A", "B") is not None)
+        self.assertEqual(graph.mapper[node_a][0].vertex_node == node_b, True)
+        self.assertEqual(graph.mapper[node_b][0].vertex_node == node_a, True)
 
     # def test_get_vertices_count(self):
     #     """ Test getter for an amount of vertices in a graph """
