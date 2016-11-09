@@ -1,6 +1,7 @@
-from math import sqrt, isinf, isnan
+from math import sqrt, isinf, isnan, inf
 from copy import copy
 import numpy as np
+import operator
 from itertools import permutations
 
 """ graph.py
@@ -66,6 +67,16 @@ class BadEdgeWeight(Exception):
     value
 
     """
+    pass
+
+class FailedToParseInputData(Exception):
+    """ Custom exception
+
+    Module has failed to import swog-like source
+    from a file given
+
+    """
+
     pass
 
 
@@ -169,7 +180,7 @@ class Graph(object):
 
         # validate whether input params are booleans
         if not (isinstance(directed, bool) and isinstance(coordinates, bool) and isinstance(explicit_weight, bool) and
-                isinstance(aggregate_weight, bool)):
+                    isinstance(aggregate_weight, bool)):
             raise BadInitParameters("Init parameters must be of type bool!")
 
         # input passed validation
@@ -383,21 +394,21 @@ class Graph(object):
 
         """
 
-        str = "  "
+        strg = "  "
         for label in key_list:
-            str += "%s " % label
-        str += "\n"
+            strg += "%s " % label
+        strg += "\n"
 
         for row, i in zip(matrix, key_list):
-            str += "%s " % i
+            strg += "%s " % i
             for item in row:
-                if isinf(item)or isnan(item):
-                    str += "- "
+                if isinf(item) or isnan(item):
+                    strg += "- "
                     continue
-                str += "%s " % int(item)
-            str += "\n"
+                strg += "%s " % int(item)
+            strg += "\n"
 
-        return str
+        return strg
 
     def get_vertices_count(self):
         """ Return an amount of vertices in the graph
@@ -414,19 +425,19 @@ class Graph(object):
         https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 
         :return tuple of NumPy matrix of shortest distances between any of two vertices and
-                NumPy next matrix to use for a path recovery
+                NumPy nxt matrix to use for a path recovery
 
         """
 
         n = self.get_vertices_count()  # getting an amount of vertices in the graph
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
         dist = np.full((n, n), np.inf)
-        next = np.full((n, n), np.nan)
+        nxt = np.full((n, n), np.nan)
 
         for vertex_node, edge_nodes in self.mapper.items():
             for edge_node in edge_nodes:
                 dist[vert_list.index(vertex_node.get_label())][vert_list.index(edge_node.vertex_node.get_label())] = 1
-                next[vert_list.index(vertex_node.get_label())][vert_list.index(edge_node.vertex_node.get_label())] = \
+                nxt[vert_list.index(vertex_node.get_label())][vert_list.index(edge_node.vertex_node.get_label())] = \
                     ord(edge_node.vertex_node.get_label())
 
         for k in range(0, n):
@@ -434,19 +445,126 @@ class Graph(object):
                 for j in range(0, n):
                     if dist[i][k] + dist[k][j] < dist[i][j]:
                         dist[i][j] = dist[i][k] + dist[k][j]
-                        next[i][j] = next[i][k]
+                        nxt[i][j] = nxt[i][k]
 
         if print_out:
             print(self.matrix_to_string(vert_list, dist))
-            print(self.matrix_to_string(vert_list, next))
-        return dist, next
+            print(self.matrix_to_string(vert_list, nxt))
+        return dist, nxt
 
-    def get_shortest_path(self, va_label, vb_label, next):
+    def get_shortest_path_astar(self, va_label, vb_label, trace_area=False, interactive=False):
+        """ Return shortest path between two nodes that was found by A* algorithm
+
+        :param va_label - string label of a node A
+        :param vb_label - string label of a node B
+        :param trace_area - bool to enable tracing of
+               the amount of graph's nodes visited
+        :param interactive - bool to enable verbose output
+               of searching progress with pauses on every
+               iteration
+
+        :return tuple - list of vertices labels that is the
+                the shortest path and integer which is an
+                amount of nodes visited (if trace_area is
+                enabled). Just a list with trace_area=False.
+                None if not path was found.
+        """
+
+        # initialization
+        vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
+        closed_set = []
+        open_set = [va_label]
+        came_from = {}
+        g_score = {}
+        f_score = {}
+
+        # to store an amount of visited nodes
+        visited = []
+
+        for vert_label in vert_list:
+            g_score[vert_label] = inf
+            f_score[vert_label] = inf
+        g_score[va_label] = 0
+        f_score[va_label] = self.calculate_euclidean_distance(va_label, vb_label)
+
+        if interactive:
+            print(" * searching for a shortest path from %s to %s" % (va_label, vb_label))
+            print(" * init ended. Entering main loop ...")
+
+        # main loop
+        while open_set:
+            current = min({k: v for k, v in f_score.items() if k in open_set}.items(), key=lambda x: x[1])[0]
+            if current not in visited:
+                visited.append(current)
+            if interactive:
+                print(" * open_set is " + str(open_set))
+                print(" * current set to %s" % current)
+            if current == vb_label:
+                if interactive:
+                    print(" * reached target vertex. Reversing path ...")
+                total_path = [current]
+                while current in came_from:
+                    current = came_from[current]
+                    total_path.append(current)
+                if trace_area:
+                    return total_path[::-1], len(visited)
+                else:
+                    return total_path[::-1]
+
+            open_set.remove(current)
+            closed_set.append(current)
+            for neighbour_label in self.get_all_neughbours_labels(current):
+                if neighbour_label not in visited:
+                    visited.append(neighbour_label)
+                if interactive:
+                    print(" * processing neighbour %s" % neighbour_label)
+                if neighbour_label in closed_set:
+                    if interactive:
+                        print("    * already visited this node. Skipping ...")
+                    continue
+                tentative_g_score = g_score[current] + self.calculate_euclidean_distance(current, neighbour_label)
+                if neighbour_label not in open_set:
+                    open_set.append(neighbour_label)
+                elif tentative_g_score >= g_score[neighbour_label]:
+                    if interactive:
+                        print("    * this path is worse then previously discovered. Continuing ...")
+                    continue
+
+                came_from[neighbour_label] = current
+                g_score[neighbour_label] = tentative_g_score
+                f_score[neighbour_label] = g_score[neighbour_label] + self.calculate_euclidean_distance(neighbour_label,
+                                                                                                        vb_label)
+                if interactive:
+                    print("    * the path to %s has f_score %f" % (neighbour_label, f_score[neighbour_label]))
+
+            if interactive:
+                input()
+        # no path found
+        return None
+
+    def calculate_euclidean_distance(self, va_label, vb_label):
+        """ Calculate Euclidean distance between vertices if coordinates was enabled
+
+        :param va_label - string label of a node A
+        :param vb_label - string label of a node B
+        :return: float distance between A and B if
+                 coordinates was enabled. Otherwise
+                 None.
+        """
+
+        if not self.has_coordinates:
+            return None
+
+        a_coords = self.find_vertex_node_by_label(va_label).get_coordinates()
+        b_coords = self.find_vertex_node_by_label(vb_label).get_coordinates()
+        return sqrt((a_coords[0]-b_coords[0])**2 + (a_coords[1]-b_coords[1])**2)
+
+    def get_shortest_path(self, va_label, vb_label, nxt):
         """ Return a shortest path between two nodes using a next matrix from the floyd_warshall_shortest_paths()
 
         :param va_label - string label of a node A
         :param vb_label - string label of a node B
-        :param next - NumPy array from floyd_warshall_shortest_paths()
+        :param nxt - NumPy array from floyd_warshall_shortest_paths()
 
         :return list of labels that indicate the shortest path between
                 A and B. Return empty list if there is no path.
@@ -454,18 +572,18 @@ class Graph(object):
         """
 
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
-        if isnan(next[vert_list.index(va_label)][vert_list.index(vb_label)]):
+        if isnan(nxt[vert_list.index(va_label)][vert_list.index(vb_label)]):
             return []
         path = [va_label]
         while va_label != vb_label:
-            va_label = chr(int(next[vert_list.index(va_label)][vert_list.index(vb_label)]))
+            va_label = chr(int(nxt[vert_list.index(va_label)][vert_list.index(vb_label)]))
             path.append(va_label)
         return path
 
-    def calculate_betweenness_of_vertices(self, next):
+    def calculate_betweenness_of_vertices(self, nxt):
         """ Calculate a betweenness for every graph's vertex
 
-        :param next - NumPy array from floyd_warshall_shortest_paths()
+        :param nxt - NumPy array from floyd_warshall_shortest_paths()
 
         :return dictionary of betweenness values for each vertex (where
                 vertex label is a key and it's betweenness is a value)
@@ -473,7 +591,7 @@ class Graph(object):
         """
 
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
-        shortest_paths = self.get_all_shortest_paths(next)
+        shortest_paths = self.get_all_shortest_paths(nxt)
 
         # dictionary to hold a betweenness for avery vertex
         vert_betweenness = {}
@@ -489,10 +607,10 @@ class Graph(object):
 
         return vert_betweenness
 
-    def get_all_shortest_paths(self, next):
+    def get_all_shortest_paths(self, nxt):
         """ Get all shortest paths between all the possible vertex pairs
 
-        :param next - NumPy array from floyd_warshall_shortest_paths()
+        :param nxt - NumPy array from floyd_warshall_shortest_paths()
 
         :return list of all shortest paths between all the possible
                 vertex pairs
@@ -502,7 +620,7 @@ class Graph(object):
         vert_list = sorted([k.get_label() for k in self.mapper])  # getting a list of all vertex labels
         shortest_paths = []
         for vertex_pair in permutations(vert_list, 2):
-            shortest_paths.append(self.get_shortest_path(vertex_pair[0], vertex_pair[1], next))
+            shortest_paths.append(self.get_shortest_path(vertex_pair[0], vertex_pair[1], nxt))
 
         return shortest_paths
 
@@ -513,11 +631,59 @@ class Graph(object):
         for i in range(0, n):
             for s in range(0, n):
                 for t in range(0, n):
-                    if adj_mtx[s][i] and adj_mtx[i][t]: adj_mtx[s][t] = 1
+                    if adj_mtx[s][i] and adj_mtx[i][t]:
+                        adj_mtx[s][t] = 1
 
         if print_out:
             print(self.matrix_to_string(sorted([k.get_label() for k in self.mapper]), adj_mtx))
         return adj_mtx
+
+    def get_all_neughbours_labels(self, vert_label):
+        """ Return a list of all neighbours of the input vertex
+
+        :param vert_label: label of vertex
+
+        :return: list of vertex's neighbours labels
+        """
+
+        lst = []
+        for edge_node in self.mapper[self.find_vertex_node_by_label(vert_label)]:
+            lst.append(edge_node.vertex_node.get_label())
+
+        return lst
+
+    def get_edge_weight(self, va_label, vb_label):
+        """ Get a weight of an edge that connects nodes A and B
+
+        :param va_label - string label of a node A
+        :param vb_label - string label of a node B
+
+        :return: float weight of an edge that connects
+                 nodes A nad B
+        """
+
+        a_node = self.find_vertex_node_by_label(va_label)
+        edge_node = [v for v in self.mapper[a_node] if v.vertex_node.get_label() == vb_label][0]
+
+        return edge_node.weight
+
+    def init_with_swog_like_source(self, str_file):
+        """ Initialize graph with data like in data/graph1.txt
+
+        :param str_file: path to file
+        """
+
+        with open(str_file) as f:
+            for line in f:
+                if line[0] == "#" or not line:
+                    continue
+                data_list = line.split()
+                if len(data_list) == 3:
+                    self.add_vertex(data_list[0], int(data_list[1]), int(data_list[2]))
+                elif len(data_list) == 4:
+                    self.add_edge(data_list[0], data_list[1])
+                else:
+                    raise FailedToParseInputData("Failed to parse the input data")
 
     def __str__(self):
 
