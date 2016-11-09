@@ -63,9 +63,29 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(graph.add_edge("A", "B"), None)
         node_a = graph.add_vertex("A")
         node_b = graph.add_vertex("B")
-        self.assertTrue(graph.add_edge("A", "B") is not None)
-        self.assertEqual(graph.mapper[node_a][0].vertex_node == node_b, True)
-        self.assertEqual(graph.mapper[node_b][0].vertex_node == node_a, True)
+        e_nodes = graph.add_edge("A", "B")
+        self.assertTrue(e_nodes is not None)
+        self.assertTrue(e_nodes[0] is not None)
+        self.assertTrue(e_nodes[1] is not None)
+        self.assertEqual(e_nodes[0] in graph.mapper[node_a], True)
+        self.assertEqual(e_nodes[1] in graph.mapper[node_b], True)
+        self.assertEqual(graph.add_edge("A", "B"), None)
+        del graph
+        del node_a
+        del node_b
+        del e_nodes
+
+        # test for unweighted directed graph
+        graph = Graph(directed=True)
+        self.assertEqual(graph.add_edge("A", "B"), None)
+        node_a = graph.add_vertex("A")
+        node_b = graph.add_vertex("B")
+        e_node = graph.add_edge("A", "B")
+        self.assertTrue(isinstance(e_node, EdgeNode))
+        self.assertEqual(e_node in graph.mapper[node_a], True)
+        self.assertEqual(e_node in graph.mapper[node_b], False)
+        # TODO: continue
+
 
     # def test_get_vertices_count(self):
     #     """ Test getter for an amount of vertices in a graph """

@@ -239,13 +239,15 @@ class Graph(object):
                Ignored otherwise. Defaults to None.
 
         :return - tuple of EdgeNodes of edges if
-                  they were added or their weights
-                  were successful in occasion of
-                  undirected graph.
+                  at least one edge was added or
+                  it's weight were incremented in
+                  occasion of undirected graph.
+                  If only one of two edges was added
+                  the other one would be None.
                 - EdgeNode of edge added or it's
                   weight was updated when graph is
                   directed.
-                - None if edge was not added
+                - None if no edges was not added
         """
 
         node_a = self.find_vertex_node_by_label(va_label)
@@ -302,12 +304,15 @@ class Graph(object):
 
             if not self.__is_connected(node_a, node_b):
                 self.mapper[node_a].append(edge_node)
+            elif self.is_directed:
+                return None
             if not self.is_directed:
                 if not self.__is_connected(node_b, node_a):
                     edge_node_copy = copy(edge_node)
                     edge_node_copy.vertex_node = node_a
                     self.mapper[node_b].append(edge_node_copy)
                     return edge_node, edge_node_copy
+                return edge_node, None
             return edge_node
 
     def find_vertex_node_by_label(self, label):
