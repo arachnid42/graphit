@@ -3,7 +3,7 @@ from app.dstruct.graph import *
 
 
 class TestGraph(unittest.TestCase):
-    """ Unit tests for graph.py module """
+    """ Unit tests for app/dstruct/graph.py module """
 
     def test_graph_init(self):
         """ Test Graph __init__ behaviour when wrong type of arguments passed """
