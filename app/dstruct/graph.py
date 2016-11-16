@@ -279,12 +279,12 @@ class Graph(object):
         if self.__is_connected(node_a, node_b) and self.__is_connected(node_b, node_a):
             if self.aggregate_weight:
                 edge_node = self.__get_edge(node_a, node_b)
-                edge_node.set_weight(edge_node.weight + weight)
+                edge_node.weight = edge_node.weight + weight
+                print("Edge was already present but it's weight was incremented")
                 if not self.is_directed:
                     edge_node_b = self.__get_edge(node_b, node_a)
-                    edge_node_b.set_weight(edge_node.weight + weight)
+                    edge_node_b.weight = edge_node_b.weight + weight
                     return edge_node, edge_node_b
-                print("Edge was already present but it's weight was incremented")
                 return edge_node
             else:
                 return None

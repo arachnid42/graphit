@@ -5,7 +5,7 @@ from app.dstruct.graph import *
 class TestGraph(unittest.TestCase):
     """ Unit tests for graph.py module """
 
-    def test_init(self):
+    def test_graph_init(self):
         """ Test Graph __init__ behaviour when wrong type of arguments passed """
 
         self.assertRaises(BadInitParameters, Graph, directed="33")
@@ -75,7 +75,7 @@ class TestGraph(unittest.TestCase):
         del node_b
         del e_nodes
 
-        # test for unweighted directed graph
+        # test unweighted directed graph
         graph = Graph(directed=True)
         self.assertEqual(graph.add_edge("A", "B"), None)
         node_a = graph.add_vertex("A")
@@ -84,7 +84,54 @@ class TestGraph(unittest.TestCase):
         self.assertTrue(isinstance(e_node, EdgeNode))
         self.assertEqual(e_node in graph.mapper[node_a], True)
         self.assertEqual(e_node in graph.mapper[node_b], False)
-        # TODO: continue
+        del graph
+        del node_a
+        del node_b
+        del e_node
+
+        # test weighted (Euclid) undirected graph with coordinates
+        graph = Graph(coordinates=True)
+        self.assertEqual(graph.add_edge("A", "B"), None)
+        node_a = graph.add_vertex("A", 0, 10)
+        node_b = graph.add_vertex("B", 0, 5)
+        e_nodes = graph.add_edge("A", "B", weight=30)  # should reject this weight as explicit weight is disabled
+        self.assertEqual(e_nodes[0] in graph.mapper[node_a], True)
+        self.assertEqual(e_nodes[1] in graph.mapper[node_b], True)
+        self.assertEqual(e_nodes[0].weight, 5)
+        self.assertEqual(e_nodes[1].weight, 5)
+        del graph
+        del node_a
+        del node_b
+        del e_nodes
+
+        # test explicit weight assignment
+        graph = Graph(coordinates=True, explicit_weight=True)
+        self.assertEqual(graph.add_edge("A", "B"), None)
+        node_a = graph.add_vertex("A", 0, 10)
+        node_b = graph.add_vertex("B", 0, 5)
+        e_nodes = graph.add_edge("A", "B", weight=30)  # should assign explicit weight to both of the edges
+        self.assertEqual(e_nodes[0] in graph.mapper[node_a], True)
+        self.assertEqual(e_nodes[1] in graph.mapper[node_b], True)
+        self.assertEqual(e_nodes[0].weight, 30)
+        self.assertEqual(e_nodes[1].weight, 30)
+        del graph
+        del node_a
+        del node_b
+        del e_nodes
+
+        # test weight aggregation with explicit weight
+        graph = Graph(coordinates=True, explicit_weight=True, aggregate_weight=True)
+        self.assertEqual(graph.add_edge("A", "B"), None)
+        node_a = graph.add_vertex("A", 0, 10)
+        node_b = graph.add_vertex("B", 0, 5)
+        e_nodes = graph.add_edge("A", "B", weight=30)
+        self.assertEqual(e_nodes[0] in graph.mapper[node_a], True)
+        self.assertEqual(e_nodes[1] in graph.mapper[node_b], True)
+        self.assertEqual(e_nodes[0].weight, 30)
+        self.assertEqual(e_nodes[1].weight, 30)
+        e_nodes = graph.add_edge("A", "B", weight=30)  # edge weight should be aggregated
+        self.assertEqual(e_nodes[0].weight, 60)
+        self.assertEqual(e_nodes[1].weight, 60)
 
 
     # def test_get_vertices_count(self):

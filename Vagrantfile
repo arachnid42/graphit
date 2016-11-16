@@ -4,7 +4,7 @@ STARTUP_SCRIPT = 'startup.sh'
 RUN_TESTS_SCRIPT = 'run_tests.sh'
 
 # prioritized set of provision scripts to run
-PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_peewee", "install_sass", "install_jq", "install_numpy"]
+PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_peewee", "install_sass", "install_jq", "install_numpy", 'install_git']
 
 # default location for a bash script that would add envvars and aliases to the guest
 env_mod_file = '/etc/profile.d/env_mod.sh'
