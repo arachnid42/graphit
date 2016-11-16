@@ -133,11 +133,11 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(e_nodes[0].weight, 60)
         self.assertEqual(e_nodes[1].weight, 60)
 
+    def test_get_vertices_count(self):
+        """ Test getter for an amount of vertices in a graph """
 
-    # def test_get_vertices_count(self):
-    #     """ Test getter for an amount of vertices in a graph """
-    #
-    #     graph = Graph()
-    #     graph.add_vertex("boom!")
-    #     graph.add_vertex("dums!")
-    #     graph.add_vertex("shmyak!")
+        graph = Graph()
+        graph.add_vertex("boom!")
+        graph.add_vertex("dums!")
+        graph.add_vertex("shmyak!")
+        self.assertEqual(graph.get_vertices_count(), 3)
