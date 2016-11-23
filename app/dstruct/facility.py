@@ -78,7 +78,7 @@ class DepartmentGraph(Graph):
 
         """
 
-        #TODO: finish this 
+        #TODO: finish this
 
 
 class Facility(object):
