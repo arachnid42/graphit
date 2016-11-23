@@ -9,13 +9,15 @@ class TestDepartment(unittest.TestCase):
         self.assertRaises(BadInitParameters, Department, "Nodal Brainwashers Dep", Point2D(2, 3), Point2D(2, 4))
         self.assertRaises(BadInitParameters, Department, "Nodal Brainwashers Dep", Point2D(2, 3), "Unacceptable",
                           Point2D(2, 4))
-        dep = Department("Nodal Brainwashers Dep 2.0", Point2D(0, 0), Point2D(2, 2), Point2D(0, 2))
+        self.assertRaises(IllegalLabel, Department, "Nodal Brainwashers Dep 2.0", Point2D(0, 0), Point2D(2, 2),
+                          Point2D(0, 2))
+        dep = Department("Nodal Brainwashers Dep 20", Point2D(0, 0), Point2D(2, 2), Point2D(0, 2))
         self.assertEqual(len(dep.point2d_vector), 3)
 
     def test_calculate_area(self):
         """ Test area calculation for a department object """
 
-        dep = Department("Nodal Brainwashers Dep 3.0", Point2D(0, 0), Point2D(2, 2), Point2D(0, 2))
+        dep = Department("Nodal Brainwashers Dep 30", Point2D(0, 0), Point2D(2, 2), Point2D(0, 2))
         self.assertEqual(dep.area, 2)
         del dep
 
@@ -63,3 +65,4 @@ class TestDepartment(unittest.TestCase):
         dep.add_vertices({"point": Point2D(1, 1.5), "point2": Point2D(1.5, 1.5), "point3": Point2D(3.95, 3.99)})
         self.assertEqual(dep.get_vertices_count(), 4)
         self.assertRaises(ValueExists, dep.add_vertices, {"point2": Point2D(1, 1)})
+        self.assertRaises(IllegalLabel, dep.add_vertices, {"p.oint": Point2D(1, 1)})

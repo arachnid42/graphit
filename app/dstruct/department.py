@@ -15,6 +15,14 @@ class BadInitParameters(Exception):
     pass
 
 
+class IllegalLabel(Exception):
+    """ Custom exception
+
+    Illegal label passed in (probably with "." in it)
+
+    """
+
+
 class NotPoint2DObject(Exception):
     """ Custom exception
 
@@ -47,12 +55,16 @@ class Department(object):
         """ Constructor
 
         :param label - String label of a department
+               without "." in it (preferably without
+               spaces also but it's not mandatory)
         :param *arg - tuple of Point2D objects in an
                ordered way, i.e. to represent a polygon
                points one by one counter-clockwise.
 
         """
 
+        if "." in label:
+            raise IllegalLabel
         if len(arg) > 2 and self.__verify_points(arg):
             self.label = label
             self.point2d_vector = arg  # physical measurements of department boundaries
@@ -76,10 +88,13 @@ class Department(object):
         if not self.__verify_points(vertices.values()):
             raise NotPoint2DObject
         else:
-            for vertex in vertices:
-                if vertex not in self.vertices.keys() and not self.find_point_by_coordinates(vertices[vertex]):
-                    if self.__fits_boundary(vertices[vertex]):
-                        self.vertices[vertex] = vertices[vertex]
+            for vertex_label in vertices:
+                if "." in vertex_label:
+                    raise IllegalLabel
+                if vertex_label not in self.vertices.keys() and \
+                        not self.find_point_by_coordinates(vertices[vertex_label]):
+                    if self.__fits_boundary(vertices[vertex_label]):
+                        self.vertices[vertex_label] = vertices[vertex_label]
                     else:
                         raise PointNotInPolygon
                 else:

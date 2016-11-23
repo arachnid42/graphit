@@ -47,6 +47,15 @@ class TransportationInsertionFailed(Exception):
     """
 
 
+class DepartmentNotAdded(Exception):
+    """ Custom exception
+
+    Some of department points were not added
+    so overall insertion process failed
+
+    """
+
+
 class DepartmentNotExist(Exception):
     """ Custom exception
 
@@ -64,21 +73,26 @@ class TransportationGraph(Graph):
         """ Constructor to initialize all the necessary fields """
         super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
-        self.transp_time = {}  # map transportations (graph edges) and time when it happened
+        self.transp_time = {}  # map transportation (graph edges) and time when it happened
 
     def add_department(self, department):
-        """ Load new department into a graph
+        """ Load new department vertices into a graph
 
         :param department - instance of a Department
                class that stores information about
                particular factory department
 
         """
-        if self.add_vertex(department.label, department.centroid.x, department.centroid.y):
-            self.departments.append(department)
-            return True
+
+        inserted_count = 0
+        for vertex_label, vertex_point in department.vertices.items():
+            # adding separate department vertices with <department_label>.<department_vertex_label> labels
+            if self.add_vertex("%s.%s" % (department.label, vertex_label), vertex_point.x, vertex_point.y):
+                inserted_count += 1
+        if not inserted_count == len(department.vertices):
+            raise DepartmentNotAdded("department was not added!")
         else:
-            return False
+            self.departments.append(department)
 
     def add_transp_record(self, src_label, dest_label, quant, time):
         """ Add a transportation record
@@ -87,11 +101,13 @@ class TransportationGraph(Graph):
         of a particular quantity of items on a factory
         floor.
 
-        :param src_label - string label of a source department
+        :param src_label - string label of a source department point
+               in a format <department_label>.<department_vertex_label>
         :param dest_label - string label of a destination department
+               point in the same format as above
         :param quant - int quantity of items transported
         :param time - datetime object that holds a time when a
-             transportation happened
+               transportation happened
 
         """
 
@@ -123,16 +139,16 @@ class Facility(object):
 
         """
 
-        if (isinstance(max_x, int) and isinstance(max_y, int)) or \
-                (isinstance(max_x, float) and isinstance(max_y, float)):
+        if (isinstance(max_x, int) or isinstance(max_x, float)) and \
+                (isinstance(max_y, int) or isinstance(max_y, float)):
             if max_x > 0 and max_y > 0:
-                self.max_x = max_x
-                self.max_y = max_y
+                self.max_x = float(max_x)
+                self.max_y = float(max_y)
                 self.d_graph = TransportationGraph()
             else:
                 raise NonpositiveMaxCoordinates("facility max_x and max_y must be positive!")
         else:
-            raise WrongTypeOfMaxCoordinates("facility max_x and max_y must be both integers or both floats!")
+            raise WrongTypeOfMaxCoordinates("facility max_x and max_y must be integers or floats!")
 
     def add_department(self, department):
         """ Add department to a facility instance
@@ -145,10 +161,10 @@ class Facility(object):
                 False - otherwise.
 
         """
-        if self.fits_boundary(department):
+        if self.__fits_boundary(department):
             return self.d_graph.add_department(department)
 
-    def fits_boundary(self, department):
+    def __fits_boundary(self, department):
         """ Check whether all points of a department fall into facility boundary (canvas)
 
         :param department - instance of a Department
@@ -173,14 +189,13 @@ class Facility(object):
         of a particular quantity of items on a factory
         floor.
 
-        :param src_label - string label of a source department
+        :param src_label - string label of a source department point
+               in a format <department_label>.<department_vertex_label>
         :param dest_label - string label of a destination department
+               point in the same format as above
         :param quant - int quantity of items transported
         :param time - string date and time when transportation happened
                i.e. 2015-05-25 18:00:00
-
-        :return True - transportation record was inserted successfully.
-                False - otherwise.
 
         """
 
@@ -191,26 +206,4 @@ class Facility(object):
             dt = datetime.strptime(time, "%Y-%m-%d %X")  # example: 2015-05-25 18:00:00
         except ValueError:
             raise BadTimeFormat("Transportation time parsing failed!")
-
-        try:
-            self.d_graph.add_transp_record(src_label, dest_label, quant, dt)
-            return True
-        except (TransportationInsertionFailed, DepartmentNotExist):
-            return False
-
-    def dump_facility(self, path):
-        """ Save facility class as object data persistence
-
-        :param path: string where to store backup
-
-        :return: True - saved successfully.
-                 False - otherwise.
-
-        """
-
-        try:
-            with open(path, "wb") as f:
-                pkl.dump(self, f, -1)
-        except (IOError, OSError):
-            return False
-        return True
+        self.d_graph.add_transp_record(src_label, dest_label, quant, dt)  # raises errors on failure
