@@ -57,12 +57,12 @@ class DepartmentNotExist(Exception):
     """
 
 
-class DepartmentGraph(Graph):
+class TransportationGraph(Graph):
     """ Class-wrapper to simplify department-graph mapping """
 
     def __init__(self):
         """ Constructor to initialize all the necessary fields """
-        super(DepartmentGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
+        super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
         self.transp_time = {}  # map transportations (graph edges) and time when it happened
 
@@ -92,9 +92,6 @@ class DepartmentGraph(Graph):
         :param quant - int quantity of items transported
         :param time - datetime object that holds a time when a
              transportation happened
-
-        :return True - transportation record was inserted successfully.
-                Otherwise raises exception.
 
         """
 
@@ -131,7 +128,7 @@ class Facility(object):
             if max_x > 0 and max_y > 0:
                 self.max_x = max_x
                 self.max_y = max_y
-                self.d_graph = DepartmentGraph()
+                self.d_graph = TransportationGraph()
             else:
                 raise NonpositiveMaxCoordinates("facility max_x and max_y must be positive!")
         else:
@@ -195,5 +192,25 @@ class Facility(object):
         except ValueError:
             raise BadTimeFormat("Transportation time parsing failed!")
 
-        return self.d_graph.add_transp_record(src_label, dest_label, quant, dt)
+        try:
+            self.d_graph.add_transp_record(src_label, dest_label, quant, dt)
+            return True
+        except (TransportationInsertionFailed, DepartmentNotExist):
+            return False
 
+    def dump_facility(self, path):
+        """ Save facility class as object data persistence
+
+        :param path: string where to store backup
+
+        :return: True - saved successfully.
+                 False - otherwise.
+
+        """
+
+        try:
+            with open(path, "wb") as f:
+                pkl.dump(self, f, -1)
+        except (IOError, OSError):
+            return False
+        return True
