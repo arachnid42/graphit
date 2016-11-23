@@ -1,5 +1,6 @@
 from app.dstruct.point2d import *
 from math import fabs
+from copy import copy
 
 
 class BadInitParameters(Exception):
@@ -23,11 +24,20 @@ class NotPoint2DObject(Exception):
     """
 
 
-class SomeValuesWereOverrided(Exception):
+class ValueExists(Exception):
     """ Custom exception
 
-    Some values of self.vertices were overrided
-    by a new data which should not happen ever
+    Value for a particular key exists in self.vertices or
+    the same value is stored with a different key
+
+    """
+
+
+class PointNotInPolygon(Exception):
+    """ Custom exception
+
+    Point to insert not belongs to a polygon boundary so
+    can't be inserted
 
     """
 
@@ -52,29 +62,28 @@ class Department(object):
         else:
             raise BadInitParameters("passed init parameters are not acceptable!")
 
+    def get_vertices_count(self):
+        return len(self.vertices)
+
     def add_vertices(self, vertices):
         """ Add vertices to be used as graph points
 
         :param vertices: dictionary of keys that are unique
                labels of points and values are Point2D objects.
-        :return: True - all vertices was added successfully.
-                 False - otherwise.
 
         """
 
-        # TODO: rewrite with ray casting stuff
         if not self.__verify_points(vertices.values()):
             raise NotPoint2DObject
-        # else:
-        #     try:
-        #         previous_len = len(self.vertices)
-        #         self.vertices.update(vertices)  # updates value if key exists; otherwise adds key-value
-        #         if len(self.vertices) == previous_len + len(vertices):
-        #             return True
-        #         else:
-        #             raise SomeValuesWereOverrided
-        #     except:
-        #         return False  # something completely went wrong
+        else:
+            for vertex in vertices:
+                if vertex not in self.vertices.keys() and not self.find_point_by_coordinates(vertices[vertex]):
+                    if self.__fits_boundary(vertices[vertex]):
+                        self.vertices[vertex] = vertices[vertex]
+                    else:
+                        raise PointNotInPolygon
+                else:
+                    raise ValueExists
 
     def __fits_boundary(self, point):
         """ Checks whether a Point2D object lays in department boundary
@@ -90,7 +99,7 @@ class Department(object):
         for i in range(len(self.point2d_vector)):
             p_i = self.point2d_vector[i]
             p_i_next = self.point2d_vector[(i+1) % len(self.point2d_vector)]
-            if p_i.y >= p_i_next:
+            if p_i.y >= p_i_next.y:
                 intersects = self.__ray_intersects_side(point, p_i_next, p_i)
             else:
                 intersects = self.__ray_intersects_side(point, p_i, p_i_next)
@@ -100,23 +109,45 @@ class Department(object):
             return True
         return False
 
-    def __ray_intersects_side(self, ray_p, a_p, b_p):
+    @staticmethod
+    def __ray_intersects_side(p_ray, p_a, p_b):
         """ Inner method to determine whether a ray intersects a segment
 
         This method checks whether a horizpntal ray casted from a point
         intersects an input segment.
 
-        :param ray_p: Point2D object of a point from which a ray
+        :param p_ray: Point2D object of a point from which a ray
                casted
-        :param a_p: Point2D object of a lower point of a segment
-               (a_p.y =< b_p.y)
-        :param b_p: Point2D object of a higher point of a segment
+        :param p_a: Point2D object of a lower point of a segment
+               (p_a.y =< p_b.y)
+        :param p_b: Point2D object of a higher point of a segment
 
         :return: True - ray intersects a segment. False - otherwise.
 
         """
 
-        
+        p_ray = copy(p_ray)  # enforce not changing a passed in object
+        if p_ray.y == p_a.y or p_ray.y == p_b.y:
+            p_ray.y += 0.0000000000001  # deal with ray-on-vertex issue
+        if p_ray.y < p_a.y or p_ray.y > p_b.y:  # point is above or below a segment
+            return False
+        elif p_ray.x > max(p_a.y, p_b.y):  # point is out of a segment box
+            return False
+        else:
+            if p_ray.x < min(p_a.x, p_b.x):  # point is to the left of a segment (ray is ok)
+                return True
+            else:
+                if p_a.x != p_b.x:  # tg of a segment
+                    tg_ab = (p_b.y - p_a.y) / (p_b.x - p_a.x)
+                else:
+                    tg_ab = float("inf")
+                if p_a.x != p_ray.x:  # tg of a ray point
+                    tg_raya = (p_ray.y - p_a.y) / (p_ray.x - p_a.x)
+                else:
+                    tg_raya = float("inf")
+                if tg_raya >= tg_ab:  # point is to the left of a segment - ray is ok
+                    return True
+                return False
 
     def calculate_centroid(self):
         """ Calculate a centroid (center) point of the department
@@ -155,6 +186,21 @@ class Department(object):
             strg += str(point) + "\n"
 
         return strg + "\n"
+
+    def find_point_by_coordinates(self, point):
+        """ Find any points in self.vertices that has the same coordinates as a given one
+
+        :param point - Point2D object to seek in self.vertices
+
+        :return: string key in self.vertices if point was found.
+                 None otherwise.
+
+        """
+
+        for k,v in self.vertices.items():
+            if v.x == point.x and v.y == point.y:
+                return k
+        return None
 
     @staticmethod
     def __verify_points(points):
