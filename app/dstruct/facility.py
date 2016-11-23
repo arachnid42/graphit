@@ -38,6 +38,25 @@ class BadTimeFormat(Exception):
     """
 
 
+class TransportationInsertionFailed(Exception):
+    """ Custom exception
+
+    Transportation record was not inserted
+    (input data is valid)
+
+    """
+
+
+class DepartmentNotExist(Exception):
+    """ Custom exception
+
+    Departments involved in transportation
+    record insertion don't exist (one or
+    both).
+
+    """
+
+
 class DepartmentGraph(Graph):
     """ Class-wrapper to simplify department-graph mapping """
 
@@ -45,6 +64,7 @@ class DepartmentGraph(Graph):
         """ Constructor to initialize all the necessary fields """
         super(DepartmentGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
+        self.transp_time = {}  # map transportations (graph edges) and time when it happened
 
     def add_department(self, department):
         """ Load new department into a graph
@@ -74,11 +94,18 @@ class DepartmentGraph(Graph):
              transportation happened
 
         :return True - transportation record was inserted successfully.
-              False - otherwise.
+                Otherwise raises exception.
 
         """
 
-        #TODO: finish this
+        if self.find_vertex_node_by_label(src_label) and self.find_vertex_node_by_label(dest_label):
+            edge = self.add_edge(src_label, dest_label, quant)
+            if edge:
+                self.transp_time[edge] = time
+            else:
+                raise TransportationInsertionFailed
+        else:
+            raise DepartmentNotExist
 
 
 class Facility(object):
