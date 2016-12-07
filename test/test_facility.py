@@ -4,7 +4,6 @@ from app.dstruct.department import *
 
 
 class TestFacility(unittest.TestCase):
-
     def test_facility_init(self):
         """ Test initialization of a facility instance """
 
@@ -25,12 +24,30 @@ class TestFacility(unittest.TestCase):
         fac.add_department(dep)  # deeper tests are redundant as graph was tested separately
         del dep
 
-        dep = Department("Really ruining boundaries department", Point2D(101, 101), Point2D(110, 101), Point2D(105, 104))
+        dep = Department("Really ruining boundaries department", Point2D(101, 101), Point2D(105, 104),
+                         Point2D(110, 101))
         self.assertFalse(fac.add_department(dep))
 
     def test_add_transp_record(self):
         """ Test adding transportation (movement) record to a facility object and underlying graph structure """
 
         fac = Facility(100, 100)
-        dep = Department("Dep 1", Point2D(0, 0), Point2D(0, 2), Point2D(2, 2), Point2D(2, 0))
-        
+        dep1 = Department("Dep 1", Point2D(0, 0), Point2D(2, 0), Point2D(2, 2), Point2D(0, 2))
+        dep2 = Department("Dep 2", Point2D(2, 2), Point2D(4, 2), Point2D(4, 4), Point2D(2, 4))
+        fac.add_department(dep1)
+        fac.add_department(dep2)
+
+        # if nothing was raised all is fine
+        fac.add_transp_record("Dep 1.centroid", "Dep 2.centroid", 13, "2016-07-13 18:00:01")
+
+        # stress test a bit
+        self.assertRaises(DepartmentNotExist, fac.add_transp_record, "Dep 1.centroid", "Dep 3.centroid", 13,
+                          "2016-07-13 18:00:01")
+        self.assertRaises(DepartmentNotExist, fac.add_transp_record, "Dep 3.centroid", "Dep 1.centroid", 13,
+                          "2016-07-13 18:00:01")
+        self.assertRaises(DepartmentNotExist, fac.add_transp_record, "Dep 0.centroid", "Dep 3.centroid", 13,
+                          "2016-07-13 18:00:01")
+        self.assertRaises(NotIntQuantity, fac.add_transp_record, "Dep 1.centroid", "Dep 2.centroid", "batman!",
+                          "2016-07-13 18:00:01")
+        self.assertRaises(BadTimeFormat, fac.add_transp_record, "Dep 1.centroid", "Dep 2.centroid", 3,
+                          "just now")

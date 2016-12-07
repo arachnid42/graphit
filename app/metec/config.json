@@ -1,3 +1,5 @@
 {
-  "facility_dump_path": "./backup/facility.pkl"
+  "facility_dump_path": "../backup/facility.pkl",
+  "facility_source_path": "../data/factory_layout.json",
+  "facility_boundaries": [200, 200]
 }

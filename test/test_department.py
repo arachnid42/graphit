@@ -7,6 +7,7 @@ class TestDepartment(unittest.TestCase):
         """ Test the initialization of department instance """
 
         self.assertRaises(BadInitParameters, Department, "Nodal Brainwashers Dep", Point2D(2, 3), Point2D(2, 4))
+        dp = Department("Test", *[Point2D(2, 3), Point2D(2, 4), Point2D(1, 1)])  # nitty-gritty hack to stick to the API
         self.assertRaises(BadInitParameters, Department, "Nodal Brainwashers Dep", Point2D(2, 3), "Unacceptable",
                           Point2D(2, 4))
         self.assertRaises(IllegalLabel, Department, "Nodal Brainwashers Dep 2.0", Point2D(0, 0), Point2D(2, 2),
