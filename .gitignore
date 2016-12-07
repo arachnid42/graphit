@@ -1,6 +1,7 @@
 .idea/
 __pycache__/
 app/data/
+app/backup/
 nohup.out
 *.pyc
 *.css.map

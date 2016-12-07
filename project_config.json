@@ -1,6 +1,4 @@
 {
-  "db_name": "app/db/app.db",
-  "db_model": "app/db/model.py",
   "sass_in": "app/static/sass",
   "sass_out": "app/static/css"
 }

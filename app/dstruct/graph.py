@@ -132,6 +132,9 @@ class VertexNode(object):
         else:
             return None
 
+    def __str__(self):
+        return "Vertex (%f, %f)" % (self.__data.x, self.__data.y)
+
 
 class EdgeNode(object):
     """ A class to hold graph edge data such as weight and reference node """
@@ -209,7 +212,8 @@ class Graph(object):
         # arguments check
         if self.has_coordinates and (x is None or y is None):
             raise NoCoordinatesPassed("No vertex coordinates passed while required!")
-        if self.has_coordinates and not (isinstance(x, int) and isinstance(y, int)):
+        if self.has_coordinates and not ((isinstance(x, int) or isinstance(x, float)) and
+                                         (isinstance(y, int) or isinstance(y, float))):
             raise NotIntegerCoordinates("Vertex coordinates must be integers!")
 
         # if the vertex with the same label and/or coordinates
