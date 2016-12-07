@@ -128,7 +128,7 @@ class Department(object):
     def __ray_intersects_side(p_ray, p_a, p_b):
         """ Inner method to determine whether a ray intersects a segment
 
-        This method checks whether a horizpntal ray casted from a point
+        This method checks whether a horizontal ray casted from a point
         intersects an input segment.
 
         :param p_ray: Point2D object of a point from which a ray
@@ -172,7 +172,7 @@ class Department(object):
         """
 
         c_x = c_y = 0
-        for p_ind in range(0, len(self.point2d_vector)-1):
+        for p_ind in range(0, len(self.point2d_vector)):
             p_i = self.point2d_vector[p_ind]
             p_i_next = self.point2d_vector[(p_ind + 1) % len(self.point2d_vector)]
             c_x += (p_i.x + p_i_next.x) * (p_i.x * p_i_next.y - p_i_next.x * p_i.y)

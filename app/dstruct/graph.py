@@ -132,6 +132,9 @@ class VertexNode(object):
         else:
             return None
 
+    def __str__(self):
+        return "Vertex (%f, %f)" % (self.__data.x, self.__data.y)
+
 
 class EdgeNode(object):
     """ A class to hold graph edge data such as weight and reference node """
