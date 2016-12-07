@@ -162,7 +162,10 @@ class Facility(object):
 
         """
         if self.__fits_boundary(department):
-            return self.d_graph.add_department(department)
+            self.d_graph.add_department(department)
+            return True
+        else:
+            return False
 
     def __fits_boundary(self, department):
         """ Check whether all points of a department fall into facility boundary (canvas)

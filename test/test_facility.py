@@ -23,8 +23,14 @@ class TestFacility(unittest.TestCase):
         dep = Department("Nodal Brainwashers Dep 20", Point2D(0, 0), Point2D(2, 2), Point2D(0, 2))
         dep.add_vertices({"point": Point2D(1, 1.5), "point2": Point2D(1.5, 1.5)})
         fac.add_department(dep)  # deeper tests are redundant as graph was tested separately
-        # TODO: finish
+        del dep
+
+        dep = Department("Really ruining boundaries department", Point2D(101, 101), Point2D(110, 101), Point2D(105, 104))
+        self.assertFalse(fac.add_department(dep))
 
     def test_add_transp_record(self):
-        pass
-        # TODO: finish
+        """ Test adding transportation (movement) record to a facility object and underlying graph structure """
+
+        fac = Facility(100, 100)
+        dep = Department("Dep 1", Point2D(0, 0), Point2D(0, 2), Point2D(2, 2), Point2D(2, 0))
+        
