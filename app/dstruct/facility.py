@@ -73,7 +73,7 @@ class TransportationGraph(Graph):
         """ Constructor to initialize all the necessary fields """
         super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
-        self.transp_time = {}  # map transportation (graph edges) and time when it happened
+        self.transp_time = {}  # map transportation (graph edges), weight appended and time when it happened
 
     def add_department(self, department):
         """ Load new department vertices into a graph
@@ -114,7 +114,7 @@ class TransportationGraph(Graph):
         if self.find_vertex_node_by_label(src_label) and self.find_vertex_node_by_label(dest_label):
             edge = self.add_edge(src_label, dest_label, quant)
             if edge:
-                self.transp_time[edge] = time
+                self.transp_time[edge] = [quant, time]
             else:
                 raise TransportationInsertionFailed
         else:
