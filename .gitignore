@@ -10,5 +10,5 @@ nohup.out
 *.css.map
 .vagrant/
 .sass-cache/
-/app/metec/mp_parser.py
+/app/parse/mp_parser.py
 /app/log
