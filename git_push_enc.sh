@@ -12,7 +12,7 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 
 shopt -s nullglob  # make array to be empty when nothing has matched
-FILES_TO_ENCRYPT=(./app/backup/*.pkl ./app/data/*.csv /app/data/*.json ./app/parse/mp_parser.py)
+FILES_TO_ENCRYPT=(./app/backup/*.pkl ./app/data/*.csv ./app/data/*.json ./app/parse/mp_parser.py)
 
 # assigning variables
 ENC_KEY=${1}
