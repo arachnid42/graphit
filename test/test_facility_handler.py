@@ -1,5 +1,7 @@
-import unittest, os
-from app.metec.facility_handler import FacilityHandler
+import os
+import unittest
+
+from app.core.facility_handler import FacilityHandler
 
 
 class TestFacilityHandler(unittest.TestCase):
@@ -12,4 +14,4 @@ class TestFacilityHandler(unittest.TestCase):
             os.remove(cached_file_path)
         fh = FacilityHandler("app/metec/config.json")
 
-        # this test is rather visual as it's hard to evaluate results before we'll see an actual visualization
+        # this test is rather naive as it's hard to evaluate results before we'll see an actual visualization
