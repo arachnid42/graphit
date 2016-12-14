@@ -20,7 +20,7 @@ BRANCH=${2}
 
 # encrypting sensitive data
 for file in "${FILES_TO_ENCRYPT[@]}"; do
-    gpg --batch --passphrase ${1} -ac ${file}
+    gpg --batch --yes --passphrase ${1} -ac ${file}
 done
 
 # committing and pushing
