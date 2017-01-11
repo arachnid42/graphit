@@ -7,5 +7,5 @@ class JSONAssembler(object):
 
     @staticmethod
     def get_viz_json(force_update=False):
-
+        pass
         # TODO: finish
