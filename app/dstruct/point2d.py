@@ -26,5 +26,10 @@ class Point2D(object):
         self.x = float(x)
         self.y = float(y)
 
+    def get_coords_list(self):
+        """  """
+
+        return [self.x, self.y]
+
     def __str__(self):
         return "Point(%f, %f)" % (self.x, self.y)

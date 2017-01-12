@@ -4,6 +4,7 @@ app/data/tmp
 app/data/.~*
 app/data/*.csv
 app/data/*.json
+app/backup/*.json
 app/backup/*.pkl
 nohup.out
 *.pyc

@@ -164,7 +164,7 @@ class Graph(object):
 
     """
 
-    def __init__(self, directed=False, coordinates=False, explicit_weight=False, aggregate_weight=False):
+    def __init__(self, directed=False, coordinates=False, explicit_weight=False, aggregate_weight=False, debug=False):
         """ Init method of a class
 
         :param directed - bool whether a graph created is directed. Defaults to False.
@@ -187,6 +187,7 @@ class Graph(object):
             raise BadInitParameters("Init parameters must be of type bool!")
 
         # input passed validation
+        self.debug = debug
         self.is_directed = directed
         self.has_coordinates = coordinates
         self.use_explicit_weight = explicit_weight
@@ -284,7 +285,8 @@ class Graph(object):
             if self.aggregate_weight:
                 edge_node = self.__get_edge(node_a, node_b)
                 edge_node.weight = edge_node.weight + weight
-                print("Edge was already present but it's weight was incremented")
+                if self.debug:
+                    print("Edge was already present but it's weight was incremented")
                 if not self.is_directed:
                     edge_node_b = self.__get_edge(node_b, node_a)
                     edge_node_b.weight = edge_node_b.weight + weight
@@ -324,6 +326,13 @@ class Graph(object):
             if node.get_label() == label:
                 return node
         return None
+
+    def get_edges(self):
+        """ Generator """
+
+        for node, edge_list in self.mapper.items():
+            for edge in edge_list:
+                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight]
 
     def find_vertex_node_by_coordinates(self, x, y):
         """ Find VertexNode given it's coordinates if it exists

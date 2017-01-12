@@ -118,7 +118,7 @@ class TransportationGraph(Graph):
             else:
                 raise TransportationInsertionFailed
         else:
-            raise DepartmentNotExist
+            raise DepartmentNotExist("no %s or %s department, time: %s" % (src_label, dest_label, time))
 
 
 class Facility(object):
@@ -166,6 +166,10 @@ class Facility(object):
             return True
         else:
             return False
+
+    def get_departments(self):
+        """  """
+        return self.d_graph.departments
 
     def __fits_boundary(self, department):
         """ Check whether all points of a department fall into facility boundary (canvas)
