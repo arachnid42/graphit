@@ -720,6 +720,13 @@ class Graph(object):
                 else:
                     raise FailedToParseInputData("Failed to parse the input data")
 
+    # TODO: rework this method
+    def delete_all_edges(self):
+        """ Quick but dirty delete all edges """
+
+        for key in self.mapper:
+            self.mapper[key] = []
+
     def __str__(self):
 
         stats = "# stats\nvertices: " + str(len(self.mapper)) + "\n"

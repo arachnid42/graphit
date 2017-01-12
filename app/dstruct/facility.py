@@ -210,3 +210,8 @@ class Facility(object):
         except ValueError:
             raise BadTimeFormat("Transportation time parsing failed!")
         self.d_graph.add_transp_record(src_label, dest_label, quant, dt)  # raises errors on failure
+
+    def delete_transp_records(self):
+        """ Delete all tranportation records """
+
+        self.d_graph.delete_all_edges()

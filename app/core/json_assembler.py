@@ -1,11 +1,20 @@
-import app.core.facility_handler
+from app.core.facility_handler import *
 from app.parse import *
 
 
 class JSONAssembler(object):
     """ Assembles visualization data JSON on request """
 
+    BASE_DICT = {'facility': {}, "edges": []}
+
+    def __init__(self):
+        """  """
+
+
+
     @staticmethod
     def get_viz_json(force_update=False):
-        pass
-        # TODO: finish
+        """ TODO """
+
+        # init/restore Facility class
+        facility = FacilityHandler()

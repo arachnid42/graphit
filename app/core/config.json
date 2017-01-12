@@ -1,5 +1,7 @@
 {
   "facility_dump_path": "app/backup/facility.pkl",
   "facility_source_path": "app/data/factory_layout.json",
+  "masterplan_csv_path": "app/data/20161116_masterplan.csv",
+  "peg_csv_path": "app/data/20161116_peg.csv",
   "facility_boundaries": [200, 200]
 }

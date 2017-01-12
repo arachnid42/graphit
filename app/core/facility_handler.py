@@ -1,5 +1,6 @@
 from app.dstruct.facility import *
 from app.dstruct.department import *
+from app.parse.mp_parser import *
 import _pickle as pkl
 import json
 import os
@@ -44,6 +45,7 @@ class FacilityHandler(object):
         else:
             self.facility = Facility(conf["facility_boundaries"][0], conf["facility_boundaries"][1])
             self.populate_facility(conf["facility_source_path"])
+            self.insert_all_transp_records(conf["masterplan_csv_path"], conf["peg_csv_path"])
             self.dump_facility(conf["facility_dump_path"])
 
     def populate_facility(self, path_to_source):
@@ -63,6 +65,14 @@ class FacilityHandler(object):
             dep = Department(dep_src["label"], *p_vect)
             self.facility.add_department(dep)
 
+    def insert_all_transp_records(self, mp_csv_path, peg_csv_path):
+        """  """
+
+        self.facility.delete_transp_records()
+        mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
+        res = mpp.parse()
+        
+
     def dump_facility(self, path):
         """ Save facility class as object data persistence
 
@@ -73,5 +83,9 @@ class FacilityHandler(object):
 
         """
 
-        with open(path, "wb") as f:
-            pkl.dump(self.facility, f, -1)
+        try:
+            with open(path, "wb") as f:
+                pkl.dump(self.facility, f, -1)
+            return True
+        except:  # TODO: narrow exceptions
+            return False
