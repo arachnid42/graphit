@@ -20,11 +20,16 @@ class Point2D(object):
 
         """
 
-        if not ((isinstance(x, int) and isinstance(y, int)) or (isinstance(x, float) and isinstance(y, float))):
-            raise NotNumericCoordinatesPassed("x and y must be either both floats or both integers!")
+        if not ((isinstance(x, int) or isinstance(x, float)) and (isinstance(y, int) or isinstance(y, float))):
+            raise NotNumericCoordinatesPassed("x and y must be integers or floats!")
 
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
+
+    def get_coords_list(self):
+        """  """
+
+        return [self.x, self.y]
 
     def __str__(self):
         return "Point(%f, %f)" % (self.x, self.y)

@@ -132,6 +132,9 @@ class VertexNode(object):
         else:
             return None
 
+    def __str__(self):
+        return "Vertex (%f, %f)" % (self.__data.x, self.__data.y)
+
 
 class EdgeNode(object):
     """ A class to hold graph edge data such as weight and reference node """
@@ -161,7 +164,7 @@ class Graph(object):
 
     """
 
-    def __init__(self, directed=False, coordinates=False, explicit_weight=False, aggregate_weight=False):
+    def __init__(self, directed=False, coordinates=False, explicit_weight=False, aggregate_weight=False, debug=False):
         """ Init method of a class
 
         :param directed - bool whether a graph created is directed. Defaults to False.
@@ -184,6 +187,7 @@ class Graph(object):
             raise BadInitParameters("Init parameters must be of type bool!")
 
         # input passed validation
+        self.debug = debug
         self.is_directed = directed
         self.has_coordinates = coordinates
         self.use_explicit_weight = explicit_weight
@@ -209,7 +213,8 @@ class Graph(object):
         # arguments check
         if self.has_coordinates and (x is None or y is None):
             raise NoCoordinatesPassed("No vertex coordinates passed while required!")
-        if self.has_coordinates and not (isinstance(x, int) and isinstance(y, int)):
+        if self.has_coordinates and not ((isinstance(x, int) or isinstance(x, float)) and
+                                         (isinstance(y, int) or isinstance(y, float))):
             raise NotIntegerCoordinates("Vertex coordinates must be integers!")
 
         # if the vertex with the same label and/or coordinates
@@ -280,7 +285,8 @@ class Graph(object):
             if self.aggregate_weight:
                 edge_node = self.__get_edge(node_a, node_b)
                 edge_node.weight = edge_node.weight + weight
-                print("Edge was already present but it's weight was incremented")
+                if self.debug:
+                    print("Edge was already present but it's weight was incremented")
                 if not self.is_directed:
                     edge_node_b = self.__get_edge(node_b, node_a)
                     edge_node_b.weight = edge_node_b.weight + weight
@@ -320,6 +326,13 @@ class Graph(object):
             if node.get_label() == label:
                 return node
         return None
+
+    def get_edges(self):
+        """ Generator """
+
+        for node, edge_list in self.mapper.items():
+            for edge in edge_list:
+                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight]
 
     def find_vertex_node_by_coordinates(self, x, y):
         """ Find VertexNode given it's coordinates if it exists
@@ -715,6 +728,13 @@ class Graph(object):
                     self.add_edge(data_list[0], data_list[1])
                 else:
                     raise FailedToParseInputData("Failed to parse the input data")
+
+    # TODO: rework this method
+    def delete_all_edges(self):
+        """ Quick but dirty delete all edges """
+
+        for key in self.mapper:
+            self.mapper[key] = []
 
     def __str__(self):
 

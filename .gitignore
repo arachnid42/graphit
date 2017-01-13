@@ -1,8 +1,15 @@
 .idea/
 __pycache__/
-app/data/
+app/data/tmp
+app/data/.~*
+app/data/*.csv
+app/data/*.json
+app/backup/*.json
+app/backup/*.pkl
 nohup.out
 *.pyc
 *.css.map
 .vagrant/
 .sass-cache/
+app/parse/mp_parser.py
+app/log

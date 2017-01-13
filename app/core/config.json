@@ -1,0 +1,9 @@
+{
+  "facility_dump_path": "app/backup/facility.pkl",
+  "viz_json_dump_path": "app/backup/viz.json",
+  "facility_source_path": "app/data/factory_layout.json",
+  "masterplan_csv_path": "app/data/20161116_masterplan.csv",
+  "peg_csv_path": "app/data/20161116_peg.csv",
+  "error_dep_list": ["NULL", "None", "ALL", "KVL"],
+  "facility_boundaries": [200, 200]
+}
