@@ -132,8 +132,21 @@ class VertexNode(object):
         else:
             return None
 
+    def set_label(self, label):
+        """  """
+
+        if isinstance(self.__data, VertexNodeData):
+            self.__data.label = label
+        else:
+            self.__data = label
+
     def __str__(self):
         return "Vertex (%f, %f)" % (self.__data.x, self.__data.y)
+
+    def __lt__(self, other):
+        l_a = self.get_label()
+        l_b = other.get_label()
+        return True if sorted([l_a, l_b])[0] == l_a else False
 
 
 class EdgeNode(object):
@@ -461,6 +474,53 @@ class Graph(object):
         """
 
         return len(self.mapper)
+
+    def get_cost_matrix(self):
+        """  """
+
+        matrix = []
+
+        for i in range(self.get_vertices_count()):
+            matrix.append([])
+            for j in range(self.get_vertices_count()):
+                if i == j:
+                    matrix[i].append(0)
+                else:
+                    matrix[i].append(1)
+
+        return matrix
+
+    def get_flow_matrix(self):
+        """  """
+
+        nodes = sorted(self.mapper.keys())
+        matrix = [[0 for col in range(self.get_vertices_count())] for row in range(self.get_vertices_count())]
+
+        for node, edge_list in sorted(self.mapper.items()):
+            for edge in edge_list:
+                matrix[nodes.index(node)][nodes.index(edge.vertex_node)] = edge.weight
+
+        return matrix
+
+    def get_distance_matrix(self):
+        """  """
+
+        nodes = sorted(self.mapper.keys())
+        matrix = [[0 for col in range(self.get_vertices_count())] for row in range(self.get_vertices_count())]
+
+        for i in range(self.get_vertices_count()):
+            for j in range(self.get_vertices_count()):
+                if i == j:
+                    continue
+                matrix[i][j] = self.calculate_euclidean_distance(nodes[i].get_label(), nodes[j].get_label())
+
+        return matrix
+
+    def get_nodes_labels(self, sort=False):
+        """  """
+
+        return [node.get_label() for node in sorted(self.mapper.keys())] if sort else \
+            [node.get_label() for node in self.mapper.keys()]
 
     def floyd_warshall_shortest_paths(self, print_out=False):
         """ Calculate all the shortest paths between all possible (i,j) vertices pairs

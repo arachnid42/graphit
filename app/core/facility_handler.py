@@ -19,7 +19,7 @@ class FacilityHandler(object):
 
     """
 
-    def __init__(self, path_to_conf_file):
+    def __init__(self, path_to_conf_file, facility_instance=None, force_rebuild=False):
         """ Initialize facility
 
         It checks whether cached version of facility object exists
@@ -33,19 +33,22 @@ class FacilityHandler(object):
 
         """
 
-        self.facility = None
+        self.facility = facility_instance
 
         # load configuration
         with open(path_to_conf_file) as f:
             self.conf = json.load(f)
 
-        if os.path.isfile(self.conf["facility_dump_path"]):
-            with open(self.conf["facility_dump_path"], 'rb') as f:
-                self.facility = pkl.load(f)
+        if not self.facility:
+            if not force_rebuild and os.path.isfile(self.conf["facility_dump_path"]):
+                with open(self.conf["facility_dump_path"], 'rb') as f:
+                    self.facility = pkl.load(f)
+            else:
+                self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
+                self.populate_facility(self.conf["facility_source_path"])
+                self.insert_all_transp_records(self.conf["masterplan_csv_path"], self.conf["peg_csv_path"])
+                self.dump_facility(self.conf["facility_dump_path"])
         else:
-            self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
-            self.populate_facility(self.conf["facility_source_path"])
-            self.insert_all_transp_records(self.conf["masterplan_csv_path"], self.conf["peg_csv_path"])
             self.dump_facility(self.conf["facility_dump_path"])
 
     def populate_facility(self, path_to_source):

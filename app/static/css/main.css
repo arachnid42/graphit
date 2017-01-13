@@ -9,6 +9,8 @@ body {
   height: 60px;
   display: flex; }
 
+#header a:hover {
+  color: #fefefe; }
 #header a:visited {
   color: #fefefe; }
 #header img {

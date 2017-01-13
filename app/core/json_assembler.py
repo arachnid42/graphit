@@ -1,5 +1,7 @@
 from app.core.facility_handler import *
+from app.core.craft_optimization import *
 from app.parse import *
+from copy import deepcopy
 import json
 
 
@@ -42,6 +44,11 @@ class JSONAssembler(object):
         self.dump_to_file()
 
         return json.dumps(self.viz_dict)
+
+    def get_next_craft_optimization_step(self):
+
+        co = CRAFTOptimization(deepcopy(self.facility))
+        return co.craft_layout_optimization()
 
     def dump_to_file(self):
 
