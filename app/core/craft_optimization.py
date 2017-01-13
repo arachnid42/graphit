@@ -87,8 +87,37 @@ class CRAFTOptimization(object):
         f_matrix = facility_state.d_graph.get_flow_matrix()
         cost = 0
 
+        dep_labels = facility_state.d_graph.get_nodes_labels(sort=True)
+        print(matrix_to_string(dep_labels, d_matrix))
+        print(matrix_to_string(dep_labels, f_matrix))
+        exit(0)
+
         for i in range(facility_state.d_graph.get_vertices_count()):
             for j in range(i, facility_state.d_graph.get_vertices_count()):
                 cost += d_matrix[i][j] * c_matrix[i][j] * f_matrix[i][j]
 
         return cost
+
+def matrix_to_string(key_list, matrix):
+    """ Form a string representation of an adjacency matrix of the graph
+
+    :param key_list - list of sorted vertex labels of the graph
+    :param matrix - numpy matrix that holds adjacancy matrix of
+           the graph object.
+
+    :return: string adjacency matrix representation with labels
+
+    """
+
+    strg = "  "
+    for label in key_list:
+        strg += "%s " % label
+    strg += "\n"
+
+    for row, i in zip(matrix, key_list):
+        strg += "%s " % i
+        for item in row:
+            strg += "%s " % int(item)
+        strg += "\n"
+
+    return strg
