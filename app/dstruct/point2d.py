@@ -27,7 +27,11 @@ class Point2D(object):
         self.y = float(y)
 
     def get_coords_list(self):
-        """  """
+        """ Return point coordinates as a list
+
+        :return: list [x,y] of coordinates
+
+        """
 
         return [self.x, self.y]
 

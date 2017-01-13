@@ -45,11 +45,6 @@ class JSONAssembler(object):
 
         return json.dumps(self.viz_dict)
 
-    def get_next_craft_optimization_step(self):
-
-        co = CRAFTOptimization(deepcopy(self.facility))
-        return co.craft_layout_optimization()
-
     def dump_to_file(self):
 
         with open(self.viz_json_dump_path, 'w') as f:

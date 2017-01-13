@@ -11,7 +11,7 @@ from itertools import permutations
     well as weights aggregation.
 
     The key feature of this module is key aggregation that
-    allows to compose a graph on the fly while  keeping track
+    allows to compose a graph on the fly while keeping track
     on how many entries in a parsed data "mention" a particular
     edge in graph (which could correspond to a movement from one
     point to another).
@@ -133,7 +133,11 @@ class VertexNode(object):
             return None
 
     def set_label(self, label):
-        """  """
+        """ Set node label
+
+        :param label: string label to assign
+
+        """
 
         if isinstance(self.__data, VertexNodeData):
             self.__data.label = label
@@ -196,7 +200,7 @@ class Graph(object):
 
         # validate whether input params are booleans
         if not (isinstance(directed, bool) and isinstance(coordinates, bool) and isinstance(explicit_weight, bool) and
-                    isinstance(aggregate_weight, bool)):
+                isinstance(aggregate_weight, bool)):
             raise BadInitParameters("Init parameters must be of type bool!")
 
         # input passed validation
@@ -234,7 +238,8 @@ class Graph(object):
         # present in a graph, don't insert this vertex
         if self.find_vertex_node_by_label(label) or (self.find_vertex_node_by_coordinates(x, y) if
                                                      self.has_coordinates else False):
-            print("Vertex with passed label/coordinates is already exist")
+            if self.debug:
+                print("Vertex with passed label/coordinates is already exist")
             return None
 
         # creating a vertex in a graph
@@ -271,8 +276,12 @@ class Graph(object):
         node_a = self.find_vertex_node_by_label(va_label)
         node_b = self.find_vertex_node_by_label(vb_label)
         if not node_a or not node_b:
-            print("Both or one of the nodes doesn't exist in a graph! Edge is not added.")
+            if self.debug:
+                print("Both or one of the nodes doesn't exist in a graph! Edge is not added.")
             return None
+        elif node_a == node_b:
+            if self.debug:
+                print("Multigraphs are not supported! Can't add an edge between the same nodes!")
         else:
             return self.__add_edge(node_a, node_b, weight)
 
@@ -339,13 +348,6 @@ class Graph(object):
             if node.get_label() == label:
                 return node
         return None
-
-    def get_edges(self):
-        """ Generator """
-
-        for node, edge_list in self.mapper.items():
-            for edge in edge_list:
-                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight]
 
     def find_vertex_node_by_coordinates(self, x, y):
         """ Find VertexNode given it's coordinates if it exists
@@ -474,53 +476,6 @@ class Graph(object):
         """
 
         return len(self.mapper)
-
-    def get_cost_matrix(self):
-        """  """
-
-        matrix = []
-
-        for i in range(self.get_vertices_count()):
-            matrix.append([])
-            for j in range(self.get_vertices_count()):
-                if i == j:
-                    matrix[i].append(0)
-                else:
-                    matrix[i].append(1)
-
-        return matrix
-
-    def get_flow_matrix(self):
-        """  """
-
-        nodes = sorted(self.mapper.keys())
-        matrix = [[0 for col in range(self.get_vertices_count())] for row in range(self.get_vertices_count())]
-
-        for node, edge_list in sorted(self.mapper.items()):
-            for edge in edge_list:
-                matrix[nodes.index(node)][nodes.index(edge.vertex_node)] = edge.weight
-
-        return matrix
-
-    def get_distance_matrix(self):
-        """  """
-
-        nodes = sorted(self.mapper.keys())
-        matrix = [[0 for col in range(self.get_vertices_count())] for row in range(self.get_vertices_count())]
-
-        for i in range(self.get_vertices_count()):
-            for j in range(self.get_vertices_count()):
-                if i == j:
-                    continue
-                matrix[i][j] = self.calculate_euclidean_distance(nodes[i].get_label(), nodes[j].get_label())
-
-        return matrix
-
-    def get_nodes_labels(self, sort=False):
-        """  """
-
-        return [node.get_label() for node in sorted(self.mapper.keys())] if sort else \
-            [node.get_label() for node in self.mapper.keys()]
 
     def floyd_warshall_shortest_paths(self, print_out=False):
         """ Calculate all the shortest paths between all possible (i,j) vertices pairs
@@ -788,13 +743,6 @@ class Graph(object):
                     self.add_edge(data_list[0], data_list[1])
                 else:
                     raise FailedToParseInputData("Failed to parse the input data")
-
-    # TODO: rework this method
-    def delete_all_edges(self):
-        """ Quick but dirty delete all edges """
-
-        for key in self.mapper:
-            self.mapper[key] = []
 
     def __str__(self):
 

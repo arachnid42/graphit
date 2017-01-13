@@ -73,7 +73,9 @@ class TransportationGraph(Graph):
         """ Constructor to initialize all the necessary fields """
         super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
-        self.transp_time = {}  # map transportation (graph edges), weight appended and time when it happened
+        # map transportation (graph edges, weight appended and time when it happened)
+        # to be able to filter not aggregated transportation records by date
+        self.transp_time = {}
 
     def add_department(self, department):
         """ Load new department vertices into a graph
@@ -167,8 +169,23 @@ class Facility(object):
         else:
             return False
 
+    def get_department_by_label(self, label):
+        """ Get facility department by it's label
+
+        :return: Department class instance matching
+                 the label passed in as a parameter
+
+        """
+
+        return [dep for dep in self.d_graph.departments if dep.label == label][0]
+
     def get_departments(self):
-        """  """
+        """ Get all departments of a facility
+
+        :return: list of Department objects
+
+        """
+
         return self.d_graph.departments
 
     def __fits_boundary(self, department):
@@ -214,8 +231,3 @@ class Facility(object):
         except ValueError:
             raise BadTimeFormat("Transportation time parsing failed!")
         self.d_graph.add_transp_record(src_label, dest_label, quant, dt)  # raises errors on failure
-
-    def delete_transp_records(self):
-        """ Delete all tranportation records """
-
-        self.d_graph.delete_all_edges()
