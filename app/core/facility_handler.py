@@ -71,8 +71,7 @@ class FacilityHandler(object):
     def insert_all_transp_records(self, mp_csv_path, peg_csv_path):
         """  """
 
-        self.facility.delete_transp_records()
-        mpp = MPParser(mp_csv_path, peg_csv_path)
+        mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
         res = mpp.parse()  # get parsed transportations
 
         # inserting transportations into facility

@@ -175,8 +175,9 @@ class Department(object):
         for p_ind in range(0, len(self.point2d_vector)):
             p_i = self.point2d_vector[p_ind]
             p_i_next = self.point2d_vector[(p_ind + 1) % len(self.point2d_vector)]
-            c_x += (p_i.x + p_i_next.x) * (p_i.x * p_i_next.y - p_i_next.x * p_i.y)
-            c_y += (p_i.y + p_i_next.y) * (p_i.x * p_i_next.y - p_i_next.x * p_i.y)
+            fact = p_i.x * p_i_next.y - p_i_next.x * p_i.y
+            c_x += (p_i.x + p_i_next.x) * fact
+            c_y += (p_i.y + p_i_next.y) * fact
 
         return Point2D(c_x/(6*self.area), c_y/(6*self.area))
 
@@ -193,7 +194,7 @@ class Department(object):
             p_ip1 = self.point2d_vector[(p_ind + 1) % len(self.point2d_vector)]
             d_area += p_i.x * p_ip1.y - p_ip1.x * p_i.y
 
-        return fabs(d_area) / 2
+        return d_area / 2
 
     def __str__(self):
         strg = "Department: %s\n-------------------------\n" % self.label
@@ -212,7 +213,7 @@ class Department(object):
 
         """
 
-        for k,v in self.vertices.items():
+        for k, v in self.vertices.items():
             if v.x == point.x and v.y == point.y:
                 return k
         return None

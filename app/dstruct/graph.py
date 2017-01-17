@@ -80,6 +80,38 @@ class FailedToParseInputData(Exception):
     pass
 
 
+class NodeNotExists(Exception):
+    """ Custom exception
+
+    Node referenced during execution does not exist
+
+    """
+
+    pass
+
+
+class SelfEdgesNotSupported(Exception):
+    """ Custom exception
+
+    Can't add edge between the same node - multigraphs
+    are not supported (so self-edges too)
+
+    """
+
+    pass
+
+
+class EdgeInsertionFailed(Exception):
+    """ Custom exception
+
+    Indicates that edge insertion failed because nodes was
+    already connected and weight aggregation disabled
+
+    """
+
+    pass
+
+
 class VertexNodeData(object):
     """ An optional class to hold a graph vertex data if coordinates are enabled """
 
@@ -270,18 +302,22 @@ class Graph(object):
                 - EdgeNode of edge added or it's
                   weight was updated when graph is
                   directed.
-                - None if no edges was not added
+        :raise NodeNotExists, SelfEdgesNotSupported
         """
 
         node_a = self.find_vertex_node_by_label(va_label)
         node_b = self.find_vertex_node_by_label(vb_label)
         if not node_a or not node_b:
-            if self.debug:
-                print("Both or one of the nodes doesn't exist in a graph! Edge is not added.")
-            return None
+            msg = "%s node does not exist! Failed to add an edge!"
+            if not node_a:
+                msg = msg % va_label
+            else:
+                msg = msg % vb_label
+            raise NodeNotExists(msg)
         elif node_a == node_b:
             if self.debug:
-                print("Multigraphs are not supported! Can't add an edge between the same nodes!")
+                print("Self-edge between %s was NOT added!" % va_label)
+            raise SelfEdgesNotSupported("Can't add a self edge for %s node! Multigraphs are not supported" % va_label)
         else:
             return self.__add_edge(node_a, node_b, weight)
 
@@ -300,7 +336,7 @@ class Graph(object):
                   undirected graph.
                 - EdgeNode of edge added or it's weight was updated
                   when graph is directed.
-                - None if edge was not added
+        :raises EdgeInsertionFailed, BadEdgeWeight
         """
 
         if self.__is_connected(node_a, node_b) and self.__is_connected(node_b, node_a):
@@ -315,7 +351,7 @@ class Graph(object):
                     return edge_node, edge_node_b
                 return edge_node
             else:
-                return None
+                raise EdgeInsertionFailed
         else:
             edge_node = EdgeNode(node_b)
             if self.use_explicit_weight:
@@ -333,7 +369,7 @@ class Graph(object):
             if not self.__is_connected(node_a, node_b):
                 self.mapper[node_a].append(edge_node)
             elif self.is_directed:
-                return None
+                return EdgeInsertionFailed
             if not self.is_directed:
                 if not self.__is_connected(node_b, node_a):
                     edge_node_copy = copy(edge_node)
@@ -476,6 +512,18 @@ class Graph(object):
         """
 
         return len(self.mapper)
+
+    def get_edges(self):
+        """ Generator
+
+        Get all edges of the graph one by one
+
+        yield: list [<src_node_label>, <dest_node_label>, <edge_weight>]
+        """
+
+        for node, edge_list in self.mapper.items():
+            for edge in edge_list:
+                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight]
 
     def floyd_warshall_shortest_paths(self, print_out=False):
         """ Calculate all the shortest paths between all possible (i,j) vertices pairs

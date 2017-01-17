@@ -113,14 +113,11 @@ class TransportationGraph(Graph):
 
         """
 
-        if self.find_vertex_node_by_label(src_label) and self.find_vertex_node_by_label(dest_label):
+        try:
             edge = self.add_edge(src_label, dest_label, quant)
-            if edge:
-                self.transp_time[edge] = [quant, time]
-            else:
-                raise TransportationInsertionFailed
-        else:
-            raise DepartmentNotExist("no %s or %s department, time: %s" % (src_label, dest_label, time))
+            self.transp_time[edge] = [quant, time]
+        except SelfEdgesNotSupported:
+            pass
 
 
 class Facility(object):

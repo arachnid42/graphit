@@ -1,7 +1,4 @@
 from app.core.facility_handler import *
-from app.core.craft_optimization import *
-from app.parse import *
-from copy import deepcopy
 import json
 
 
@@ -35,10 +32,11 @@ class JSONAssembler(object):
                 self.viz_dict['facility'][dep.label]["points"][p_name] = p_coords.get_coords_list()
 
         # stage 2: compose edges part
+        edges_parsed = []
         for edge in self.facility.d_graph.get_edges():
-            if edge[0] == edge[1]:
-                continue
-            self.viz_dict['edges'].append([edge[0], edge[1], edge[2]])
+            if not self.__check_mirror_edges(edge, edges_parsed):
+                self.viz_dict['edges'].append(edge)
+            edges_parsed.append(edge)
 
         # backup json
         self.dump_to_file()
@@ -49,5 +47,15 @@ class JSONAssembler(object):
 
         with open(self.viz_json_dump_path, 'w') as f:
             json.dump(self.viz_dict, f)
+
+    @staticmethod
+    def __check_mirror_edges(edge1, edge_lst):
+        """  """
+
+        for edge in edge_lst:
+            if edge[0] == edge1[1] and edge[1] == edge1[0]:
+                return True
+        return False
+
 
 
