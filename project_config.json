@@ -1,5 +1,5 @@
 {
   "sass_in": "app/static/sass",
   "sass_out": "app/static/css",
-  "to_encrypt": "./app/data/*.csv ./app/data/*.json ./app/parse/mp_parser.py"
+  "to_encrypt": "./app/data/*.csv ./app/data/*.json ./app/parse/mp_parser.py "
 }
