@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 
 # USAGE
-# $1 - repo branch to push to
-# $2 - message to commit with
+# $1 - repo branch to pull from
 
 # checking whether necessary arguments were passed in
-if [ -z "$1" ] || [ -z "$2" ]; then
-    echo ' >> not sufficient arguments to proceed! Aborting ...'
+if [ -z "$1" ]; then
+    echo ' >> no sufficient arguments to proceed! Aborting ...'
     exit 1
 fi
 
 shopt -s nullglob  # make array to be empty when nothing has matched
-FILES_TO_ENCRYPT=$(cat project_config.json | jq -r '.to_encrypt')
+FILES_TO_ENCRYPT=(./app/data/*.csv ./app/data/*.json ./app/parse/mp_parser.py)
 BRANCH=${1}
 COMMIT_MESSAGE=${2}
 
