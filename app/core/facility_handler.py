@@ -69,18 +69,30 @@ class FacilityHandler(object):
             self.facility.add_department(dep)
 
     def insert_all_transp_records(self, mp_csv_path, peg_csv_path):
-        """  """
+        """ Insert all transportation records from parser into facility instance
+
+        :param mp_csv_path - string path to masterplan to init a parser
+        :param peg_csv_path - string path to peg to init a parser
+
+        """
 
         mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
-        res = mpp.parse()  # get parsed transportations
+        res = mpp.parse()  # get parsed transportation
+        s_edge_weight = 0
 
-        # inserting transportations into facility
+        # inserting transportation into facility
         for key in res:
             rec = res[key]
-            # filter out data errors
+            # filter out data errors TODO: ALL and KVL departments?
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
-            self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]), rec[2][:-4])
+            try:
+                self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]), rec[2][:-4])
+            except SelfEdgesNotSupported:
+                # print("Self-edge: %s to %s" % (key[0], key[1]))
+                s_edge_weight += rec[3]
+
+        print("Self-edges total weight: %i" % s_edge_weight)
 
     def dump_facility(self, path):
         """ Save facility class as object data persistence

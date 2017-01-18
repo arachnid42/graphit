@@ -302,7 +302,7 @@ class Graph(object):
                 - EdgeNode of edge added or it's
                   weight was updated when graph is
                   directed.
-        :raise NodeNotExists, SelfEdgesNotSupported
+        :raises NodeNotExists, SelfEdgesNotSupported
         """
 
         node_a = self.find_vertex_node_by_label(va_label)

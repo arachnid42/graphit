@@ -110,14 +110,11 @@ class TransportationGraph(Graph):
         :param quant - int quantity of items transported
         :param time - datetime object that holds a time when a
                transportation happened
-
+        :raises NodeNotExists, SelfEdgesNotSupported
         """
 
-        try:
-            edge = self.add_edge(src_label, dest_label, quant)
-            self.transp_time[edge] = [quant, time]
-        except SelfEdgesNotSupported:
-            pass
+        edge = self.add_edge(src_label, dest_label, quant)
+        self.transp_time[edge] = [quant, time]
 
 
 class Facility(object):

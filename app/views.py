@@ -6,7 +6,7 @@ from app.core.facility_handler import *
 @app.route('/')
 @app.route('/index')
 def index():
-    fh = JSONAssembler(app.root_path+'/core/config.json')
+    fh = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True)
     fh.get_viz_json()
 
     return render_template('index.html')
