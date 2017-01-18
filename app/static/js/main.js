@@ -105,7 +105,7 @@ function createGraph(json_data, transportation_ranges) {
                     .attr("points", scalePoints(json_data,key, xLinearScale, yLinearScale))
                     .attr("stroke", 'black')
                     .style("pointer-events", "all")
-                    .attr("fill", '#dbe9ee')
+                    .attr("fill", '#dddddd')
     });
     $.each(json_data['edges'], function(key, value){
         var color2 = getColor(value[2],transportation_ranges[0])
