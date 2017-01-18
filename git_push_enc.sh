@@ -6,12 +6,23 @@
 
 # checking whether necessary arguments were passed in
 if [ -z "$1" ] || [ -z "$2" ]; then
-    echo ' >> no sufficient arguments to proceed! Aborting ...'
+    echo ' >> not sufficient arguments to proceed! Aborting ...'
     exit 1
 fi
 
 shopt -s nullglob  # make array to be empty when nothing has matched
-FILES_TO_ENCRYPT=(./app/backup/*.pkl ./app/data/*.csv ./app/data/*.json ./app/parse/mp_parser.py)
+read -a tmp_array <<< $(cat project_config.json | jq -r '.to_encrypt[]')
+declare -a FILES_TO_ENCRYPT
+
+# rebuild an array of match groups into
+# array of single strings
+for item in "${tmp_array[@]}"; do
+    for str in ${item}; do
+        FILES_TO_ENCRYPT[${#FILES_TO_ENCRYPT[@]}]=${str}
+    done
+done
+
+# assigning variables
 BRANCH=${1}
 COMMIT_MESSAGE=${2}
 

@@ -73,7 +73,9 @@ class TransportationGraph(Graph):
         """ Constructor to initialize all the necessary fields """
         super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
-        self.transp_time = {}  # map transportation (graph edges), weight appended and time when it happened
+        # map transportation (graph edges, weight appended and time when it happened)
+        # to be able to filter not aggregated transportation records by date
+        self.transp_time = {}
 
     def add_department(self, department):
         """ Load new department vertices into a graph
@@ -108,17 +110,11 @@ class TransportationGraph(Graph):
         :param quant - int quantity of items transported
         :param time - datetime object that holds a time when a
                transportation happened
-
+        :raises NodeNotExists, SelfEdgesNotSupported
         """
 
-        if self.find_vertex_node_by_label(src_label) and self.find_vertex_node_by_label(dest_label):
-            edge = self.add_edge(src_label, dest_label, quant)
-            if edge:
-                self.transp_time[edge] = [quant, time]
-            else:
-                raise TransportationInsertionFailed
-        else:
-            raise DepartmentNotExist
+        edge = self.add_edge(src_label, dest_label, quant)
+        self.transp_time[edge] = [quant, time]
 
 
 class Facility(object):
@@ -166,6 +162,25 @@ class Facility(object):
             return True
         else:
             return False
+
+    def get_department_by_label(self, label):
+        """ Get facility department by it's label
+
+        :return: Department class instance matching
+                 the label passed in as a parameter
+
+        """
+
+        return [dep for dep in self.d_graph.departments if dep.label == label][0]
+
+    def get_departments(self):
+        """ Get all departments of a facility
+
+        :return: list of Department objects
+
+        """
+
+        return self.d_graph.departments
 
     def __fits_boundary(self, department):
         """ Check whether all points of a department fall into facility boundary (canvas)

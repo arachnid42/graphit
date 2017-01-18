@@ -1,17 +1,80 @@
 body {
-  background-color: #242B33;
-  margin: 0;
+  background-color: white;
+  margin: 0 auto;
   padding: 0; }
 
-#square {
-  width: 400px;
-  height: 400px;
-  border: 2px solid #4C535B;
-  color: #4C535B;
-  font-size: 16.5px;
-  font-family: monospace;
-  padding: 20px;
-  margin: 250px auto 0; }
+#header {
+  background-color: #4a6fa5;
+  width: 100%;
+  height: 60px;
+  display: flex; }
+
+#header a:visited {
+  color: #fefefe; }
+#header img {
+  display: inline-block;
+  margin-left: 15px;
+  margin-top: 10px;
+  height: 40px; }
+#header #header_text {
+  height: inherit;
+  width: 70%;
+  display: table;
+  margin-left: 10px;
+  color: #fefefe;
+  font-size: 20px;
+  font-family: "Lato", Serif; }
+  #header #header_text span {
+    display: table-cell;
+    vertical-align: middle; }
+    #header #header_text span span {
+      background-color: #66BEAD;
+      padding: 18px; }
+    #header #header_text span span:hover {
+      background-color: #8377C8;
+      cursor: pointer; }
+
+#viz_container {
+  width: 98%;
+  margin: 1% auto; }
+  #viz_container #factory_transp_container {
+    width: 60%;
+    height: 80%;
+    float: left;
+    border: 2px solid #4a6fa5;
+    z-index: 1;
+    position: relative; }
+    #viz_container #factory_transp_container #buttons_container {
+      width: 100%;
+      height: 5%;
+      z-index: 0;
+      bottom: 0;
+      left: 0;
+      position: absolute; }
+      #viz_container #factory_transp_container #buttons_container #buttons_line_container {
+        width: 40%;
+        height: 100%;
+        float: right;
+        z-index: 0; }
+        #viz_container #factory_transp_container #buttons_container #buttons_line_container #zoom_in {
+          width: 30%;
+          height: inherit;
+          background-color: red;
+          float: left; }
+        #viz_container #factory_transp_container #buttons_container #buttons_line_container #zoom_out {
+          width: 30%;
+          height: inherit;
+          float: left;
+          background-color: #66BEAD; }
+        #viz_container #factory_transp_container #buttons_container #buttons_line_container #reset {
+          width: 30%;
+          height: inherit;
+          float: left;
+          background-color: bisque; }
+  #viz_container #algo_container {
+    width: 30%;
+    height: 80%;
+    float: right; }
 
 #facility {
   width: 1900px;
