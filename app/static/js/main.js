@@ -106,21 +106,6 @@ function createGraph(json_data, transportation_ranges) {
                     .attr("stroke", 'black')
                     .style("pointer-events", "all")
                     .attr("fill", '#dbe9ee')
-                svgContainer.append('circle')
-                    .attr("cx", xLinearScale(value['points']['centroid'][0]))
-                    .attr("cy", yLinearScale(value['points']['centroid'][1]))
-                    .attr('r', 5)
-                    .attr("fill", "black")
-                svgContainer.append('text')
-                    .style("fill", "black")
-                    .attr("x", xLinearScale(value['points']['centroid'][0]))
-                    .attr("y", yLinearScale(value['points']['centroid'][1]))
-                    .attr("font-size", "15px")
-                    .attr("dy", "-.85em")
-                    .attr("font-family", "Lato")
-                    .attr("text-anchor", "middle")
-                    .text(key)
-
     });
     $.each(json_data['edges'], function(key, value){
         var color2 = getColor(value[2],transportation_ranges[0])
@@ -143,5 +128,21 @@ function createGraph(json_data, transportation_ranges) {
                         .style("fill","red")
                         .text(' ');
                 });
+    });
+    $.each(json_data['facility'],function (key, value) {
+        svgContainer.append('circle')
+            .attr("cx", xLinearScale(value['points']['centroid'][0]))
+            .attr("cy", yLinearScale(value['points']['centroid'][1]))
+            .attr('r', 5)
+            .attr("fill", "black")
+        svgContainer.append('text')
+            .style("fill", "black")
+            .attr("x", xLinearScale(value['points']['centroid'][0]))
+            .attr("y", yLinearScale(value['points']['centroid'][1]))
+            .attr("font-size", "15px")
+            .attr("dy", "-.85em")
+            .attr("font-family", "Lato")
+            .attr("text-anchor", "middle")
+            .text(key)
     })
 };
