@@ -10,14 +10,15 @@ if [ -z "$1" ]; then
 fi
 
 shopt -s nullglob  # make array to be empty when nothing has matched
-read -a tmp_array <<< $(cat project_config.json | jq -r '.to_encrypt[]')
+read -a tmp_array <<< $(cat project_config.json | jq -r '.to_decrypt[]')
 declare -a FILES_TO_DECRYPT
+BRANCH=${1}
 
 # rebuild an array of match groups into
 # array of single strings
 for item in "${tmp_array[@]}"; do
     for str in ${item}; do
-        FILES_TO_DECRYPT[${#FILES_TO_DECRYPT[@]}]="${str}.asc"
+        FILES_TO_DECRYPT[${#FILES_TO_DECRYPT[@]}]=${str}
     done
 done
 

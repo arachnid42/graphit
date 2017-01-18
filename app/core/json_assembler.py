@@ -68,6 +68,15 @@ class JSONAssembler(object):
     def dump_to_file(self):
         """ Dump visualization JSON data """
 
+        # retrieve base dump directory from config
+        base_dir = '/'.join(self.viz_json_dump_path.split("/")[:-1])+"/"
+
+        # check whether base dir exists
+        # and if not create it
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)
+
+        # dump data
         with open(self.viz_json_dump_path, 'w') as f:
             json.dump(self.viz_dict, f)
 
