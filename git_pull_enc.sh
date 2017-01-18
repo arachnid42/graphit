@@ -10,14 +10,13 @@ if [ -z "$1" ]; then
 fi
 
 shopt -s nullglob  # make array to be empty when nothing has matched
-read -a tmp_array <<< $(cat project_config.json | jq -r '.to_decrypt[]')
+tmp_array=$(cat project_config.json | jq -r '.to_decrypt[]')
 declare -a FILES_TO_DECRYPT
 BRANCH=${1}
 
 # rebuild an array of match groups into
 # array of single strings
 for item in "${tmp_array[@]}"; do
-    echo $item
     for str in ${item}; do
         FILES_TO_DECRYPT[${#FILES_TO_DECRYPT[@]}]=${str}
     done
@@ -26,12 +25,6 @@ done
 # getting a password from a user
 read -s -p " >> enter decryption passphrase: " ENC_KEY
 printf "\n"
-
-for file in "${FILES_TO_DECRYPT[@]}"; do
-    echo $file
-done
-
-exit 1
 
 # pulling changes
 git pull origin ${BRANCH}

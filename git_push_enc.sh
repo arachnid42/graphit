@@ -11,7 +11,7 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 
 shopt -s nullglob  # make array to be empty when nothing has matched
-read -a tmp_array <<< $(cat project_config.json | jq -r '.to_encrypt[]')
+tmp_array=$(cat project_config.json | jq -r '.to_encrypt[]')
 declare -a FILES_TO_ENCRYPT
 
 # rebuild an array of match groups into
