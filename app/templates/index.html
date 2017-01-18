@@ -3,6 +3,14 @@
     <title> Visualization | Metec-ProdOpt project </title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
+     <script type=text/javascript>
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+     </script>
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+      <script src="https://d3js.org/d3-hsv.v0.0.min.js"></script>
+      <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript" src="static/js/main.js"></script>
   </head>
 
   <body>
@@ -11,8 +19,14 @@
       <div id="header_text"><span><a href="{{ url_for('index') }}"><span>METEC-PRODOPT PROJECT</span></a></span></div>
     </div>
     <div id="viz_container">
-      <div id="factory_transp_container">
-
+      <div id="factory_transp_container" class="svg-content">
+          <div id="buttons_container">
+              <div id="buttons_line_container">
+                  <div id="zoom_in"></div>
+                  <div id="zoom_out"></div>
+                  <div id="reset"></div>
+              </div>
+          </div>
       </div>
       <div id="algo_container">
 
