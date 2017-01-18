@@ -37,7 +37,7 @@ class JSONAssembler(object):
 
         if not self.force_rebuild and os.path.isfile(self.viz_json_dump_path):
             with open(self.viz_json_dump_path, 'rb') as f:
-                return f.readlines()
+                return f.read()
         else:
             # stage 1: compose factory layout part
             for dep in self.facility.get_departments():

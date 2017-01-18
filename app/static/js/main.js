@@ -110,7 +110,7 @@ function createGraph(json_data, transportation_ranges) {
     //console.log(transportation_ranges)
     var xLinearScale = d3.scaleLinear()
         .domain([0, max_x_y[0]])
-        .range([0+(1-scale)*width,width*scale]);
+        .range([(1 - scale) * width,width*scale]);
 
     var yLinearScale = d3.scaleLinear()
         .domain([0,max_x_y[1]])
