@@ -9,6 +9,8 @@ $( document ).ready(function() {
     })
 });
 
+var scale = 0.95;
+
 function findMaxXandY(json_data){
     var max_x = 0;
     var max_y = 0;
@@ -26,7 +28,7 @@ function findMaxXandY(json_data){
     return max_values
 
 }
-function scalePoints(height, width, json_data, key, max_x_y, xLinearScale, yLinearScale){
+function scalePoints(json_data, key, xLinearScale, yLinearScale){
     var points = [];
     $.each(json_data['facility'][key]['boundaries'], function (key, value) {
         var scaled_x_y = [xLinearScale(value[0]),yLinearScale(value[1])];
@@ -38,8 +40,8 @@ function scalePoints(height, width, json_data, key, max_x_y, xLinearScale, yLine
 function getMaxAndMinTransportationNumbers(json_data) {
     var max_transportation_number = 0;
     var min_transportation_number = 1000000;
-    $.each(json_data['edges'], function (key,value) {
-        var number = json_data['edges'][key][2];
+    $.each(json_data['edges'], function (key, value) {
+        var number = value[2];
         if (number > max_transportation_number) {
             max_transportation_number = number;
         }
@@ -63,58 +65,22 @@ function generateLineColor(number, max_transportation_number) {
 }
 
 function getColor(value, max_transportation_number){
-    //value from 0 to 1
     var hue = Math.floor((max_transportation_number - value) * 120 / max_transportation_number).toString(10)
     var saturation = Math.abs(value - 50)/50;
     return ["hsl(",hue,","+saturation+"%,70%)"].join("");
 }
 
-/*var dragPolygon = d3.drag()
-    .on("drag", function (d, i) {
-        d3.select(this)
-            .attr("transform", function () {
-                return "translate(" + [-xLinearScale(d3.event.x), -yLinearScale(d3.event.y)] + ")"
-            })
-    });
-*/
-
-/*var dragCircle = d3.drag()
-    .on("drag", function (d, i) {
-        d3.select(this)
-            .attr("cx", d3.event.x)
-            .attr("cy", d3.event.y)
-    });
-
-*/
-
-var scale = 0.95;
-
-function mouseOver(d, i){
-    d3.select(this)
-}
-
 function createGraph(json_data, transportation_ranges) {
-/*
-    var dragPolygon = d3.drag()
-    .on("drag", function (d, i) {
-        d3.select(this)
-            .attr("transform", function () {
-                return "translate(" + [xLinearScale(d3.event.x), yLinearScale(d3.event.y)] + ")"
-            })
-    });
-*/
-
     var height = document.getElementById("factory_transp_container").offsetHeight;
     var width = document.getElementById("factory_transp_container").offsetWidth;
     var max_x_y = findMaxXandY(json_data)
-    //console.log(transportation_ranges)
     var xLinearScale = d3.scaleLinear()
         .domain([0, max_x_y[0]])
-        .range([0+(1-scale)*width,width*scale]);
+        .range([(1-scale)*width,width*scale]);
 
     var yLinearScale = d3.scaleLinear()
         .domain([0,max_x_y[1]])
-        .range([0+(1-scale)*height,height*scale]);
+        .range([(1-scale)*height,height*scale]);
 
     var zoom = d3.zoom()
         .scaleExtent([1,10])
@@ -133,42 +99,49 @@ function createGraph(json_data, transportation_ranges) {
         .on("wheel", function () {
             d3.event.preventDefault();
         });
-
-    d3.select("#factory_transp_container").select("svg").selectAll("polygon")
     $.each(json_data['facility'],function (key, value) {
                 svgContainer.append('polygon')
                     .style("stroke-width", 5)
-                    .attr("points", scalePoints(height, width,json_data,key, max_x_y, xLinearScale, yLinearScale))
+                    .attr("points", scalePoints(json_data,key, xLinearScale, yLinearScale))
                     .attr("stroke", 'black')
                     .style("pointer-events", "all")
                     .attr("fill", '#dbe9ee')
                 svgContainer.append('circle')
-                    .attr("cx", -xLinearScale(json_data['facility'][key]['points']['centroid'][0]))
-                    .attr("cy", -yLinearScale(json_data['facility'][key]['points']['centroid'][1]))
+                    .attr("cx", -xLinearScale(value['points']['centroid'][0]))
+                    .attr("cy", -yLinearScale(value['points']['centroid'][1]))
                     .attr('r', 5)
                     .attr("fill", "black")
                 svgContainer.append('text')
                     .style("fill", "black")
-                    .attr("x", -xLinearScale(json_data['facility'][key]['points']['centroid'][0]))
-                    .attr("y", -yLinearScale(json_data['facility'][key]['points']['centroid'][1]))
-                    .attr("font-size", "9px")
+                    .attr("x", -xLinearScale(value['points']['centroid'][0]))
+                    .attr("y", -yLinearScale(value['points']['centroid'][1]))
+                    .attr("font-size", "15px")
                     .attr("dy", "-.85em")
                     .attr("font-family", "Lato")
                     .attr("text-anchor", "middle")
                     .text(key)
 
     });
-    $.each(json_data['edges'], function(key,value){
-      //  var color = generateLineColor(value[2],transportation_ranges[0], transportation_ranges[1])
+    $.each(json_data['edges'], function(key, value){
         var color2 = getColor(value[2],transportation_ranges[0])
         svgContainer.append("line")
-            //.style("stroke", d3.rgb(color[0],color[1],color[2]))
             .style("stroke", d3.color(color2))
-            .style("stroke-width", 2)
+            .style("stroke-width", 5)
             .attr("value", value[2])
             .attr("x1", -xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
             .attr("y1", -yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
             .attr("x2", -xLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
-            .attr("y2", -yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]));
-  //          .attr("transform","scale(1,-1) translate(0,"+(-yLinearScale(max_x_y[1]))+")")
-    })};
+            .attr("y2", -yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
+            .on("mouseover", function (d) {
+                var value = d3.select(this).attr("value");
+                d3.select('#buttons_container')
+                    .style("fill", "red")
+                    .text(value)
+            })
+            .on("mouseout", function (d) {
+                    d3.select('#buttons_container')
+                        .style("fill","red")
+                        .text(' ');
+                });
+    })
+};
