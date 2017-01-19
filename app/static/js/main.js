@@ -106,42 +106,46 @@ function createGraph(json_data, transportation_ranges) {
                     .attr("stroke", 'black')
                     .style("pointer-events", "all")
                     .attr("fill", '#dbe9ee')
-                svgContainer.append('circle')
-                    .attr("cx", -xLinearScale(value['points']['centroid'][0]))
-                    .attr("cy", -yLinearScale(value['points']['centroid'][1]))
-                    .attr('r', 5)
-                    .attr("fill", "black")
-                svgContainer.append('text')
-                    .style("fill", "black")
-                    .attr("x", -xLinearScale(value['points']['centroid'][0]))
-                    .attr("y", -yLinearScale(value['points']['centroid'][1]))
-                    .attr("font-size", "15px")
-                    .attr("dy", "-.85em")
-                    .attr("font-family", "Lato")
-                    .attr("text-anchor", "middle")
-                    .text(key)
-
     });
     $.each(json_data['edges'], function(key, value){
+        var src = value[0].split(".")[0];
+        var dest = value[1].split(".")[0]
         var color2 = getColor(value[2],transportation_ranges[0])
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
             .style("stroke-width", 5)
             .attr("value", value[2])
-            .attr("x1", -xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
-            .attr("y1", -yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
-            .attr("x2", -xLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
-            .attr("y2", -yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
+            .attr("x1", xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
+            .attr("y1", yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
+            .attr("x2", xLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
+            .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
             .on("mouseover", function (d) {
                 var value = d3.select(this).attr("value");
+
                 d3.select('#buttons_container')
                     .style("fill", "red")
-                    .text(value)
+                    .text(src+"->"+dest+":"+value)
             })
             .on("mouseout", function (d) {
                     d3.select('#buttons_container')
                         .style("fill","red")
                         .text(' ');
                 });
+    });
+    $.each(json_data['facility'],function (key, value) {
+        svgContainer.append('circle')
+            .attr("cx", xLinearScale(value['points']['centroid'][0]))
+            .attr("cy", yLinearScale(value['points']['centroid'][1]))
+            .attr('r', 5)
+            .attr("fill", "black")
+        svgContainer.append('text')
+            .style("fill", "black")
+            .attr("x", xLinearScale(value['points']['centroid'][0]))
+            .attr("y", yLinearScale(value['points']['centroid'][1]))
+            .attr("font-size", "15px")
+            .attr("dy", "-.85em")
+            .attr("font-family", "Lato")
+            .attr("text-anchor", "middle")
+            .text(key)
     })
 };
