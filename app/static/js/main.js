@@ -108,6 +108,8 @@ function createGraph(json_data, transportation_ranges) {
                     .attr("fill", '#dbe9ee')
     });
     $.each(json_data['edges'], function(key, value){
+        var src = value[0].split(".")[0];
+        var dest = value[1].split(".")[0]
         var color2 = getColor(value[2],transportation_ranges[0])
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
@@ -121,7 +123,7 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('#buttons_container')
                     .style("fill", "red")
-                    .text(value)
+                    .text(src+"->"+dest+":"+value)
             })
             .on("mouseout", function (d) {
                     d3.select('#buttons_container')
