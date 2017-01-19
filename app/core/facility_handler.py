@@ -80,17 +80,24 @@ class FacilityHandler(object):
         res = mpp.parse()  # get parsed transportation
         s_edge_weight = 0
 
+        # ##############################
+        # str_tmp = ""
+        # #############################
+
         # inserting transportation into facility
         for key in res:
             rec = res[key]
-            # filter out data errors TODO: ALL and KVL departments?
+            # filter out data errors
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
             try:
                 self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]), rec[2][:-4])
             except SelfEdgesNotSupported:
-                # print("Self-edge: %s to %s" % (key[0], key[1]))
+                # str_tmp += "Self-edge: %s, weight %i, opcodes: %s to %s\n" % (rec[0], rec[3], key[0], key[1])
                 s_edge_weight += rec[3]
+
+        # with open("app/backup/self-edges.txt", "w") as f:
+        #     f.write(str_tmp)
 
         print("Self-edges total weight: %i" % s_edge_weight)
 
