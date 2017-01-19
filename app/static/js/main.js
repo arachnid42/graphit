@@ -121,7 +121,6 @@ function createGraph(json_data, transportation_ranges) {
             .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
             .on("mouseover", function (d) {
                 var value = d3.select(this).attr("value");
-
                 d3.select('#buttons_container')
                     .style("fill", "red")
                     .text(src+"->"+dest+":"+value)
