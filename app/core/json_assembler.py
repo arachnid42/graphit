@@ -5,7 +5,7 @@ import json
 class JSONAssembler(object):
     """ Assembles visualization data JSON on request """
 
-    def __init__(self, conf_path, force_rebuild=False):
+    def __init__(self, conf_path, force_rebuild=False, date_boundaries=None):
         """ Init method
 
         Fetch cached facility version and initialize
@@ -23,7 +23,7 @@ class JSONAssembler(object):
         self.force_rebuild = force_rebuild
 
         # init/restore Facility class
-        fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild)
+        fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild, date_boundaries=date_boundaries)
         self.facility = fh.facility
         self.viz_dict = {'facility': {}, "edges": []}
         self.viz_json_dump_path = fh.conf['viz_json_dump_path']
@@ -36,8 +36,7 @@ class JSONAssembler(object):
         """
 
         if not self.force_rebuild and os.path.isfile(self.viz_json_dump_path):
-            with open(self.viz_json_dump_path, 'rb') as f:
-                return f.read()
+            return self.get_cached_json()
         else:
             # stage 1: compose factory layout part
             for dep in self.facility.get_departments():
@@ -64,6 +63,12 @@ class JSONAssembler(object):
             self.dump_to_file()
 
             return json.dumps(self.viz_dict)
+
+    def get_cached_json(self):
+        """ Pick up JSON from a system and return it """
+
+        with open(self.viz_json_dump_path, 'rb') as f:
+            return f.read()
 
     def dump_to_file(self):
         """ Dump visualization JSON data """
