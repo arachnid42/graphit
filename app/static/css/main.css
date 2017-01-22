@@ -113,7 +113,7 @@ body {
       margin: 0 2% 0 2%; }
       #viz_container #info_container #transp_table_container #transp_table_header_text {
         height: 4%;
-        margin-bottom: 1%; }
+        margin-bottom: 2%; }
         #viz_container #info_container #transp_table_container #transp_table_header_text div {
           font-size: 24px;
           color: #444444;
@@ -126,7 +126,7 @@ body {
         color: #222;
         text-align: justify; }
       #viz_container #info_container #transp_table_container #inner_table_container {
-        height: 95%;
+        height: 94%;
         overflow-y: auto; }
       #viz_container #info_container #transp_table_container table {
         width: 100%;
