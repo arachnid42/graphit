@@ -1,9 +1,19 @@
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
-        console.log("Success")
+        console.log("Success");
         var transportations_min_max = getMaxAndMinTransportationNumbers(data);
         createGraph(data, transportations_min_max);
+        createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
+
         toggleVizVisibility(0, 180);
+
+        $("#e3").daterangepicker({
+             datepickerOptions : {
+             numberOfMonths : 3
+                // minDate: '-2M',
+                // maxDate: '+28D',
+         }
+     });
     });
 });
 
@@ -30,6 +40,22 @@ function toggleVizVisibility(opacity, speed){
     if(!opacity) $("#overlay").hide();
 }
 
+function createInfoTable(json_data, max_transportation_value) {
+    var color = 0;
+    $.each(json_data['edges'], function (key,value) {
+        color = getColor(value[2], max_transportation_value);
+        $("#info_table").append("<tr><td style='background-color:" + color +"'></td>" +
+            "<td>"+value[0].split(".")[0]+"</td>" +
+            "<td>"+value[3]+"</td>" +
+            "<td>"+value[2]+"</td>" +
+            "<td>"+value[1].split(".")[0]+"</td></tr>")
+    });
+    $(".tablesorter").tablesorter({
+        headers: { 0: { sorter: false}},
+        sortList: [[3,0]]
+    })
+
+}
 /*
 Return the max and min X and Y of the department boundaries
 Used for department scaling
@@ -151,6 +177,29 @@ function createGraph(json_data, transportation_ranges) {
         .attr('width', width)
         .call(zoom);
 
+    d3.select("#reset")
+        .on("click", resetted);
+
+    d3.select("#zoom_in")
+        .on("click", zoom_in);
+
+    d3.select("#zoom_out")
+        .on("click", zoom_out);
+
+    function resetted() {
+        svgContainer.transition()
+            .duration(750)
+            .call(zoom.transform, d3.zoomIdentity);
+    }
+
+    function zoom_in(){
+        svgContainer.call(zoom.scaleBy(svgContainer, 1.5));
+    }
+
+    function zoom_out() {
+            svgContainer.call(zoom.scaleBy(svgContainer, 0.66));
+    }
+
     $.each(json_data['facility'],function (key, value) {
                 svgContainer.append('polygon')
                     .style("stroke-width", 5)
@@ -161,7 +210,8 @@ function createGraph(json_data, transportation_ranges) {
     });
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
-        var dest = value[1].split(".")[0]
+        var dest = value[1].split(".")[0];
+        var times = value[3];
         var color2 = getColor(value[2],transportation_ranges[0]);
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
@@ -175,7 +225,7 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(src+" - "+dest+" : "+value)
+                    .text(src+"\t - \t"+dest+"Quantity:"+value+",Times:"+times)
             })
             .on("mouseout", function (d) {
                     d3.select('.viz_info_text')

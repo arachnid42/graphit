@@ -32,8 +32,4 @@ git pull origin ${BRANCH}
 # decrypting sensitive data
 for file in "${FILES_TO_DECRYPT[@]}"; do
     gpg --batch --yes --passphrase ${ENC_KEY} --output ${file::-4} -d ${file}
-<<<<<<< HEAD
 done
-=======
-done
->>>>>>> 91e4cd5ac3ec95bad56d03bd745e4279bb975fa7
