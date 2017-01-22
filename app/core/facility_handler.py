@@ -19,7 +19,7 @@ class FacilityHandler(object):
 
     """
 
-    def __init__(self, path_to_conf_file):
+    def __init__(self, path_to_conf_file, facility_instance=None, force_rebuild=False):
         """ Initialize facility
 
         It checks whether cached version of facility object exists
@@ -33,19 +33,22 @@ class FacilityHandler(object):
 
         """
 
-        self.facility = None
+        self.facility = facility_instance
 
         # load configuration
         with open(path_to_conf_file) as f:
             self.conf = json.load(f)
 
-        if os.path.isfile(self.conf["facility_dump_path"]):
-            with open(self.conf["facility_dump_path"], 'rb') as f:
-                self.facility = pkl.load(f)
+        if not self.facility:
+            if not force_rebuild and os.path.isfile(self.conf["facility_dump_path"]):
+                with open(self.conf["facility_dump_path"], 'rb') as f:
+                    self.facility = pkl.load(f)
+            else:
+                self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
+                self.populate_facility(self.conf["facility_source_path"])
+                self.insert_all_transp_records(self.conf["masterplan_csv_path"], self.conf["peg_csv_path"])
+                self.dump_facility(self.conf["facility_dump_path"])
         else:
-            self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
-            self.populate_facility(self.conf["facility_source_path"])
-            self.insert_all_transp_records(self.conf["masterplan_csv_path"], self.conf["peg_csv_path"])
             self.dump_facility(self.conf["facility_dump_path"])
 
     def populate_facility(self, path_to_source):
@@ -66,19 +69,37 @@ class FacilityHandler(object):
             self.facility.add_department(dep)
 
     def insert_all_transp_records(self, mp_csv_path, peg_csv_path):
-        """  """
+        """ Insert all transportation records from parser into facility instance
 
-        self.facility.delete_transp_records()
-        mpp = MPParser(mp_csv_path, peg_csv_path)
-        res = mpp.parse()  # get parsed transportations
+        :param mp_csv_path - string path to masterplan to init a parser
+        :param peg_csv_path - string path to peg to init a parser
 
-        # inserting transportations into facility
+        """
+
+        mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
+        res = mpp.parse()  # get parsed transportation
+        s_edge_weight = 0
+
+        # ##############################
+        # str_tmp = ""
+        # #############################
+
+        # inserting transportation into facility
         for key in res:
             rec = res[key]
             # filter out data errors
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
-            self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]), rec[2][:-4])
+            try:
+                self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]), rec[2][:-4])
+            except SelfEdgesNotSupported:
+                # str_tmp += "Self-edge: %s, weight %i, opcodes: %s to %s\n" % (rec[0], rec[3], key[0], key[1])
+                s_edge_weight += rec[3]
+
+        # with open("app/backup/self-edges.txt", "w") as f:
+        #     f.write(str_tmp)
+
+        print("Self-edges total weight: %i" % s_edge_weight)
 
     def dump_facility(self, path):
         """ Save facility class as object data persistence

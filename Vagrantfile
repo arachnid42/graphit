@@ -1,15 +1,24 @@
 # setting a path to provision scripts
 PROV_BASE = "#{File.dirname(__FILE__)}/vconf/"
-STARTUP_SCRIPT = 'startup.sh'
-RUN_TESTS_SCRIPT = 'run_tests.sh'
+
+# scripts that have to be executable
+EXEC_FLAG_SCRIPTS = ["startup.sh", "run_tests.sh", "flask_init.py", "git_push_enc.sh", "git_pull_enc.sh"]
 
 # prioritized set of provision scripts to run
-PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_peewee", "install_sass", "install_jq", "install_numpy", 'install_git', "install_nodejs", "install_npm", "install_d3"]
+PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_sass", "install_jq", "install_numpy", 'install_git', "install_nodejs", "install_npm", "install_d3"]
 
 # default location for a bash script that would add envvars and aliases to the guest
 env_mod_file = '/etc/profile.d/env_mod.sh'
 
 Vagrant.configure(2) do |config|
+
+  # remove it when deploying
+  config.vm.provider "virtualbox" do |v|
+    # release full power of a host
+    v.cpus = 4
+    v.memory = 12288
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", "70"]
+  end
 
   # using amd64 Ubuntu 14.04 as a base box
   config.vm.box = "ubuntu/trusty64"
@@ -35,17 +44,13 @@ Vagrant.configure(2) do |config|
   # cd to a project directory during vagrant ssh
   env_mod_cmds << "echo 'cd /vagrant' >> #{env_mod_file} &&"
 
-  # making startup script executable
-  env_mod_cmds << "echo 'sudo chmod +x #{STARTUP_SCRIPT}' >> #{env_mod_file} &&"
-
-  # making tests script executable
-  env_mod_cmds << "echo 'sudo chmod +x #{RUN_TESTS_SCRIPT }' >> #{env_mod_file} &&"
-
-  # making flask_init.py executable
-  env_mod_cmds << "echo 'sudo chmod +x flask_init.py' >> #{env_mod_file}"
+  # making all the necessary scripts executable
+  EXEC_FLAG_SCRIPTS.each do |script|
+    env_mod_cmds << "echo 'sudo chmod +x #{script}' >> #{env_mod_file} &&"
+  end
 
   # writing environment modifications to the guest
-  config.vm.provision "cust_env_setup", type: "shell", inline: env_mod_cmds
+  config.vm.provision "cust_env_setup", type: "shell", inline: env_mod_cmds.chomp(' &&')
 
   # setting port forwarding to view the website in host browser
   config.vm.network "forwarded_port", guest: 5000, host: 5000

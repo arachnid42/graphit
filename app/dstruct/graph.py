@@ -11,7 +11,7 @@ from itertools import permutations
     well as weights aggregation.
 
     The key feature of this module is key aggregation that
-    allows to compose a graph on the fly while  keeping track
+    allows to compose a graph on the fly while keeping track
     on how many entries in a parsed data "mention" a particular
     edge in graph (which could correspond to a movement from one
     point to another).
@@ -80,6 +80,38 @@ class FailedToParseInputData(Exception):
     pass
 
 
+class NodeNotExists(Exception):
+    """ Custom exception
+
+    Node referenced during execution does not exist
+
+    """
+
+    pass
+
+
+class SelfEdgesNotSupported(Exception):
+    """ Custom exception
+
+    Can't add edge between the same node - multigraphs
+    are not supported (so self-edges too)
+
+    """
+
+    pass
+
+
+class EdgeInsertionFailed(Exception):
+    """ Custom exception
+
+    Indicates that edge insertion failed because nodes was
+    already connected and weight aggregation disabled
+
+    """
+
+    pass
+
+
 class VertexNodeData(object):
     """ An optional class to hold a graph vertex data if coordinates are enabled """
 
@@ -132,8 +164,25 @@ class VertexNode(object):
         else:
             return None
 
+    def set_label(self, label):
+        """ Set node label
+
+        :param label: string label to assign
+
+        """
+
+        if isinstance(self.__data, VertexNodeData):
+            self.__data.label = label
+        else:
+            self.__data = label
+
     def __str__(self):
         return "Vertex (%f, %f)" % (self.__data.x, self.__data.y)
+
+    def __lt__(self, other):
+        l_a = self.get_label()
+        l_b = other.get_label()
+        return True if sorted([l_a, l_b])[0] == l_a else False
 
 
 class EdgeNode(object):
@@ -150,6 +199,7 @@ class EdgeNode(object):
         """
         self.vertex_node = vertex_node
         self.weight = weight
+        self.increment_count = 1
 
     def __str__(self):
         return "Edge to %s with weight %s" % (self.vertex_node.get_label(), str(self.weight))
@@ -183,7 +233,7 @@ class Graph(object):
 
         # validate whether input params are booleans
         if not (isinstance(directed, bool) and isinstance(coordinates, bool) and isinstance(explicit_weight, bool) and
-                    isinstance(aggregate_weight, bool)):
+                isinstance(aggregate_weight, bool)):
             raise BadInitParameters("Init parameters must be of type bool!")
 
         # input passed validation
@@ -221,7 +271,8 @@ class Graph(object):
         # present in a graph, don't insert this vertex
         if self.find_vertex_node_by_label(label) or (self.find_vertex_node_by_coordinates(x, y) if
                                                      self.has_coordinates else False):
-            print("Vertex with passed label/coordinates is already exist")
+            if self.debug:
+                print("Vertex with passed label/coordinates is already exist")
             return None
 
         # creating a vertex in a graph
@@ -252,14 +303,22 @@ class Graph(object):
                 - EdgeNode of edge added or it's
                   weight was updated when graph is
                   directed.
-                - None if no edges was not added
+        :raises NodeNotExists, SelfEdgesNotSupported
         """
 
         node_a = self.find_vertex_node_by_label(va_label)
         node_b = self.find_vertex_node_by_label(vb_label)
         if not node_a or not node_b:
-            print("Both or one of the nodes doesn't exist in a graph! Edge is not added.")
-            return None
+            msg = "%s node does not exist! Failed to add an edge!"
+            if not node_a:
+                msg = msg % va_label
+            else:
+                msg = msg % vb_label
+            raise NodeNotExists(msg)
+        elif node_a == node_b:
+            if self.debug:
+                print("Self-edge between %s was NOT added!" % va_label)
+            raise SelfEdgesNotSupported("Can't add a self edge for %s node! Multigraphs are not supported" % va_label)
         else:
             return self.__add_edge(node_a, node_b, weight)
 
@@ -278,22 +337,24 @@ class Graph(object):
                   undirected graph.
                 - EdgeNode of edge added or it's weight was updated
                   when graph is directed.
-                - None if edge was not added
+        :raises EdgeInsertionFailed, BadEdgeWeight
         """
 
         if self.__is_connected(node_a, node_b) and self.__is_connected(node_b, node_a):
             if self.aggregate_weight:
                 edge_node = self.__get_edge(node_a, node_b)
                 edge_node.weight = edge_node.weight + weight
+                edge_node.increment_count += 1
                 if self.debug:
                     print("Edge was already present but it's weight was incremented")
                 if not self.is_directed:
                     edge_node_b = self.__get_edge(node_b, node_a)
                     edge_node_b.weight = edge_node_b.weight + weight
+                    edge_node_b.increment_count += 1
                     return edge_node, edge_node_b
                 return edge_node
             else:
-                return None
+                raise EdgeInsertionFailed
         else:
             edge_node = EdgeNode(node_b)
             if self.use_explicit_weight:
@@ -311,7 +372,7 @@ class Graph(object):
             if not self.__is_connected(node_a, node_b):
                 self.mapper[node_a].append(edge_node)
             elif self.is_directed:
-                return None
+                return EdgeInsertionFailed
             if not self.is_directed:
                 if not self.__is_connected(node_b, node_a):
                     edge_node_copy = copy(edge_node)
@@ -326,13 +387,6 @@ class Graph(object):
             if node.get_label() == label:
                 return node
         return None
-
-    def get_edges(self):
-        """ Generator """
-
-        for node, edge_list in self.mapper.items():
-            for edge in edge_list:
-                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight]
 
     def find_vertex_node_by_coordinates(self, x, y):
         """ Find VertexNode given it's coordinates if it exists
@@ -461,6 +515,18 @@ class Graph(object):
         """
 
         return len(self.mapper)
+
+    def get_edges(self):
+        """ Generator
+
+        Get all edges of the graph one by one
+
+        yield: list [<src_node_label>, <dest_node_label>, <edge_weight>, <increment_count>]
+        """
+
+        for node, edge_list in self.mapper.items():
+            for edge in edge_list:
+                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight, edge.increment_count]
 
     def floyd_warshall_shortest_paths(self, print_out=False):
         """ Calculate all the shortest paths between all possible (i,j) vertices pairs
@@ -728,13 +794,6 @@ class Graph(object):
                     self.add_edge(data_list[0], data_list[1])
                 else:
                     raise FailedToParseInputData("Failed to parse the input data")
-
-    # TODO: rework this method
-    def delete_all_edges(self):
-        """ Quick but dirty delete all edges """
-
-        for key in self.mapper:
-            self.mapper[key] = []
 
     def __str__(self):
 
