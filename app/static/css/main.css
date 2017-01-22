@@ -132,6 +132,8 @@ body {
         font-family: "Open Sans";
         font-size: 15px;
         color: #222; }
+      #viz_container #info_container #date_filter_container span {
+        margin-left: 2%; }
     #viz_container #info_container #transp_table_container {
       position: relative;
       display: block;

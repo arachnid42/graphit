@@ -23,9 +23,9 @@ class JSONAssembler(object):
         self.force_rebuild = force_rebuild
 
         # init/restore Facility class
-        fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild, date_boundaries=date_boundaries)
-        self.facility = fh.facility
-        self.viz_json_dump_path = fh.conf['viz_json_dump_path']
+        self.fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild, date_boundaries=date_boundaries)
+        self.facility = self.fh.facility
+        self.viz_json_dump_path = self.fh.conf['viz_json_dump_path']
 
     def get_viz_json(self):
         """ Assemble visualization JSON or get a cached version
@@ -59,12 +59,26 @@ class JSONAssembler(object):
             for edge in self.facility.d_graph.get_edges():
                 viz_dict['edges'].append(edge)
 
+            # stage 3: insert additional information
+            viz_dict['self_edges_total_weight'] = self.fh.self_edges_weight
+            viz_dict['date_boundaries'] = [self.fh.date_from, self.fh.date_to]
+
+            # get nodes involved in a net
+            involved_nodes_count = 0
+            for edge_list in self.facility.d_graph.mapper.values():
+                if edge_list:
+                    involved_nodes_count += 1
+
+            # append result into JSON
+            viz_dict['involved_edges_count'] = involved_nodes_count
+
             # backup json
             self.dump_to_file(viz_dict)
 
             return json.dumps(viz_dict)
 
-    def get_json_base(self):
+    @staticmethod
+    def get_json_base():
         """ Get base JSON to append to
 
         :return: python dictionary instance
