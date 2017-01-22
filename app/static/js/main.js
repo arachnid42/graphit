@@ -24,7 +24,7 @@ function createStatisticsTable(json_data){
     var total_transportations_times = 0;
     var total_items_transported = 0;
     $.each(json_data['edges'], function (key, value) {
-        if(value[0].split(".")[0] == "DUMMY"){
+        if(value[0].split(".")[0]=="DUMMY"||value[1].split(".")[0] == "DUMMY"){
             dummy_transportations_amount+=value[2];
         }
         total_transportations_times+=value[3];
@@ -235,7 +235,7 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(src+"\t - \t"+dest+"Quantity:"+value+",Times:"+times)
+                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times)
             })
             .on("mouseout", function (d) {
                     d3.select('.viz_info_text')
