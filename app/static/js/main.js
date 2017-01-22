@@ -4,20 +4,39 @@ $( document ).ready(function() {
         var transportations_min_max = getMaxAndMinTransportationNumbers(data);
         createGraph(data, transportations_min_max);
         createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
-
+        createStatisticsTable(data);
         toggleVizVisibility(0, 180);
-
         $("#e3").daterangepicker({
              datepickerOptions : {
-             numberOfMonths : 3
-                // minDate: '-2M',
-                // maxDate: '+28D',
+             numberOfMonths : 3,
+                 dateFormat: 'yy-mm-dd',
+                 minDate: data['date_boundaries'][0].split(" ")[0],
+                 maxDate: data['date_boundaries'][1].split(" ")[0]
          }
      });
     });
 });
 
 var scale = 0.945;
+
+function createStatisticsTable(json_data){
+    var dummy_transportations_amount = 0;
+    var total_transportations_times = 0;
+    var total_items_transported = 0;
+    $.each(json_data['edges'], function (key, value) {
+        if(value[0].split(".")[0] == "DUMMY"){
+            dummy_transportations_amount+=value[2];
+        }
+        total_transportations_times+=value[3];
+        total_items_transported+=value[2];
+    })
+    $(".total_amount_of_transportations").append(total_transportations_times);
+    $(".total_items_transported").append(total_items_transported);
+    $(".dummy_count").append(dummy_transportations_amount);
+    $(".dep_involved").append(json_data["involved_edges_count"]+" from 14");
+    $(".date_range").append("from "+json_data['date_boundaries'][0].split(" ")[0]+" to "+json_data['date_boundaries'][1].split(" ")[0]);
+    $(".omitted_self-edges").append(json_data['self_edges_total_weight']);
+}
 
 /*
 Hide (opacity=0) or show (opacity=1) visualization with fancy animation
@@ -34,7 +53,7 @@ function createInfoTable(json_data, max_transportation_value) {
     var color = 0;
     $.each(json_data['edges'], function (key,value) {
         color = getColor(value[2], max_transportation_value);
-        $("#info_table").append("<tr><td style='background-color:" + color +"'></td>" +
+        $("#info_table").append("<tr><td style='background-color:" + d3.color(color) +"'></td>" +
             "<td>"+value[0].split(".")[0]+"</td>" +
             "<td>"+value[3]+"</td>" +
             "<td>"+value[2]+"</td>" +
@@ -187,7 +206,8 @@ function createGraph(json_data, transportation_ranges) {
     }
 
     function zoom_out() {
-            svgContainer.call(zoom.scaleBy(svgContainer, 0.66));
+        svgContainer.call(zoom.scaleBy(svgContainer, 0.66));
+
     }
 
     $.each(json_data['facility'],function (key, value) {
@@ -222,6 +242,7 @@ function createGraph(json_data, transportation_ranges) {
                         .style("font-style","italic")
                         .text('no additional info to display');
                 });
+
 
     });
     $.each(json_data['facility'],function (key, value) {
