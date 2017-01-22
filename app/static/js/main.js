@@ -2,15 +2,17 @@ $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
         console.log("Success");
         var transportations_min_max = getMaxAndMinTransportationNumbers(data);
-        createGraph(data, transportations_min_max)
+        createGraph(data, transportations_min_max);
         createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
+
+        toggleVizVisibility(0, 180);
 
         $("#e3").daterangepicker({
              datepickerOptions : {
-             numberOfMonths : 3,
+             numberOfMonths : 3
                 // minDate: '-2M',
                 // maxDate: '+28D',
-         }.onClick(console.log("Test"))
+         }
      });
     });
 });
@@ -27,6 +29,16 @@ var scale = 0.945;
 </tr>
 */
 
+/*
+Hide (opacity=0) or show (opacity=1) visualization with fancy animation
+ */
+function toggleVizVisibility(opacity, speed){
+    if(opacity) $("#overlay").show();
+    $("#overlay").stop().fadeTo(speed, opacity);
+    $("#factory_transp_container").stop().fadeTo(speed, 1-opacity);
+    $("inner_table_container").stop().fadeTo(speed, 1-opacity);
+    if(!opacity) $("#overlay").hide();
+}
 
 function createInfoTable(json_data, max_transportation_value) {
     var color = 0;
@@ -181,15 +193,12 @@ function createGraph(json_data, transportation_ranges) {
     }
 
     function zoom_in(){
-        svgContainer.transition()
-            .duration(10000)
-            .call(zoom.scaleBy(svgContainer, 1.5));
+        svgContainer.call(zoom.scaleBy(svgContainer, 1.5));
     }
 
     function zoom_out() {
-        svgContainer.transition()
-            .duration(10000)
-            .call(zoom.scaleBy(svgContainer, 0.66), d3.zoomIdenti);
+        svgContainer.call(zoom.scaleBy(svgContainer, 0.66));
+
     }
 
     $.each(json_data['facility'],function (key, value) {
