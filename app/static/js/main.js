@@ -24,7 +24,7 @@ function createStatisticsTable(json_data){
     var total_transportations_times = 0;
     var total_items_transported = 0;
     $.each(json_data['edges'], function (key, value) {
-        if(value[0].split(".")[0] == "DUMMY"){
+        if(value[0].split(".")[0]=="DUMMY"||value[1].split(".")[0] == "DUMMY"){
             dummy_transportations_amount+=value[2];
         }
         total_transportations_times+=value[3];
@@ -34,7 +34,7 @@ function createStatisticsTable(json_data){
     $(".total_items_transported").append(total_items_transported);
     $(".dummy_count").append(dummy_transportations_amount);
     $(".dep_involved").append(json_data["involved_edges_count"]+" from 14");
-    $(".date_range").append("from "+json_data['date_boundaries'][0].split(" ")[0]+" to "+json_data['date_boundaries'][1].split(" ")[0]);
+    $(".date_range").append(json_data['date_boundaries'][0].split(" ")[0]+" -> "+json_data['date_boundaries'][1].split(" ")[0]);
     $(".omitted_self-edges").append(json_data['self_edges_total_weight']);
 }
 

@@ -177,8 +177,7 @@ body {
     width: 60%;
     height: 100%; }
     #footer_container #statistics_container #statistics_columns_container {
-      margin: 1%;
-      background-color: #66BEAD; }
+      margin: 1%; }
       #footer_container #statistics_container #statistics_columns_container div {
         font-size: 1.3vw;
         color: #444;
