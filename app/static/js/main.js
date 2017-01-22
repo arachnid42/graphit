@@ -215,7 +215,7 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(src+"\t - \t"+dest+"Quantity:"+value+",Times:"+times)
+                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times)
             })
             .on("mouseout", function (d) {
                     d3.select('.viz_info_text')

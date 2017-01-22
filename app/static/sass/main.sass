@@ -191,7 +191,6 @@ body
     float: left
     width: 60%
     height: 100%
-    //background-color: #66BEAD
 
     #statistics_columns_container
       margin: 1%
@@ -203,7 +202,7 @@ body
         -webkit-column-count: 3
         column-count: 3
         font-family: 'Open Sans'
-        font-size: 15px
+        font-size: 0.78vw
         color: #222
 
         span
@@ -229,7 +228,7 @@ body
     #about_text
       width: 48%
       font-family: 'Open Sans'
-      font-size: 14px
+      font-size: 0.7vw
       text-align: justify
       color: $info_header_text_color
       float: left
@@ -239,6 +238,9 @@ body
       a
         text-decoration: none
         color: $primary_color
+
+        &:hover
+          color: $header_hover_color
 
       div
         margin-top: 1%
@@ -251,3 +253,7 @@ body
           a
             color: $viz_suppl_text_color
             font-family: Impact
+
+            &:hover
+              background-color: $viz_suppl_text_color
+              color: $arachnid_color

@@ -123,14 +123,14 @@ body {
       height: 14%;
       margin: 0 2% 0 2%; }
       #viz_container #info_container #date_filter_container #d_f_header div {
-        font-size: 24px;
+        font-size: 1.3vw;
         color: #444;
         font-family: "Lato", Serif;
         border-bottom: 1px solid #AAAAAA; }
       #viz_container #info_container #date_filter_container #date_picker_container {
         margin: 3%;
         font-family: "Open Sans";
-        font-size: 15px;
+        font-size: 0.78vw;
         color: #222; }
       #viz_container #info_container #date_filter_container span {
         margin-left: 2%; }
@@ -143,7 +143,7 @@ body {
         height: 4%;
         margin-bottom: 2%; }
         #viz_container #info_container #transp_table_container #transp_table_header_text div {
-          font-size: 24px;
+          font-size: 1.3vw;
           color: #444;
           font-family: "Lato", Serif;
           border-bottom: 1px solid #AAAAAA; }
@@ -179,7 +179,7 @@ body {
     #footer_container #statistics_container #statistics_columns_container {
       margin: 1%; }
       #footer_container #statistics_container #statistics_columns_container div {
-        font-size: 24px;
+        font-size: 1.3vw;
         color: #444;
         font-family: "Lato", Serif;
         border-bottom: 1px solid #AAAAAA; }
@@ -189,7 +189,7 @@ body {
         -webkit-column-count: 3;
         column-count: 3;
         font-family: "Open Sans";
-        font-size: 15px;
+        font-size: 0.78vw;
         color: #222; }
         #footer_container #statistics_container #statistics_columns_container ul span {
           font-weight: bold;
@@ -212,7 +212,7 @@ body {
     #footer_container #about_container #about_text {
       width: 48%;
       font-family: "Open Sans";
-      font-size: 14px;
+      font-size: 0.7vw;
       text-align: justify;
       color: #444;
       float: left;
@@ -223,6 +223,8 @@ body {
       #footer_container #about_container #about_text a {
         text-decoration: none;
         color: #4a6fa5; }
+        #footer_container #about_container #about_text a:hover {
+          color: #8377C8; }
       #footer_container #about_container #about_text div {
         margin-top: 1%;
         text-align: right;
@@ -232,5 +234,8 @@ body {
           #footer_container #about_container #about_text div span a {
             color: #333;
             font-family: Impact; }
+            #footer_container #about_container #about_text div span a:hover {
+              background-color: #333;
+              color: #07F906; }
 
 /*# sourceMappingURL=main.css.map */
