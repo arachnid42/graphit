@@ -98,13 +98,14 @@ class FacilityHandler(object):
             # filter out data errors
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
-            if date_boundaries and datetime.strptime(date_boundaries[0], date_format) <= datetime.\
+            if date_boundaries and not datetime.strptime(date_boundaries[0], date_format) <= datetime.\
                     strptime(rec[2][:-4], date_format) <= datetime.strptime(date_boundaries[1], date_format):
-                try:
-                    self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
-                except SelfEdgesNotSupported:
-                    # str_tmp += "Self-edge: %s, weight %i, opcodes: %s to %s\n" % (rec[0], rec[3], key[0], key[1])
-                    s_edge_weight += rec[3]
+                continue
+            try:
+                self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
+            except SelfEdgesNotSupported:
+                # str_tmp += "Self-edge: %s, weight %i, opcodes: %s to %s\n" % (rec[0], rec[3], key[0], key[1])
+                s_edge_weight += rec[3]
 
         # with open("app/backup/self-edges.txt", "w") as f:
         #     f.write(str_tmp)

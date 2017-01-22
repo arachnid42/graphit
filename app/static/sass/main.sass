@@ -1,4 +1,5 @@
 @import colors
+@import mixins
 
 body
   background-color: $page_background
@@ -24,20 +25,23 @@ body
     margin-left: 15px
     margin-top: 10px
     height: 40px
+
   #header_text
     height: inherit
-    width: 70%
     display: table
     margin-left: 10px
     color: $page_background
     font-size: 20px
     font-family: 'Lato', Serif
+
     span
       display: table-cell
       vertical-align: middle
+
       span
         background-color: $header_fill_color
         padding: 18px
+
       span:hover
         background-color: $header_hover_color
         cursor: pointer
@@ -45,47 +49,110 @@ body
 #viz_container
   width: 98%
   margin: 1% auto
+
   #factory_transp_container
     width: 60%
     height: 80%
     float: left
     background-color: $viz_canvas_background
-    border: 2px dashed $viz_border_color
+    box-sizing: border-box
+    border: 2px solid $viz_border_color
     z-index: 1
     position: relative
-    #buttons_container
-      background-color: #cccccc
+
+    #suppl_container
       width: 100%
       height: 4%
       z-index: 1
       bottom: 0
-      left: 0
       position: absolute
-      font-size: 28px
-      font-family: 'Lato', Serif
+      background: rgba(0, 0, 0, 0.3)
+
+      #viz_info_container
+        float: left
+        height: 100%
+        display: table
+        border-spacing: 10px 0
+
+        .viz_info_text
+          display: table-cell
+          font-style: italic
+          vertical-align: middle
+          font-size: 16px
+          color: $viz_suppl_text_color
+          font-family: 'Lato', Serif
+
       #buttons_line_container
-        width: 30%
+        width: 12%
         height: 100%
         float: right
         z-index: 1
-        position: relative
-        #zoom_in
-          width: 30%
+
+        img
+          height: 75%
+          display: block
+          margin: 0 auto
+          @include vert_center()
+
+
+        #zoom_in, #zoom_out, #reset
+          width: 31%
           height: inherit
-          background-color: red
-          float: left
-        #zoom_out
-          width: 30%
-          height: inherit
-          float: left
-          background-color: #66BEAD
-        #reset
-          width: 30%
-          height: inherit
-          float: left
-          background-color: bisque
+          float: right
+          border: 1px solid rgba(0, 0, 0, 0)
+
+          &:hover
+            cursor: pointer
+            background: rgba(0, 0, 0, 0.3)
+
   #info_container
-    background-color: #dcdcdc
     width: 39%
     height: 80%
     float: right
+
+    #date_filter_container
+      height: 14%
+      margin: 0 2% 0 2%
+
+      #d_f_header
+        @include info_header_text()
+
+      #date_picker_container
+        @include info_comment_text()
+
+    #transp_table_container
+      position: relative
+      display: block
+      height: 86%
+      margin: 0 2% 0 2%
+
+      #transp_table_header_text
+        height: 4%
+        margin-bottom: 1%
+        @include info_header_text()
+
+      #table_comment_container
+        @include info_comment_text()
+        text-align: justify
+
+      #inner_table_container
+        height: 95%
+        overflow-y: auto
+
+      table
+        width: 100%
+        border-collapse: collapse
+
+        td
+          border: 1px solid $viz_border_color
+
+        th
+          font-family: 'Open Sans'
+          color: $info_header_text_color
+          background-color: $main_table_cell_color
+          border: 1px solid $viz_border_color
+
+        td
+          font-family: 'Open Sans'
+          color: $info_header_text_color
+          text-align: center

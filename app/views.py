@@ -13,5 +13,4 @@ def index():
 @app.route('/get_data')
 def get_data():
     ja = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True)
-    ja.get_viz_json()
     return ja.get_viz_json()

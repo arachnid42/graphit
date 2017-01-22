@@ -9,7 +9,7 @@ $( document ).ready(function() {
     })
 });
 
-var scale = 0.95;
+var scale = 0.945;
 
 function findMaxXandY(json_data){
     var max_x = 0;
@@ -24,7 +24,7 @@ function findMaxXandY(json_data){
             }
         })
     });
-    var max_values = [max_x, max_y]
+    var max_values = [max_x, max_y];
     return max_values
 
 }
@@ -103,12 +103,12 @@ function createGraph(json_data, transportation_ranges) {
                 svgContainer.append('polygon')
                     .style("stroke-width", 5)
                     .attr("points", scalePoints(json_data,key, xLinearScale, yLinearScale))
-                    .attr("stroke", 'black')
+                    .attr("stroke", '#444444')
                     .style("pointer-events", "all")
                     .attr("fill", '#dddddd')
     });
     $.each(json_data['edges'], function(key, value){
-        var color2 = getColor(value[2],transportation_ranges[0])
+        var color2 = getColor(value[2],transportation_ranges[0]);
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
             .style("stroke-width", 5)
@@ -119,14 +119,14 @@ function createGraph(json_data, transportation_ranges) {
             .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
             .on("mouseover", function (d) {
                 var value = d3.select(this).attr("value");
-                d3.select('#buttons_container')
-                    .style("fill", "red")
+                d3.select('.viz_info_text')
+                    .style("font-style", "normal")
                     .text(value)
             })
             .on("mouseout", function (d) {
-                    d3.select('#buttons_container')
-                        .style("fill","red")
-                        .text(' ');
+                    d3.select('.viz_info_text')
+                        .style("font-style","italic")
+                        .text('no additional info to display');
                 });
     });
     $.each(json_data['facility'],function (key, value) {
@@ -134,9 +134,9 @@ function createGraph(json_data, transportation_ranges) {
             .attr("cx", xLinearScale(value['points']['centroid'][0]))
             .attr("cy", yLinearScale(value['points']['centroid'][1]))
             .attr('r', 5)
-            .attr("fill", "black")
+            .attr("fill", "#444444")
         svgContainer.append('text')
-            .style("fill", "black")
+            .style("fill", "#444444")
             .attr("x", xLinearScale(value['points']['centroid'][0]))
             .attr("y", yLinearScale(value['points']['centroid'][1]))
             .attr("font-size", "15px")
