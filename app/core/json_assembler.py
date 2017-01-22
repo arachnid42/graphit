@@ -57,7 +57,7 @@ class JSONAssembler(object):
 
             # stage 2: compose edges part
             for edge in self.facility.d_graph.get_edges():
-                    viz_dict['edges'].append(edge)
+                viz_dict['edges'].append(edge)
 
             # backup json
             self.dump_to_file(viz_dict)
