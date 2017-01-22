@@ -187,7 +187,9 @@ function createGraph(json_data, transportation_ranges) {
     }
 
     function zoom_out() {
-            .call(zoom.scaleBy(svgContainer, 0.66));
+        svgContainer.transition()
+            .duration(10000)
+            .call(zoom.scaleBy(svgContainer, 0.66), d3.zoomIdenti);
     }
 
     $.each(json_data['facility'],function (key, value) {
