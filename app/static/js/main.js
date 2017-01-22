@@ -20,16 +20,6 @@ $( document ).ready(function() {
 var scale = 0.945;
 
 /*
-<tr>
-    <td style="background-color: green"></td>
-    <td>TLO</td>
-    <td>32</td>
-    <td>123421</td>
-    <td>INS</td>
-</tr>
-*/
-
-/*
 Hide (opacity=0) or show (opacity=1) visualization with fancy animation
  */
 function toggleVizVisibility(opacity, speed){

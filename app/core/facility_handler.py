@@ -50,8 +50,11 @@ class FacilityHandler(object):
             else:
                 self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
                 self.populate_facility(self.conf["facility_source_path"])
-                self.insert_all_transp_records(self.conf["masterplan_csv_path"], self.conf["peg_csv_path"],
-                                               date_boundaries)
+                res = self.insert_all_transp_records(self.conf["masterplan_csv_path"],
+                                                                        self.conf["peg_csv_path"], date_boundaries)
+                self.self_edges_weight = res[0]
+                self.date_from = res[1]
+                self.date_to = res[2]
                 self.dump_facility(self.conf["facility_dump_path"])
         else:
             self.dump_facility(self.conf["facility_dump_path"])
@@ -81,20 +84,32 @@ class FacilityHandler(object):
         :param date_boundaries - (<start>, <end>) list of string dates to filter on.
                Datetime format: "%Y-%m-%d %X" e.g. 2015-05-25 18:00:00
 
+        :return: list [<int_self_edges_weight>, <str_lower_date>, <str_upper_date>]
+
         """
 
         mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
         res = mpp.parse()  # get parsed transportation
         date_format = "%Y-%m-%d %X"
-
-        s_edge_weight = 0
-        # ##############################
-        # str_tmp = ""
-        # #############################
+        self_edges_weight = 0
+        date_from = datetime.strptime(date_boundaries[0], date_format) \
+            if date_boundaries else datetime.strptime("9999-01-01 00:00:00", date_format)
+        date_to = datetime.strptime(date_boundaries[1], date_format) \
+            if date_boundaries else datetime.strptime("1002-01-01 00:00:00", date_format)
 
         # inserting transportation into facility
         for key in res:
             rec = res[key]
+
+            # matching data date boundaries
+            if not date_boundaries:
+                d_f_cand = datetime.strptime(rec[2][:-4], date_format)
+                d_t_cand = datetime.strptime(rec[2][:-4], date_format)
+                if d_f_cand < date_from:
+                    date_from = d_f_cand
+                if d_t_cand > date_to:
+                    date_to = d_t_cand
+
             # filter out data errors
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
@@ -104,13 +119,9 @@ class FacilityHandler(object):
             try:
                 self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
             except SelfEdgesNotSupported:
-                # str_tmp += "Self-edge: %s, weight %i, opcodes: %s to %s\n" % (rec[0], rec[3], key[0], key[1])
-                s_edge_weight += rec[3]
+                self_edges_weight += int(rec[3])
 
-        # with open("app/backup/self-edges.txt", "w") as f:
-        #     f.write(str_tmp)
-
-        print("Self-edges total weight: %i" % s_edge_weight)
+        return [self_edges_weight, date_from.strftime(date_format), date_to.strftime(date_format)]
 
     def dump_facility(self, path):
         """ Save facility class as object data persistence
