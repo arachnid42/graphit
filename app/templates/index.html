@@ -1,39 +1,261 @@
 <html>
-  <head>
-    <title> Visualization | Metec-ProdOpt project </title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
-     <script type=text/javascript>
+    <head>
+        <title> Visualization | Metec-ProdOpt project </title>
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='res/favicon-32x32.png') }}" sizes="32x32" />
+        <script type=text/javascript>
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-     </script>
-      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-      <script src="https://d3js.org/d3-hsv.v0.0.min.js"></script>
-      <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
-    <script type="text/javascript" src="static/js/main.js"></script>
-  </head>
+        </script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="https://d3js.org/d3-hsv.v0.0.min.js"></script>
+        <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+        <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+        <script type="text/javascript" src="static/js/main.js"></script>
+    </head>
+    <body>
+        <div id="header">
+            <img src="{{ url_for('static', filename='res/upper_logo.png') }}">
+            <div id="header_text"><span><a href="{{ url_for('index') }}"><span>METEC-PRODOPT PROJECT</span></a></span></div>
+        </div>
+        <div id="viz_container">
+            <div id="factory_transp_container" class="svg-content">
+                <div id="suppl_container">
+                    <div id="viz_info_container"><span class="viz_info_text">no additional info to display</span></div>
+                    <div id="buttons_line_container">
+                        <div id="reset"><img src="{{ url_for('static', filename='res/reset.png') }}"></div>
+                        <div id="zoom_in"><img src="{{ url_for('static', filename='res/zoomin.png') }}"></div>
+                        <div id="zoom_out"><img src="{{ url_for('static', filename='res/zoomout.png') }}"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="info_container">
+                <div id="date_filter_container">
+                    <div id="d_f_header">
+                        <div>Date Filter Properties</div>
+                    </div>
+                    <div id="date_picker_container">Choose date range to apply:</div>
+                </div>
+                <div id="transp_table_container">
+                    <div id="transp_table_header_text">
+                        <div>Transportation Info Table</div>
+                    </div>
+                    <div id="inner_table_container">
+                        <table>
+                            <tr>
+                                <th style="width: auto">C</th>
+                                <th>SOURCE</th>
+                                <th>TIMES</th>
+                                <th>QUANTITY</th>
+                                <th>DESTINATION</th>
+                            </tr>
 
-  <body>
-    <div id="header">
-      <img src="{{ url_for('static', filename='res/upper_logo.png') }}">
-      <div id="header_text"><span><a href="{{ url_for('index') }}"><span>METEC-PRODOPT PROJECT</span></a></span></div>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: green"></td>
+                                <td>TLO</td>
+                                <td>32</td>
+                                <td>123421</td>
+                                <td>INS</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: yellow"></td>
+                                <td>LADU</td>
+                                <td>42</td>
+                                <td>74</td>
+                                <td>KESKLADU</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div id="legend_container">
+        <div id="legend_color_map_container">
+            <ul id="ul_color_map"></ul>
+        </div>
     </div>
-    <div id="viz_container">
-      <div id="factory_transp_container" class="svg-content">
-          <div id="buttons_container">
-              <div id="buttons_line_container">
-                  <div id="zoom_in"></div>
-                  <div id="zoom_out"></div>
-                  <div id="reset"></div>
-              </div>
-          </div>
-      </div>
-    </div>
-  <div id="info_container"></div>
-  <div id="legend_container">
-      <div id="legend_color_map_container">
-          <ul id="ul_color_map"></ul>
-      </div>
-  </div>
-  </body>
+    </body>
 </html>

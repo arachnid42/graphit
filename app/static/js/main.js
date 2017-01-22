@@ -6,8 +6,18 @@ $( document ).ready(function() {
     });
 });
 
-// Scale factor
-var scale = 0.95;
+var scale = 0.945;
+
+/*
+<tr>
+    <td style="background-color: green"></td>
+    <td>TLO</td>
+    <td>32</td>
+    <td>123421</td>
+    <td>INS</td>
+</tr>
+*/
+
 
 /*
 Return the max and min X and Y of the department boundaries
@@ -26,7 +36,7 @@ function findMaxXandY(json_data){
             }
         })
     });
-    var max_values = [max_x, max_y]
+    var max_values = [max_x, max_y];
     return max_values
 }
 
@@ -123,6 +133,7 @@ function createGraph(json_data, transportation_ranges) {
         d3.select('#factory_transp_container').select("svg")
             .attr('transform', d3.event.transform);
     }
+
     var svgContainer = d3.select("#factory_transp_container")
         .append("svg")
         .attr('height',height)
@@ -133,7 +144,7 @@ function createGraph(json_data, transportation_ranges) {
                 svgContainer.append('polygon')
                     .style("stroke-width", 5)
                     .attr("points", scalePoints(json_data,key, xLinearScale, yLinearScale))
-                    .attr("stroke", 'black')
+                    .attr("stroke", '#444444')
                     .style("pointer-events", "all")
                     .attr("fill", '#dbe9ee')
     });
@@ -151,14 +162,14 @@ function createGraph(json_data, transportation_ranges) {
             .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
             .on("mouseover", function (d) {
                 var value = d3.select(this).attr("value");
-                d3.select('#buttons_container')
-                    .style("fill", "red")
+                d3.select('.viz_info_text')
+                    .style("font-style", "normal")
                     .text(src+" - "+dest+" : "+value)
             })
             .on("mouseout", function (d) {
-                    d3.select('#buttons_container')
-                        .style("fill","red")
-                        .text(' ');
+                    d3.select('.viz_info_text')
+                        .style("font-style","italic")
+                        .text('no additional info to display');
                 });
 
     });
@@ -167,9 +178,9 @@ function createGraph(json_data, transportation_ranges) {
             .attr("cx", xLinearScale(value['points']['centroid'][0]))
             .attr("cy", yLinearScale(value['points']['centroid'][1]))
             .attr('r', 5)
-            .attr("fill", "black")
+            .attr("fill", "#444444")
         svgContainer.append('text')
-            .style("fill", "black")
+            .style("fill", "#444444")
             .attr("x", xLinearScale(value['points']['centroid'][0]))
             .attr("y", yLinearScale(value['points']['centroid'][1]))
             .attr("font-size", "15px")
@@ -178,6 +189,6 @@ function createGraph(json_data, transportation_ranges) {
             .attr("text-anchor", "middle")
             .text(key)
     })
-    var arr = getSortedTransportationRecords(json_data);
-    draw_color_legend(arr)
+  //  var arr = getSortedTransportationRecords(json_data);
+  //  draw_color_legend(arr)
 };

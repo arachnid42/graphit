@@ -1,6 +1,6 @@
 from math import sqrt, isinf, isnan
-from copy import copy
 import numpy as np
+from copy import copy
 from itertools import permutations
 
 """ graph.py
@@ -524,9 +524,14 @@ class Graph(object):
         yield: list [<src_node_label>, <dest_node_label>, <edge_weight>, <increment_count>]
         """
 
+        edges_to_ignore = {node.get_label(): [] for node in self.mapper.keys()}
         for node, edge_list in self.mapper.items():
             for edge in edge_list:
-                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight, edge.increment_count]
+                node_0_label = node.get_label()
+                node_1_label = edge.vertex_node.get_label()
+                if self.is_directed or node_1_label not in edges_to_ignore[node_0_label]:
+                    yield [node_0_label, node_1_label, edge.weight, edge.increment_count]
+                    edges_to_ignore[node_1_label].append(node_0_label)
 
     def floyd_warshall_shortest_paths(self, print_out=False):
         """ Calculate all the shortest paths between all possible (i,j) vertices pairs
