@@ -2,15 +2,38 @@ $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
         console.log("Success")
         var transportations_min_max = getMaxAndMinTransportationNumbers(data);
-        createGraph(data, transportations_min_max)
+        createGraph(data, transportations_min_max);
+        toggleVizVisibility(0, 180);
     });
-    $("zoom_in").click(function () {
-        zoomed();
-    })
 });
 
 var scale = 0.945;
 
+/*
+<tr>
+    <td style="background-color: green"></td>
+    <td>TLO</td>
+    <td>32</td>
+    <td>123421</td>
+    <td>INS</td>
+</tr>
+*/
+
+/*
+Hide (opacity=0) or show (opacity=1) visualization with fancy animation
+ */
+function toggleVizVisibility(opacity, speed){
+    if(opacity) $("#overlay").show();
+    $("#overlay").stop().fadeTo(speed, opacity);
+    $("#factory_transp_container").stop().fadeTo(speed, 1-opacity);
+    $("inner_table_container").stop().fadeTo(speed, 1-opacity);
+    if(!opacity) $("#overlay").hide();
+}
+
+/*
+Return the max and min X and Y of the department boundaries
+Used for department scaling
+ */
 function findMaxXandY(json_data){
     var max_x = 0;
     var max_y = 0;
@@ -26,7 +49,35 @@ function findMaxXandY(json_data){
     });
     var max_values = [max_x, max_y];
     return max_values
+}
 
+
+/*
+Takes all transportation records from json and sort it
+Need for color legend drawing
+return: sorted array of transportation records numbers
+ */
+function getSortedTransportationRecords(json_data) {
+    var arr = [];
+    $.each(json_data['edges'], function (key, value) {
+        arr.push(value[2])
+    });
+    return arr.sort(function (a,b) {return a-b})
+}
+
+/*
+As input takes integer array of transportation records numbers
+Draw the color legend
+ */
+function draw_color_legend(arr){
+    var max_transportation_value  = Math.max.apply(Math, arr);
+    console.log(max_transportation_value);
+    for(var i=0; i<arr.length;i++){
+        var hsv = getColor(arr[i], max_transportation_value);
+        var item = "<li style='background-color:" + getColor(arr[i], max_transportation_value) + "'></li>";
+        $("#ul_color_map").append(item);
+     //   d3.select("#ul_color_map").append(item);
+    }
 }
 function scalePoints(json_data, key, xLinearScale, yLinearScale){
     var points = [];
@@ -55,7 +106,7 @@ function getMaxAndMinTransportationNumbers(json_data) {
 function generateLineColor(number, max_transportation_number) {
     var scale_number = ((max_transportation_number-number)/max_transportation_number);
     if (scale_number < 50) {
-        var r = Math.floor(255 * (scale_number/ 50))
+        var r = Math.floor(255 * (scale_number/ 50));
         var g = 255;
     } else {
         var r = 255;
@@ -65,6 +116,8 @@ function generateLineColor(number, max_transportation_number) {
 }
 
 function getColor(value, max_transportation_number){
+    //console.log(value);
+    //console.log(max_transportation_number);
     var hue = Math.floor((max_transportation_number - value) * 120 / max_transportation_number).toString(10)
     var saturation = Math.abs(value - 50)/50;
     return ["hsl(",hue,","+saturation+"%,70%)"].join("");
@@ -91,23 +144,24 @@ function createGraph(json_data, transportation_ranges) {
         d3.select('#factory_transp_container').select("svg")
             .attr('transform', d3.event.transform);
     }
+
     var svgContainer = d3.select("#factory_transp_container")
         .append("svg")
         .attr('height',height)
         .attr('width', width)
-        .call(zoom)
-        .on("wheel", function () {
-            d3.event.preventDefault();
-        });
+        .call(zoom);
+
     $.each(json_data['facility'],function (key, value) {
                 svgContainer.append('polygon')
                     .style("stroke-width", 5)
                     .attr("points", scalePoints(json_data,key, xLinearScale, yLinearScale))
                     .attr("stroke", '#444444')
                     .style("pointer-events", "all")
-                    .attr("fill", '#dddddd')
+                    .attr("fill", '#dbe9ee')
     });
     $.each(json_data['edges'], function(key, value){
+        var src = value[0].split(".")[0];
+        var dest = value[1].split(".")[0]
         var color2 = getColor(value[2],transportation_ranges[0]);
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
@@ -121,13 +175,14 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(value)
+                    .text(src+" - "+dest+" : "+value)
             })
             .on("mouseout", function (d) {
                     d3.select('.viz_info_text')
                         .style("font-style","italic")
                         .text('no additional info to display');
                 });
+
     });
     $.each(json_data['facility'],function (key, value) {
         svgContainer.append('circle')
@@ -145,4 +200,6 @@ function createGraph(json_data, transportation_ranges) {
             .attr("text-anchor", "middle")
             .text(key)
     })
+  //  var arr = getSortedTransportationRecords(json_data);
+  //  draw_color_legend(arr)
 };

@@ -3,6 +3,12 @@
         <title> Visualization | Metec-ProdOpt project </title>
         <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+        <style>
+            @font-face {
+                font-family: Arachnid;
+                src: url({{url_for('static', filename='res/bravo.sct.otf') }}) format("opentype");
+            }
+        </style>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='res/favicon-32x32.png') }}" sizes="32x32" />
         <script type=text/javascript>
@@ -17,7 +23,7 @@
     <body>
         <div id="header">
             <img src="{{ url_for('static', filename='res/upper_logo.png') }}">
-            <div id="header_text"><span><a href="{{ url_for('index') }}"><span>METEC-PRODOPT PROJECT</span></a></span></div>
+            <div id="header_text"><div><a href="{{ url_for('index') }}">METEC-PRODOPT PROJECT</a></div></div>
         </div>
         <div id="viz_container">
             <div id="factory_transp_container" class="svg-content">
@@ -251,8 +257,41 @@
                 </div>
             </div>
         </div>
-    <div id="footer">
-
+    <div id="footer_container">
+        <div id="statistics_container">
+            <div id="statistics_columns_container">
+                <div id="statistics_header_text">Statistics</div>
+                <ul>
+                    <li> Total items transported: <span>2132112</span> </li>
+                    <li> Total amount of transportations: <span>2342</span> </li>
+                    <li> Self-edges omitted: <span>123</span> </li>
+                    <li> Departments involved: <span>10 from 14</span> </li>
+                    <li> From DUMMY department: <span>123451</span></li>
+                    <li> Date range: <span>12/12/1005 - 12/34/5555</span></li>
+                </ul>
+            </div>
+        </div>
+        <div id="about_container">
+            <div id="about_text">
+                <b>Acknowledgments:</b> this app was developed as a part of an internship at
+                <a href="http://www.metec.ee">Metec</a> company. It's an open source project
+                and the source code can be obtained with <a href="https://github.com/arachnid42/metec-prodopt/">this link.</a>
+                <div>
+                    Developed by <span id="arachnid_text"><a href="https://github.com/arachnid42/">arachnid42</a></span> team
+                </div>
+            </div>
+            <div id="about_logos">
+                <div><img src="{{ url_for('static', filename='res/ut_logo.png') }}"></div>
+                <div><img src="{{ url_for('static', filename='res/metec_logo.png') }}"></div>
+                <div><img src="{{ url_for('static', filename='res/arachnid_logo.png') }}"></div>
+            </div>
+        </div>
+    </div>
+    <div id="overlay">
+        <div>
+            <img src="{{ url_for('static', filename='res/gears.gif') }}"><br>
+            Loading...
+        </div>
     </div>
     </body>
 </html>
