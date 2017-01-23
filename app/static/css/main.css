@@ -51,7 +51,6 @@ body {
   #header #header_text {
     background-color: #66BEAD;
     height: 100%;
-    margin-top: -1%;
     margin-left: 10px;
     color: #f1f1f1;
     font-size: 20px;
@@ -163,7 +162,8 @@ body {
         #viz_container #info_container #transp_table_container table td {
           font-family: "Open Sans";
           color: #444;
-          text-align: center; }
+          text-align: center;
+          border: 1px solid #AAAAAA; }
 
 #footer_container {
   margin-left: 1%;

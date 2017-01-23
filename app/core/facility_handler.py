@@ -88,7 +88,7 @@ class FacilityHandler(object):
 
         """
 
-        mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
+        mpp = MPParser(mp_csv_path, peg_csv_path)
         res = mpp.parse()  # get parsed transportation
         date_format = "%Y-%m-%d %X"
         self_edges_weight = 0

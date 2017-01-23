@@ -1,22 +1,46 @@
+var START_DATE = null;
+var END_DATE = null;
+
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
-        console.log("Success");
-        var transportations_min_max = getMaxAndMinTransportationNumbers(data);
-        createGraph(data, transportations_min_max);
-        createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
-        createStatisticsTable(data);
-        toggleVizVisibility(0, 180);
-        $("#e3").daterangepicker({
-             datepickerOptions : {
-             numberOfMonths : 3,
-                 dateFormat: 'yy-mm-dd',
-                 minDate: data['date_boundaries'][0].split(" ")[0],
-                 maxDate: data['date_boundaries'][1].split(" ")[0]
-         }
-     });
+        START_DATE = data['date_boundaries'][0].split(" ")[0];
+        END_DATE = data['date_boundaries'][1].split(" ")[0];
+        getVisualization(data);
+        hideLoading(180);
     });
 });
 
+function getVisualization(data) {
+    var transportations_min_max = getMaxAndMinTransportationNumbers(data);
+    createGraph(data, transportations_min_max);
+    createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
+    createStatisticsTable(data);
+    createDateRangePicker(data);
+}
+
+function createDateRangePicker(data) {
+    $("#e3").daterangepicker({
+             datepickerOptions : {
+             numberOfMonths : 3,
+                 dateFormat: 'yy-mm-dd',
+                 minDate: START_DATE,
+                 maxDate: END_DATE
+         }
+        });
+        $(".ui-priority-primary").click(function () {
+            var selectedDateRange = JSON.parse($("#e3").val());
+            console.log($("#e3").val());
+            console.log(typeof selectedDateRange);
+            console.log(selectedDateRange['start']);
+            $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
+                start: selectedDateRange['start'],
+                end: selectedDateRange['end']
+            }, function (data) {
+                d3.select("svg").remove();
+                getVisualization(data);
+            });
+        });
+}
 var scale = 0.945;
 
 function createStatisticsTable(json_data){
@@ -30,40 +54,42 @@ function createStatisticsTable(json_data){
         total_transportations_times+=value[3];
         total_items_transported+=value[2];
     })
-    $(".total_amount_of_transportations").append(total_transportations_times);
-    $(".total_items_transported").append(total_items_transported);
-    $(".dummy_count").append(dummy_transportations_amount);
-    $(".dep_involved").append(json_data["involved_edges_count"]+" from 14");
-    $(".date_range").append("from "+json_data['date_boundaries'][0].split(" ")[0]+" to "+json_data['date_boundaries'][1].split(" ")[0]);
-    $(".omitted_self-edges").append(json_data['self_edges_total_weight']);
+    $(".total_amount_of_transportations").empty().append(total_transportations_times);
+    $(".total_items_transported").empty().append(total_items_transported);
+    $(".dummy_count").empty().append(dummy_transportations_amount);
+    $(".dep_involved").empty().append(json_data["involved_edges_count"]+" from 14");
+    $(".date_range").empty().append(json_data['date_boundaries'][0].split(" ")[0]+" -- "+json_data['date_boundaries'][1].split(" ")[0]);
+    $(".omitted_self-edges").empty().append(json_data['self_edges_total_weight']);
 }
 
-/*
-Hide (opacity=0) or show (opacity=1) visualization with fancy animation
- */
-function toggleVizVisibility(opacity, speed){
-    if(opacity) $("#overlay").show();
-    $("#overlay").stop().fadeTo(speed, opacity);
-    $("#factory_transp_container").stop().fadeTo(speed, 1-opacity);
-    $("inner_table_container").stop().fadeTo(speed, 1-opacity);
-    if(!opacity) $("#overlay").hide();
+function hideLoading(speed){
+    $("#overlay").stop().fadeTo(speed, 0);
+    $("#factory_transp_container").stop().fadeTo(speed, 1);
+    $("#overlay").hide();
 }
 
 function createInfoTable(json_data, max_transportation_value) {
     var color = 0;
+    var append_str = '';
+    var table = $('table');
+    $.tablesorter.clearTableBody = function (table) {
+                $('tbody', table).empty();
+    };
+    $.tablesorter.clearTableBody(table[0]);
     $.each(json_data['edges'], function (key,value) {
         color = getColor(value[2], max_transportation_value);
-        $("#info_table").append("<tr><td style='background-color:" + d3.color(color) +"'></td>" +
+        append_str += "<tr><td style='background-color:" + d3.color(color) +"'></td>" +
             "<td>"+value[0].split(".")[0]+"</td>" +
             "<td>"+value[3]+"</td>" +
             "<td>"+value[2]+"</td>" +
-            "<td>"+value[1].split(".")[0]+"</td></tr>")
+            "<td>"+value[1].split(".")[0]+"</td></tr>";
     });
+    table.append(append_str).trigger('update');
     $(".tablesorter").tablesorter({
         headers: { 0: { sorter: false}},
+        theme: 'blue',
         sortList: [[3,0]]
-    })
-
+    });
 }
 /*
 Return the max and min X and Y of the department boundaries
@@ -151,10 +177,9 @@ function generateLineColor(number, max_transportation_number) {
 }
 
 function getColor(value, max_transportation_number){
-    //console.log(value);
-    //console.log(max_transportation_number);
+    console.log(max_transportation_number);
     var hue = Math.floor((max_transportation_number - value) * 120 / max_transportation_number).toString(10)
-    var saturation = Math.abs(value - 50)/50;
+    var saturation = Math.abs(value - 75)/20;
     return ["hsl(",hue,","+saturation+"%,70%)"].join("");
 }
 
