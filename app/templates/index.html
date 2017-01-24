@@ -3,14 +3,9 @@
         <title> Visualization | Metec-ProdOpt project </title>
         <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
-        <style>
-            @font-face {
-                font-family: Arachnid;
-                src: url({{url_for('static', filename='res/bravo.sct.otf') }}) format("opentype");
-            }
-        </style>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/theme.blue.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jq.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.comiseo.daterangepicker.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
@@ -20,11 +15,12 @@
         </script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+        <script src="http://code.jquery.com/jquery-migrate-1.0.0.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
         <script src="https://d3js.org/d3-hsv.v0.0.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
         <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
-        <script type="text/javascript" src="http://tablesorter.com/__jquery.tablesorter.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.4/js/jquery.tablesorter.combined.min.js"></script>
         <script type="text/javascript" src="static/js/libs/jquery.comiseo.daterangepicker.min.js"></script>
         <script type="text/javascript" src="static/js/main.js"></script>
     </head>
@@ -59,7 +55,7 @@
                         <div>Transportation Info Table</div>
                     </div>
                     <div id="inner_table_container">
-                        <table id="myTable" class="tablesorter" cellspacing="1">
+                        <table class="tablesorter" cellspacing="1">
                             <thead>
                             <tr>
                                 <th style="width: auto">C</th>
@@ -69,7 +65,7 @@
                                 <th>DESTINATION</th>
                             </tr>
                             </thead>
-                            <tbody id="info_table">
+                            <tbody>
                             </tbody>
                         </table>
                     </div>
@@ -106,7 +102,7 @@
             </div>
         </div>
     </div>
-    <div id="overlay">
+    <div id="full_page_overlay">
         <div>
             <img src="{{ url_for('static', filename='res/gears.gif') }}"><br>
             Loading...
