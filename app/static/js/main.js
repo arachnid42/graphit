@@ -20,18 +20,48 @@ function getVisualization(data) {
 }
 
 function createDateRangePicker(data) {
-    $("#e3").daterangepicker({
-             datepickerOptions : {
-             numberOfMonths : 3,
-                 dateFormat: 'yy-mm-dd',
-                 minDate: START_DATE,
-                 maxDate: END_DATE
+    $("#e4").daterangepicker({
+                 presetRanges: [{
+                     text: 'Full range',
+                     dateStart: function() { return moment(START_DATE) },
+                     dateEnd: function() { return moment(END_DATE) }
+                 }, {
+                     text: 'Previous year',
+                     dateStart: function() { return moment().subtract(1, "years") },
+                     dateEnd: function() { return moment() }
+                 }, {
+                     text: 'Previous 3 months',
+                     dateStart: function() { return moment().subtract(3, "months") },
+                     dateEnd: function() { return moment() }
+                 }, {
+
+                     text: 'Previous month',
+                     dateStart: function() { return moment().subtract(1,"months") },
+                     dateEnd: function() { return moment() }
+                 }, {
+                     text: 'Next month',
+                     dateStart: function() { return moment() },
+                     dateEnd: function() { return moment().add(1, "months") }
+                 }, {
+                     text: 'Next 3 months',
+                     dateStart: function() { return moment() },
+                     dateEnd: function() { return moment().add(3, "months") }
+                 }, {
+
+                     text: 'Next year',
+                     dateStart: function() { return moment() },
+                     dateEnd: function() { return moment().add(1, "years") }
+                 }],
+                 applyOnMenuSelect: true,
+                 datepickerOptions : {
+                     numberOfMonths : 3,
+                     dateFormat: 'yy-mm-dd',
+                     minDate: START_DATE,
+                     maxDate: END_DATE,
          },
-
             change: function(event, data) {
-                var selectedDateRange = JSON.parse($("#e3").val());
+                var selectedDateRange = JSON.parse($("#e4").val());
                 toggleLoading(1, 180);
-
                 $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
                     start: selectedDateRange['start'],
                     end: selectedDateRange['end']
