@@ -1,85 +1,268 @@
 @import colors
+@import mixins
 
 body
-  background-color: white
+  background-color: $page_background
   margin: 0 auto
   padding: 0
 
+#full_page_overlay
+  position: fixed
+  z-index: 3
+  background: #f4f4f4
+  background-size: 5%
+  top: 0
+  left: 0
+  height: 100%
+  width: 100%
+  text-align: center
+  font-family: 'Lato', Serif
+  color: $loading_text_color
+
+  img
+    margin-bottom: 1%
+
+  div
+    @include vert_center
+
 #header
+  -webkit-box-shadow: 0px 6px 7px -8px rgba(0,0,0,0.75)
+  -moz-box-shadow: 0px 6px 7px -8px rgba(0,0,0,0.75)
+  box-shadow: 0px 6px 7px -8px rgba(0,0,0,0.75)
   background-color: $primary_color
   width: 100%
-  height: 60px
+  height: 6%
+  padding-bottom: 0
+  margin-bottom: 0
+  opacity: 0
   display: flex
 
-#header
-  a:hover
-    color: $header_text_color
-  a:visited
-    color: $header_text_color
+  div
+    padding-left: 1%
+    padding-right: 1%
+    @include vert_center
+  a
+    text-decoration: none
+
+    &:hover
+      color: $page_background
+
+    &:visited
+      color: $page_background
+
   img
-    display: inline-block
-    margin-left: 15px
-    margin-top: 10px
-    height: 40px
+    margin-left: 1%
+    margin-right: 1%
+    height: 70%
+    @include vert_center
+
   #header_text
-    height: inherit
-    width: 70%
-    display: table
-    margin-left: 10px
-    color: $header_text_color
-    font-size: 20px
-    font-family: 'Lato', Serif
-    span
-      display: table-cell
-      vertical-align: middle
-      span
-        background-color: $header_fill_color
-        padding: 18px
-      span:hover
-        background-color: $header_hover_color
-        cursor: pointer
+    background-color: $header_fill_color
+    height: 100%
+    padding-bottom: 1px
+    color: $page_background
+    font-size: 1vw
+    font-family: 'Lato'
+
+    div
+      margin-top: 1%
+
+    &:hover
+      background-color: $header_hover_color
+      cursor: pointer
 
 #viz_container
+  opacity: 0
   width: 98%
+  height: 80%
   margin: 1% auto
+
   #factory_transp_container
     width: 60%
-    height: 80%
+    height: 100%
     float: left
-    border: 2px solid $primary_color
+    background-color: $viz_canvas_background
+    box-sizing: border-box
+    border: 2px solid $viz_border_color
+    border-bottom: 0px
     z-index: 1
     position: relative
-    #buttons_container
+
+    #suppl_container
       width: 100%
-      height: 5%
+      height: 4%
       z-index: 1
       bottom: 0
-      left: 0
       position: absolute
-      font-size: 28px
-      font-family: 'Lato', Serif
+      background: rgba(0, 0, 0, 0.3)
+
+      #viz_info_container
+        float: left
+        height: 100%
+        display: table
+        border-spacing: 10px 0
+
+        .viz_info_text
+          display: table-cell
+          font-style: italic
+          vertical-align: middle
+          font-size: 16px
+          color: $viz_suppl_text_color
+          font-family: 'Lato', Serif
+
       #buttons_line_container
-        width: 30%
+        width: 12%
         height: 100%
         float: right
         z-index: 1
-        position: relative
-        #zoom_in
-          width: 30%
+
+        img
+          height: 75%
+          display: block
+          margin: 0 auto
+          @include vert_center()
+
+
+        #zoom_in, #zoom_out, #reset
+          width: 31%
           height: inherit
-          background-color: red
-          float: left
-        #zoom_out
-          width: 30%
-          height: inherit
-          float: left
-          background-color: #66BEAD
-        #reset
-          width: 30%
-          height: inherit
-          float: left
-          background-color: bisque
-  #algo_container
-    width: 30%
-    height: 80%
+          float: right
+          border: 1px solid rgba(0, 0, 0, 0)
+          border-bottom: 0px
+
+          &:hover
+            cursor: pointer
+            background: rgba(255, 255, 255, 0.3)
+
+  #info_container
+    width: 39%
+    height: 100%
     float: right
+
+    #date_filter_container
+      height: 14%
+      margin: 0 2% 0 2%
+
+      #d_f_header
+        @include info_header_text()
+
+      #date_picker_container
+        @include info_comment_text()
+
+      span
+        margin-left: 2%
+
+    #transp_table_container
+      position: relative
+      display: block
+      height: 86%
+      margin: 0 2% 0 2%
+
+      #transp_table_header_text
+        height: 4%
+        margin-bottom: 2%
+        @include info_header_text()
+
+      #inner_table_container
+        height: 94%
+        overflow-y: auto
+
+      table
+        margin: 0
+        width: 100%
+        border-collapse: collapse
+
+        td
+          border: 1px solid $viz_border_color
+
+        th
+          font-family: 'Open Sans'
+          color: $info_header_text_color
+          background-color: $main_table_cell_color
+          border: 1px solid $viz_border_color
+
+        td
+          font-family: 'Open Sans'
+          color: $info_header_text_color
+          text-align: center
+          border: 1px solid $viz_border_color
+
+#footer_container
+  opacity: 0
+  margin-left: 1%
+  margin-right: 1%
+  height: 12%
+  width: 98%
+  bottom: 0
+  position: absolute
+
+  #statistics_container
+    float: left
+    width: 60%
+    height: 100%
+
+    #statistics_columns_container
+      margin: 1%
+      @include info_header_text
+
+      ul
+        list-style-type: square
+        -moz-column-count: 3
+        -webkit-column-count: 3
+        column-count: 3
+        font-family: 'Open Sans'
+        font-size: 0.78vw
+        color: #222
+
+        span
+          font-weight: bold
+          color: $primary_color
+
+  #about_container
+    width: 39%
+    height: 100%
+    float: right
+
+    #about_logos
+      width: 48%
+      float: right
+      @include vert_center
+
+      div
+        display: inline-block
+        width: 32%
+        img
+          width: 85%
+
+    #about_text
+      width: 48%
+      font-family: 'Open Sans'
+      font-size: 0.7vw
+      text-align: justify
+      color: $info_header_text_color
+      float: left
+      margin-left: 2%
+      @include vert_center
+
+      a
+        text-decoration: none
+        color: $primary_color
+
+        &:hover
+          color: $header_hover_color
+
+      div
+        margin-top: 1%
+        text-align: right
+        width: 100%
+
+        span
+          background-color: $arachnid_color
+          
+          a
+            color: $viz_suppl_text_color
+            font-family: Impact
+
+            &:hover
+              background-color: $viz_suppl_text_color
+              color: $arachnid_color

@@ -5,7 +5,7 @@ import json
 class JSONAssembler(object):
     """ Assembles visualization data JSON on request """
 
-    def __init__(self, conf_path, force_rebuild=False):
+    def __init__(self, conf_path, force_rebuild=False, date_boundaries=None):
         """ Init method
 
         Fetch cached facility version and initialize
@@ -23,10 +23,9 @@ class JSONAssembler(object):
         self.force_rebuild = force_rebuild
 
         # init/restore Facility class
-        fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild)
-        self.facility = fh.facility
-        self.viz_dict = {'facility': {}, "edges": []}
-        self.viz_json_dump_path = fh.conf['viz_json_dump_path']
+        self.fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild, date_boundaries=date_boundaries)
+        self.facility = self.fh.facility
+        self.viz_json_dump_path = self.fh.conf['viz_json_dump_path']
 
     def get_viz_json(self):
         """ Assemble visualization JSON or get a cached version
@@ -36,40 +35,69 @@ class JSONAssembler(object):
         """
 
         if not self.force_rebuild and os.path.isfile(self.viz_json_dump_path):
-            with open(self.viz_json_dump_path, 'rb') as f:
-                return f.read()
+            return self.get_cached_json()
         else:
+
+            # clear previously JSON dict
+            viz_dict = self.get_json_base()
+
             # stage 1: compose factory layout part
             for dep in self.facility.get_departments():
-                self.viz_dict['facility'][dep.label] = {}
-                self.viz_dict['facility'][dep.label]["boundaries"] = []
-                self.viz_dict['facility'][dep.label]["points"] = {}
+                viz_dict['facility'][dep.label] = {}
+                viz_dict['facility'][dep.label]["boundaries"] = []
+                viz_dict['facility'][dep.label]["points"] = {}
 
                 # adding department boundaries
                 for point in dep.point2d_vector:
-                    self.viz_dict['facility'][dep.label]["boundaries"].append(point.get_coords_list())
+                    viz_dict['facility'][dep.label]["boundaries"].append(point.get_coords_list())
 
                 # adding department inner points
                 for p_name, p_coords in dep.vertices.items():
-                    self.viz_dict['facility'][dep.label]["points"][p_name] = p_coords.get_coords_list()
+                    viz_dict['facility'][dep.label]["points"][p_name] = p_coords.get_coords_list()
 
             # stage 2: compose edges part
-            edges_parsed = []
             for edge in self.facility.d_graph.get_edges():
-                if not self.__check_mirror_edges(edge, edges_parsed):
-                    self.viz_dict['edges'].append(edge)
-                edges_parsed.append(edge)
+                viz_dict['edges'].append(edge)
+
+            # stage 3: insert additional information
+            viz_dict['self_edges_total_weight'] = self.fh.self_edges_weight
+            viz_dict['date_boundaries'] = [self.fh.date_from, self.fh.date_to]
+
+            # get nodes involved in a net
+            involved_nodes_count = 0
+            for edge_list in self.facility.d_graph.mapper.values():
+                if edge_list:
+                    involved_nodes_count += 1
+
+            # append result into JSON
+            viz_dict['involved_edges_count'] = involved_nodes_count
 
             # backup json
-            self.dump_to_file()
+            self.dump_to_file(viz_dict)
 
-            return json.dumps(self.viz_dict)
+            return json.dumps(viz_dict)
 
-    def dump_to_file(self):
+    @staticmethod
+    def get_json_base():
+        """ Get base JSON to append to
+
+        :return: python dictionary instance
+
+        """
+
+        return {'facility': {}, "edges": []}
+
+    def get_cached_json(self):
+        """ Pick up JSON from a system and return it """
+
+        with open(self.viz_json_dump_path, 'rb') as f:
+            return f.read()
+
+    def dump_to_file(self, viz_dict):
         """ Dump visualization JSON data """
 
         # retrieve base dump directory from config
-        base_dir = '/'.join(self.viz_json_dump_path.split("/")[:-1])+"/"
+        base_dir = '/'.join(self.viz_json_dump_path.split("/")[:-1]) + "/"
 
         # check whether base dir exists
         # and if not create it
@@ -78,26 +106,4 @@ class JSONAssembler(object):
 
         # dump data
         with open(self.viz_json_dump_path, 'w') as f:
-            json.dump(self.viz_dict, f)
-
-    @staticmethod
-    def __check_mirror_edges(edge1, edge_lst):
-        """ Check whether edge list passed holds a mirror of an edge1 passed
-
-        Example: edge A -> B is a mirror of B -> A for undirected graph
-
-        :param edge1 - list [<src_node_label>, <dest_node_label>, <edge_weight>]
-               of the first edge to check
-        :param edge_lst - list of edges like above to find a mirror in it
-
-        :return boolean True if edge1 mirror was in edge_lst. False otherwise.
-
-        """
-
-        for edge in edge_lst:
-            if edge[0] == edge1[1] and edge[1] == edge1[0]:
-                return True
-        return False
-
-
-
+            json.dump(viz_dict, f)

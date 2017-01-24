@@ -1,4 +1,3 @@
-from datetime import datetime
 from app.dstruct.graph import *
 
 
@@ -73,9 +72,6 @@ class TransportationGraph(Graph):
         """ Constructor to initialize all the necessary fields """
         super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
         self.departments = []
-        # map transportation (graph edges, weight appended and time when it happened)
-        # to be able to filter not aggregated transportation records by date
-        self.transp_time = {}
 
     def add_department(self, department):
         """ Load new department vertices into a graph
@@ -96,7 +92,7 @@ class TransportationGraph(Graph):
         else:
             self.departments.append(department)
 
-    def add_transp_record(self, src_label, dest_label, quant, time):
+    def add_transp_record(self, src_label, dest_label, quant):
         """ Add a transportation record
 
         Add a record about transportation (movement)
@@ -108,13 +104,10 @@ class TransportationGraph(Graph):
         :param dest_label - string label of a destination department
                point in the same format as above
         :param quant - int quantity of items transported
-        :param time - datetime object that holds a time when a
-               transportation happened
         :raises NodeNotExists, SelfEdgesNotSupported
         """
 
-        edge = self.add_edge(src_label, dest_label, quant)
-        self.transp_time[edge] = [quant, time]
+        self.add_edge(src_label, dest_label, quant)
 
 
 class Facility(object):
@@ -200,7 +193,7 @@ class Facility(object):
                 return False
         return True
 
-    def add_transp_record(self, src_label, dest_label, quant, time):
+    def add_transp_record(self, src_label, dest_label, quant):
         """ Add a transportation record
 
         Add a record about transportation (movement)
@@ -212,16 +205,10 @@ class Facility(object):
         :param dest_label - string label of a destination department
                point in the same format as above
         :param quant - int quantity of items transported
-        :param time - string date and time when transportation happened
-               i.e. 2015-05-25 18:00:00
 
         """
 
         if not isinstance(quant, int):
             raise NotIntQuantity
 
-        try:
-            dt = datetime.strptime(time, "%Y-%m-%d %X")  # example: 2015-05-25 18:00:00
-        except ValueError:
-            raise BadTimeFormat("Transportation time parsing failed!")
-        self.d_graph.add_transp_record(src_label, dest_label, quant, dt)  # raises errors on failure
+        self.d_graph.add_transp_record(src_label, dest_label, quant)  # raises errors on failure

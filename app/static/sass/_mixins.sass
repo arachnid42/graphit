@@ -1,0 +1,17 @@
+@mixin vert_center()
+  position: relative
+  top: 50%
+  transform: translateY(-50%)
+
+@mixin info_header_text()
+  div
+    font-size: 1.3vw
+    color: $info_header_text_color
+    font-family: 'Lato', Serif
+    border-bottom: 1px solid $viz_border_color
+
+@mixin info_comment_text()
+  margin: 3%
+  font-family: 'Open Sans'
+  font-size: 0.78vw
+  color: #222

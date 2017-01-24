@@ -1,6 +1,6 @@
 from math import sqrt, isinf, isnan
-from copy import copy
 import numpy as np
+from copy import copy
 from itertools import permutations
 
 """ graph.py
@@ -199,6 +199,7 @@ class EdgeNode(object):
         """
         self.vertex_node = vertex_node
         self.weight = weight
+        self.increment_count = 1
 
     def __str__(self):
         return "Edge to %s with weight %s" % (self.vertex_node.get_label(), str(self.weight))
@@ -343,11 +344,13 @@ class Graph(object):
             if self.aggregate_weight:
                 edge_node = self.__get_edge(node_a, node_b)
                 edge_node.weight = edge_node.weight + weight
+                edge_node.increment_count += 1
                 if self.debug:
                     print("Edge was already present but it's weight was incremented")
                 if not self.is_directed:
                     edge_node_b = self.__get_edge(node_b, node_a)
                     edge_node_b.weight = edge_node_b.weight + weight
+                    edge_node_b.increment_count += 1
                     return edge_node, edge_node_b
                 return edge_node
             else:
@@ -518,12 +521,17 @@ class Graph(object):
 
         Get all edges of the graph one by one
 
-        yield: list [<src_node_label>, <dest_node_label>, <edge_weight>]
+        yield: list [<src_node_label>, <dest_node_label>, <edge_weight>, <increment_count>]
         """
 
+        edges_to_ignore = {node.get_label(): [] for node in self.mapper.keys()}
         for node, edge_list in self.mapper.items():
             for edge in edge_list:
-                yield [node.get_label(), edge.vertex_node.get_label(), edge.weight]
+                node_0_label = node.get_label()
+                node_1_label = edge.vertex_node.get_label()
+                if self.is_directed or node_1_label not in edges_to_ignore[node_0_label]:
+                    yield [node_0_label, node_1_label, edge.weight, edge.increment_count]
+                    edges_to_ignore[node_1_label].append(node_0_label)
 
     def floyd_warshall_shortest_paths(self, print_out=False):
         """ Calculate all the shortest paths between all possible (i,j) vertices pairs
