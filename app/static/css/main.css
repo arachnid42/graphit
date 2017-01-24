@@ -150,7 +150,6 @@ body {
         height: 94%;
         overflow-y: auto; }
       #viz_container #info_container #transp_table_container table {
-        width: 100%;
         border-collapse: collapse; }
         #viz_container #info_container #transp_table_container table td {
           border: 1px solid #AAAAAA; }

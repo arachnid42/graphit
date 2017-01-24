@@ -25,20 +25,23 @@ function createDateRangePicker(data) {
                  dateFormat: 'yy-mm-dd',
                  minDate: START_DATE,
                  maxDate: END_DATE
-         }
-        });
-        $(".ui-priority-primary").click(function () {
-            var selectedDateRange = JSON.parse($("#e3").val());
-            console.log($("#e3").val());
-            console.log(typeof selectedDateRange);
-            console.log(selectedDateRange['start']);
-            $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
-                start: selectedDateRange['start'],
-                end: selectedDateRange['end']
-            }, function (data) {
-                d3.select("svg").remove();
-                getVisualization(data);
-            });
+         },
+            open: function(event, data) {},
+            change: function(event, data) {
+                var selectedDateRange = JSON.parse($("#e3").val());
+                console.log($("#e3").val());
+                console.log(typeof selectedDateRange);
+                console.log(selectedDateRange['start']);
+                $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
+                    start: selectedDateRange['start'],
+                    end: selectedDateRange['end']
+                }, function (data) {
+                    d3.select("svg").remove();
+                    getVisualization(data);
+                });
+            },
+            clear: function(event, data) {},
+            cancel: function(event, data) {}
         });
 }
 var scale = 0.945;
