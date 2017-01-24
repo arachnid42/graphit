@@ -6,9 +6,9 @@ body
   margin: 0 auto
   padding: 0
 
-#overlay
+#full_page_overlay
   position: fixed
-  z-index: 2
+  z-index: 3
   background: #f4f4f4
   background-size: 5%
   top: 0
@@ -32,11 +32,14 @@ body
   background-color: $primary_color
   width: 100%
   height: 6%
+  padding-bottom: 0
+  margin-bottom: 0
+  opacity: 0
   display: flex
 
   div
-    padding-left: 15px
-    padding-right: 15px
+    padding-left: 1%
+    padding-right: 1%
     @include vert_center
   a
     text-decoration: none
@@ -48,23 +51,28 @@ body
       color: $page_background
 
   img
-    margin-left: 15px
-    height: 40px
+    margin-left: 1%
+    margin-right: 1%
+    height: 70%
     @include vert_center
 
   #header_text
     background-color: $header_fill_color
     height: 100%
-    margin-left: 10px
+    padding-bottom: 1px
     color: $page_background
-    font-size: 20px
-    font-family: 'Lato', Serif
+    font-size: 1vw
+    font-family: 'Lato'
+
+    div
+      margin-top: 1%
 
     &:hover
       background-color: $header_hover_color
       cursor: pointer
 
 #viz_container
+  opacity: 0
   width: 98%
   height: 80%
   margin: 1% auto
@@ -75,7 +83,6 @@ body
     float: left
     background-color: $viz_canvas_background
     box-sizing: border-box
-    opacity: 0
     border: 2px solid $viz_border_color
     border-bottom: 0px
     z-index: 1
@@ -161,6 +168,8 @@ body
         overflow-y: auto
 
       table
+        margin: 0
+        width: 100%
         border-collapse: collapse
 
         td
@@ -179,6 +188,7 @@ body
           border: 1px solid $viz_border_color
 
 #footer_container
+  opacity: 0
   margin-left: 1%
   margin-right: 1%
   height: 12%
@@ -256,3 +266,8 @@ body
             &:hover
               background-color: $viz_suppl_text_color
               color: $arachnid_color
+
+.comiseo-daterangepicker
+  -webkit-box-shadow: 0px 0 7px -8px rgba(0,0,0,0.75)
+  -moz-box-shadow: 0px 0 7px -8px rgba(0,0,0,0.75)
+  box-shadow: 0px 0 7px -8px rgba(0,0,0,0.75)

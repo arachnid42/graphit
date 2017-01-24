@@ -1,12 +1,13 @@
 var START_DATE = null;
 var END_DATE = null;
+var SCALE = 0.945;
 
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
         START_DATE = data['date_boundaries'][0].split(" ")[0];
         END_DATE = data['date_boundaries'][1].split(" ")[0];
         getVisualization(data);
-        hideLoading(180);
+        toggleLoading(0, 100);
     });
 });
 
@@ -19,32 +20,59 @@ function getVisualization(data) {
 }
 
 function createDateRangePicker(data) {
-    $("#e3").daterangepicker({
-             datepickerOptions : {
-             numberOfMonths : 3,
-                 dateFormat: 'yy-mm-dd',
-                 minDate: START_DATE,
-                 maxDate: END_DATE
+    $("#e4").daterangepicker({
+                 presetRanges: [{
+                     text: 'Full range',
+                     dateStart: function() { return moment(START_DATE) },
+                     dateEnd: function() { return moment(END_DATE) }
+                 }, {
+                     text: 'Previous year',
+                     dateStart: function() { return moment().subtract(1, "years") },
+                     dateEnd: function() { return moment() }
+                 }, {
+                     text: 'Previous 3 months',
+                     dateStart: function() { return moment().subtract(3, "months") },
+                     dateEnd: function() { return moment() }
+                 }, {
+
+                     text: 'Previous month',
+                     dateStart: function() { return moment().subtract(1,"months") },
+                     dateEnd: function() { return moment() }
+                 }, {
+                     text: 'Next month',
+                     dateStart: function() { return moment() },
+                     dateEnd: function() { return moment().add(1, "months") }
+                 }, {
+                     text: 'Next 3 months',
+                     dateStart: function() { return moment() },
+                     dateEnd: function() { return moment().add(3, "months") }
+                 }, {
+
+                     text: 'Next year',
+                     dateStart: function() { return moment() },
+                     dateEnd: function() { return moment().add(1, "years") }
+                 }],
+                 applyOnMenuSelect: true,
+                 datepickerOptions : {
+                     numberOfMonths : 3,
+                     dateFormat: 'yy-mm-dd',
+                     minDate: START_DATE,
+                     maxDate: END_DATE,
          },
-            open: function(event, data) {},
             change: function(event, data) {
-                var selectedDateRange = JSON.parse($("#e3").val());
-                console.log($("#e3").val());
-                console.log(typeof selectedDateRange);
-                console.log(selectedDateRange['start']);
+                var selectedDateRange = JSON.parse($("#e4").val());
+                toggleLoading(1, 180);
                 $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
                     start: selectedDateRange['start'],
                     end: selectedDateRange['end']
                 }, function (data) {
                     d3.select("svg").remove();
                     getVisualization(data);
+                    toggleLoading(0, 100);
                 });
-            },
-            clear: function(event, data) {},
-            cancel: function(event, data) {}
+            }
         });
 }
-var scale = 0.945;
 
 function createStatisticsTable(json_data){
     var dummy_transportations_amount = 0;
@@ -56,19 +84,30 @@ function createStatisticsTable(json_data){
         }
         total_transportations_times+=value[3];
         total_items_transported+=value[2];
-    })
+    });
     $(".total_amount_of_transportations").empty().append(total_transportations_times);
     $(".total_items_transported").empty().append(total_items_transported);
     $(".dummy_count").empty().append(dummy_transportations_amount);
     $(".dep_involved").empty().append(json_data["involved_edges_count"]+" from 14");
-    $(".date_range").empty().append(json_data['date_boundaries'][0].split(" ")[0]+" -- "+json_data['date_boundaries'][1].split(" ")[0]);
+    $(".date_range").empty().append(json_data['date_boundaries'][0].split(" ")[0]+" - "+json_data['date_boundaries'][1].split(" ")[0]);
     $(".omitted_self-edges").empty().append(json_data['self_edges_total_weight']);
 }
 
-function hideLoading(speed){
-    $("#overlay").stop().fadeTo(speed, 0);
-    $("#factory_transp_container").stop().fadeTo(speed, 1);
-    $("#overlay").hide();
+function toggleLoading(opacity, speed){
+    var overlay = $("#full_page_overlay");
+    if(opacity) overlay.show();
+    overlay.stop().fadeTo(speed, opacity);
+    $("#header").stop().fadeTo(speed, 1-opacity);
+    $("#viz_container").stop().fadeTo(speed, 1-opacity);
+    $("#footer_container").stop().fadeTo(speed, 1-opacity);
+    if(!opacity) overlay.hide();
+}
+
+function toggleVizRebuildOverlays(opacity) {
+    var overlay = $(".gen_overlay");
+    if(opacity) overlay.show();
+    overlay.stop().fadeTo(180, opacity);
+    if(!opacity) overlay.hide();
 }
 
 function createInfoTable(json_data, max_transportation_value) {
@@ -192,11 +231,11 @@ function createGraph(json_data, transportation_ranges) {
     var max_x_y = findMaxXandY(json_data)
     var xLinearScale = d3.scaleLinear()
         .domain([0, max_x_y[0]])
-        .range([(1-scale)*width,width*scale]);
+        .range([(1-SCALE)*width,width*SCALE]);
 
     var yLinearScale = d3.scaleLinear()
         .domain([0,max_x_y[1]])
-        .range([(1-scale)*height,height*scale]);
+        .range([(1-SCALE)*height,height*SCALE]);
 
     var zoom = d3.zoom()
         .scaleExtent([1,10])
@@ -288,7 +327,5 @@ function createGraph(json_data, transportation_ranges) {
             .attr("font-family", "Lato")
             .attr("text-anchor", "middle")
             .text(key)
-    })
-  //  var arr = getSortedTransportationRecords(json_data);
-  //  draw_color_legend(arr)
+    });
 };
