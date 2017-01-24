@@ -1,2 +1,2 @@
-**Note**: packages/folders `/app/backup` and `/app/data` as well as any data *exposing corporate data* in `/app/metec` should be added to `.gitignore` in project root directory.
+**Note**: files at `/app/backup/` and `/app/data/` (except for encrypted versions) as well as anything *exposing corporate data* in `/app/metec` should not be commited.
 
