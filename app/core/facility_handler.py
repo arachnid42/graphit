@@ -50,8 +50,7 @@ class FacilityHandler(object):
             else:
                 self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
                 self.populate_facility(self.conf["facility_source_path"])
-                res = self.insert_all_transp_records(self.conf["masterplan_csv_path"],
-                                                                        self.conf["peg_csv_path"], date_boundaries)
+                res = self.insert_all_transp_records(date_boundaries)
                 self.self_edges_weight = res[0]
                 self.date_from = res[1]
                 self.date_to = res[2]
@@ -76,11 +75,9 @@ class FacilityHandler(object):
             dep = Department(dep_src["label"], *p_vect)
             self.facility.add_department(dep)
 
-    def insert_all_transp_records(self, mp_csv_path, peg_csv_path, date_boundaries=None):
+    def insert_all_transp_records(self, date_boundaries=None):
         """ Insert all transportation records from parser into facility instance
 
-        :param mp_csv_path - string path to masterplan to init a parser
-        :param peg_csv_path - string path to peg to init a parser
         :param date_boundaries - (<start>, <end>) list of string dates to filter on.
                Datetime format: "%Y-%m-%d %X" e.g. 2015-05-25 18:00:00
 
@@ -88,7 +85,8 @@ class FacilityHandler(object):
 
         """
 
-        mpp = MPParser(mp_csv_path, peg_csv_path, debug=True)
+        mpp = MPParser(self.conf['server'], self.conf['db'], self.conf['uid'], self.conf['pass'],
+                       self.conf['mp_query'], self.conf['peg_query'], debug=True)
         res = mpp.parse()  # get parsed transportation
         date_format = "%Y-%m-%d %X"
         self_edges_weight = 0
@@ -103,8 +101,8 @@ class FacilityHandler(object):
 
             # matching data date boundaries
             if not date_boundaries:
-                d_f_cand = datetime.strptime(rec[2][:-4], date_format)
-                d_t_cand = datetime.strptime(rec[2][:-4], date_format)
+                d_f_cand = rec[2]
+                d_t_cand = rec[2]
                 if d_f_cand < date_from:
                     date_from = d_f_cand
                 if d_t_cand > date_to:
@@ -113,8 +111,8 @@ class FacilityHandler(object):
             # filter out data errors
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
-            if date_boundaries and not datetime.strptime(date_boundaries[0], date_format) <= datetime.\
-                    strptime(rec[2][:-4], date_format) <= datetime.strptime(date_boundaries[1], date_format):
+            if date_boundaries and not datetime.strptime(date_boundaries[0], date_format) <= rec[2] \
+                    <= datetime.strptime(date_boundaries[1], date_format):
                 continue
             try:
                 self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
