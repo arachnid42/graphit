@@ -5,8 +5,12 @@ PROV_BASE = "#{File.dirname(__FILE__)}/vconf/"
 EXEC_FLAG_SCRIPTS = ["startup.sh", "run_tests.sh", "flask_init.py", "git_push_enc.sh", "git_pull_enc.sh"]
 
 # prioritized set of provision scripts to run
+<<<<<<< HEAD
 PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_sass", "install_jq", "install_numpy",
                 'install_git', "install_nodejs", "install_npm", "install_d3", "install_pymssql"]
+=======
+PROV_SCRIPTS = ["install_pip", "install_flask", "install_sass", "install_jq", "install_numpy", 'install_git', "install_nodejs", "install_npm", "install_d3"]
+>>>>>>> dab2e1562a7079c19f20efb32bf2bfa3d64a7b54
 
 # default location for a bash script that would add envvars and aliases to the guest
 env_mod_file = '/etc/profile.d/env_mod.sh'
