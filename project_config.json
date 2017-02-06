@@ -3,10 +3,12 @@
   "sass_out": "app/static/css",
   "to_encrypt": [
     "./app/data/*.csv",
+    "./app/core/config.json",
     "./app/data/*.json",
-    "./app/parse/mp_parser.py"
+    "./app/parse/*.py"
   ],
   "to_decrypt": [
+    "./app/core/*.asc",
     "./app/data/*.asc",
     "./app/parse/*.asc"
   ]

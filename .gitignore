@@ -6,10 +6,11 @@ app/data/*.csv
 app/data/*.json
 app/backup/*
 app/static/css/main.css
+app/core/config.json
 nohup.out
 *.pyc
 *.css.map
 .vagrant/
 .sass-cache/
-app/parse/mp_parser.py
-app/log
+app/parse/*.py
+app/log/
