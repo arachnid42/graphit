@@ -108,7 +108,7 @@ class FacilityHandler(object):
                 if d_t_cand > date_to:
                     date_to = d_t_cand
 
-            # filter out data errors
+            # filter out data errors TODO: whitelist instead of blacklist
             if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
                 continue
             if date_boundaries and not datetime.strptime(date_boundaries[0], date_format) <= rec[2] \

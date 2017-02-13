@@ -5,24 +5,20 @@ PROV_BASE = "#{File.dirname(__FILE__)}/vconf/"
 EXEC_FLAG_SCRIPTS = ["startup.sh", "run_tests.sh", "flask_init.py", "git_push_enc.sh", "git_pull_enc.sh"]
 
 # prioritized set of provision scripts to run
-<<<<<<< HEAD
 PROV_SCRIPTS = ["install_pip", "install_flask", "install_sqlite3", "install_sass", "install_jq", "install_numpy",
                 'install_git', "install_nodejs", "install_npm", "install_d3", "install_pymssql"]
-=======
-PROV_SCRIPTS = ["install_pip", "install_flask", "install_sass", "install_jq", "install_numpy", 'install_git', "install_nodejs", "install_npm", "install_d3"]
->>>>>>> dab2e1562a7079c19f20efb32bf2bfa3d64a7b54
 
 # default location for a bash script that would add envvars and aliases to the guest
 env_mod_file = '/etc/profile.d/env_mod.sh'
 
 Vagrant.configure(2) do |config|
 
-  # remove it when deploying
   config.vm.provider "virtualbox" do |v|
     # release full power of a host
     v.cpus = 4
     v.memory = 12288
     v.customize ["modifyvm", :id, "--cpuexecutioncap", "70"]
+    v.name = "vagrant_ubuntu_1404_metec_prodopt"
   end
 
   # using amd64 Ubuntu 14.04 as a base box
