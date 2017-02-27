@@ -104,6 +104,7 @@ class TransportationGraph(Graph):
         :param dest_label - string label of a destination department
                point in the same format as above
         :param quant - int quantity of items transported
+
         :raises NodeNotExists, SelfEdgesNotSupported
         """
 
@@ -160,11 +161,14 @@ class Facility(object):
         """ Get facility department by it's label
 
         :return: Department class instance matching
-                 the label passed in as a parameter
+                 the label passed in as a parameter.
+                 If no department was matched return
+                 None.
 
         """
 
-        return [dep for dep in self.d_graph.departments if dep.label == label][0]
+        match_lst = [dep for dep in self.d_graph.departments if dep.label == label]
+        return match_lst[0] if match_lst else None
 
     def get_departments(self):
         """ Get all departments of a facility
