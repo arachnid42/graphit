@@ -38,6 +38,7 @@ class FacilityHandler(object):
         """
 
         self.facility = facility_instance
+        self.add_info = None  # distances and other extra info from factory_layout.json (list)
 
         # load configuration
         with open(path_to_conf_file) as f:
@@ -68,6 +69,8 @@ class FacilityHandler(object):
         # load factory_layout.json
         with open(path_to_source) as f:
             src = json.load(f)
+            self.add_info = src["distances"]  # it's a list
+
 
         # create graph nodes (initialize departments)
         for dep_src in src["departments"]:
@@ -117,11 +120,38 @@ class FacilityHandler(object):
                     <= datetime.strptime(date_boundaries[1], date_format):
                 continue
             try:
-                self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
+                created_nodes = self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
+                extra_data = self.find_distance_and_time_info(rec[0], rec[1])
+                distance, time = extra_data if extra_data else [None, None]
+                for node in created_nodes:
+                    if distance:
+                        node.add_info("distance", distance)
+                    if time:
+                        node.add_info("time", time)
             except SelfEdgesNotSupported:
                 self_edges_weight += int(rec[3])
 
         return [self_edges_weight, date_from.strftime(date_format), date_to.strftime(date_format)]
+
+    def find_distance_and_time_info(self, node_1, node_2):
+        """ Derive information about distance and time of travel between departments from an add_info dict
+
+        :param node_1: string department 1 label
+        :param node_2: string department 2 label
+
+        :return: list [distance, time] or None if no information found
+
+        """
+
+        # parse out information about distance and time
+        if node_1 in self.add_info:
+            if node_2 in self.add_info[node_1]:
+                return self.add_info[node_1][node_2]
+            else:
+                self.find_distance_and_time_info(node_2, node_1)
+        print('NOT FOUND')
+        return None
+
 
     def dump_facility(self, path):
         """ Save facility class as object data persistence

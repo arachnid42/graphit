@@ -38,7 +38,7 @@ class JSONAssembler(object):
             return self.get_cached_json()
         else:
 
-            # clear previously JSON dict
+            # clear previous JSON dict
             viz_dict = self.get_json_base()
 
             # stage 1: compose factory layout part
