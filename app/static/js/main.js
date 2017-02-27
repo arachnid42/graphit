@@ -292,7 +292,7 @@ function createGraph(json_data, transportation_ranges) {
         var color2 = getColor(value[2],transportation_ranges[0]);
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
-            .style("stroke-width", 5)
+            .style("stroke-width", 3)
             .attr("value", value[2])
             .attr("x1", xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
             .attr("y1", yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
