@@ -200,6 +200,7 @@ class EdgeNode(object):
         self.vertex_node = vertex_node
         self.weight = weight
         self.increment_count = 1
+        self.info_dict = {}  # to hold additional key-value information
 
     def __str__(self):
         return "Edge to %s with weight %s" % (self.vertex_node.get_label(), str(self.weight))
@@ -303,6 +304,7 @@ class Graph(object):
                 - EdgeNode of edge added or it's
                   weight was updated when graph is
                   directed.
+
         :raises NodeNotExists, SelfEdgesNotSupported
         """
 
@@ -337,6 +339,7 @@ class Graph(object):
                   undirected graph.
                 - EdgeNode of edge added or it's weight was updated
                   when graph is directed.
+
         :raises EdgeInsertionFailed, BadEdgeWeight
         """
 

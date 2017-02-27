@@ -65,9 +65,11 @@ class FacilityHandler(object):
 
         """
 
+        # load factory_layout.json
         with open(path_to_source) as f:
             src = json.load(f)
 
+        # create graph nodes (initialize departments)
         for dep_src in src["departments"]:
             p_vect = []
             for point in dep_src["points"]:
@@ -109,7 +111,7 @@ class FacilityHandler(object):
                     date_to = d_t_cand
 
             # filter out data errors
-            if str(rec[0]) in self.conf['error_dep_list'] or str(rec[1]) in self.conf['error_dep_list']:
+            if not self.facility.get_department_by_label(rec[0]) or not self.facility.get_department_by_label(rec[1]):
                 continue
             if date_boundaries and not datetime.strptime(date_boundaries[0], date_format) <= rec[2] \
                     <= datetime.strptime(date_boundaries[1], date_format):

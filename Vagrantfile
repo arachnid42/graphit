@@ -13,12 +13,12 @@ env_mod_file = '/etc/profile.d/env_mod.sh'
 
 Vagrant.configure(2) do |config|
 
-  # remove it when deploying
   config.vm.provider "virtualbox" do |v|
     # release full power of a host
     v.cpus = 4
     v.memory = 12288
     v.customize ["modifyvm", :id, "--cpuexecutioncap", "70"]
+    v.name = "vagrant_ubuntu_1404_metec_prodopt"
   end
 
   # using amd64 Ubuntu 14.04 as a base box
