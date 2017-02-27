@@ -124,7 +124,7 @@ class FacilityHandler(object):
                 extra_data = self.find_distance_and_time_info(rec[0], rec[1])
                 distance, time = extra_data if extra_data else [None, None]
                 for node in created_nodes:
-                    if node.info_dict:
+                    if len(node.info_dict) > 0:
                         continue
                     if distance:
                         node.add_info("distance", distance)
@@ -150,7 +150,7 @@ class FacilityHandler(object):
             if node_2 in self.add_info[node_1]:
                 return self.add_info[node_1][node_2]
             else:
-                self.find_distance_and_time_info(node_2, node_1)
+                return self.find_distance_and_time_info(node_2, node_1)
         return None
 
 

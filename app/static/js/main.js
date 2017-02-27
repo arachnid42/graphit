@@ -124,6 +124,8 @@ function createInfoTable(json_data, max_transportation_value) {
             "<td>"+value[0].split(".")[0]+"</td>" +
             "<td>"+value[3]+"</td>" +
             "<td>"+value[2]+"</td>" +
+            "<td>"+value[4]['distance']+"</td>" +
+            "<td>"+value[4]['time']+"</td>" +
             "<td>"+value[1].split(".")[0]+"</td></tr>";
     });
     table.append(append_str).trigger('update');
@@ -288,6 +290,8 @@ function createGraph(json_data, transportation_ranges) {
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
         var dest = value[1].split(".")[0];
+        var trtime = value[4]['time'];
+        var distance = value[4]['distance'];
         var times = value[3];
         var color2 = getColor(value[2],transportation_ranges[0]);
         svgContainer.append("line")
@@ -302,7 +306,7 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times)
+                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Distance: "+distance+"m , Transportation Time: "+trtime+" min")
 
             })
             .on("mouseout", function (d) {
