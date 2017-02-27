@@ -112,6 +112,15 @@ class EdgeInsertionFailed(Exception):
     pass
 
 
+class EdgeInfoDictKeyValueExists(Exception):
+    """ Custom exception
+
+    An attempt to override key-value pair in the edge
+    node dictionary was made which is prohibited
+
+    """
+
+
 class VertexNodeData(object):
     """ An optional class to hold a graph vertex data if coordinates are enabled """
 
@@ -201,6 +210,19 @@ class EdgeNode(object):
         self.weight = weight
         self.increment_count = 1
         self.info_dict = {}  # to hold additional key-value information
+
+    def add_info(self, key, value):
+        """ Add arbitrary key-value pair to the edge node info dictionary
+
+        :param key: object key
+        :param value: object value
+
+        """
+
+        if key in self.info_dict:
+            raise EdgeInfoDictKeyValueExists("'%s' key exists in the info dictionary!")
+
+        self.info_dict[key] = value
 
     def __str__(self):
         return "Edge to %s with weight %s" % (self.vertex_node.get_label(), str(self.weight))
@@ -335,7 +357,7 @@ class Graph(object):
         :param weight - weight of an edge
 
         :return - tuple of EdgeNodes of edges if they were added
-                  or their weights were successful in occasion of
+                  or their weights were updated in occasion of
                   undirected graph.
                 - EdgeNode of edge added or it's weight was updated
                   when graph is directed.
@@ -520,11 +542,10 @@ class Graph(object):
         return len(self.mapper)
 
     def get_edges(self):
-        """ Generator
+        """ Generator: get all edges of the graph one by one
 
-        Get all edges of the graph one by one
+        yield: list [<src_node_label>, <dest_node_label>, <edge_weight>, <increment_count>, <info_dict>]
 
-        yield: list [<src_node_label>, <dest_node_label>, <edge_weight>, <increment_count>]
         """
 
         edges_to_ignore = {node.get_label(): [] for node in self.mapper.keys()}
@@ -533,7 +554,7 @@ class Graph(object):
                 node_0_label = node.get_label()
                 node_1_label = edge.vertex_node.get_label()
                 if self.is_directed or node_1_label not in edges_to_ignore[node_0_label]:
-                    yield [node_0_label, node_1_label, edge.weight, edge.increment_count]
+                    yield [node_0_label, node_1_label, edge.weight, edge.increment_count, edge.info_dict]
                     edges_to_ignore[node_1_label].append(node_0_label)
 
     def floyd_warshall_shortest_paths(self, print_out=False):

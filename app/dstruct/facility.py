@@ -105,10 +105,16 @@ class TransportationGraph(Graph):
                point in the same format as above
         :param quant - int quantity of items transported
 
+        :return - tuple of EdgeNodes of edges if they were added
+                  or their weights were updated in occasion of
+                  undirected graph.
+                - EdgeNode of edge added or it's weight was updated
+                  when graph is directed.
+
         :raises NodeNotExists, SelfEdgesNotSupported
         """
 
-        self.add_edge(src_label, dest_label, quant)
+        return self.add_edge(src_label, dest_label, quant)
 
 
 class Facility(object):
@@ -208,6 +214,13 @@ class Facility(object):
                in a format <department_label>.<department_vertex_label>
         :param dest_label - string label of a destination department
                point in the same format as above
+
+        :return - tuple of EdgeNodes of edges if they were added
+                  or their weights were updated in occasion of
+                  undirected graph.
+                - EdgeNode of edge added or it's weight was updated
+                  when graph is directed.
+
         :param quant - int quantity of items transported
 
         """
@@ -215,4 +228,4 @@ class Facility(object):
         if not isinstance(quant, int):
             raise NotIntQuantity
 
-        self.d_graph.add_transp_record(src_label, dest_label, quant)  # raises errors on failure
+        return self.d_graph.add_transp_record(src_label, dest_label, quant)  # raises errors on failure
