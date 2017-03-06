@@ -4,10 +4,14 @@ var SCALE = 0.945;
 
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
-        START_DATE = data['date_boundaries'][0].split(" ")[0];
-        END_DATE = data['date_boundaries'][1].split(" ")[0];
-        getVisualization(data);
-        toggleLoading(0, 100);
+        if('status' in data){
+            $(".overlay_div").empty().append(data['status'])
+        }else {
+            START_DATE = data['date_boundaries'][0].split(" ")[0];
+            END_DATE = data['date_boundaries'][1].split(" ")[0];
+            getVisualization(data);
+            toggleLoading(0, 100);
+        }
     });
 });
 
