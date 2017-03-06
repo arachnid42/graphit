@@ -62,7 +62,7 @@ class FacilityHandler(object):
                 self.populate_facility(self.conf["facility_source_path"])
                 try:
                     res = self.insert_all_transp_records(date_boundaries)
-                except DBConnectionFailed:
+                except:
                     raise DBInaccessibleError
                 self.self_edges_weight = res[0]
                 self.date_from = res[1]

@@ -12,6 +12,8 @@ def index():
 @app.route('/get_data')
 def get_data():
     ja = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True)
+    if ja.init_failed:
+        return '{"status": "Error: DB Connection Failed"}'
     return ja.get_viz_json()
 
 
@@ -21,8 +23,7 @@ def get_data_filtered():
     dummy_time_2 = " 23:59:59"
     date_from = request.args.get('start', None, type=str) + dummy_time_1
     date_to = request.args.get('end', None, type=str) + dummy_time_2
-    try:
-        ja = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True, date_boundaries=[date_from, date_to])
-    except DBInaccessibleError:
-        return {"status": "Error: DB Connection Failed"}
+    ja = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True, date_boundaries=[date_from, date_to])
+    if ja.init_failed:
+        return '{"status": "Error: DB Connection Failed"}'
     return ja.get_viz_json()
