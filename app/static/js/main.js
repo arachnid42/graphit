@@ -176,12 +176,10 @@ Draw the color legend
  */
 function draw_color_legend(arr){
     var max_transportation_value  = Math.max.apply(Math, arr);
-    console.log(max_transportation_value);
     for(var i=0; i<arr.length;i++){
         var hsv = getColor(arr[i], max_transportation_value);
         var item = "<li style='background-color:" + getColor(arr[i], max_transportation_value) + "'></li>";
         $("#ul_color_map").append(item);
-     //   d3.select("#ul_color_map").append(item);
     }
 }
 function scalePoints(json_data, key, xLinearScale, yLinearScale){
@@ -221,7 +219,6 @@ function generateLineColor(number, max_transportation_number) {
 }
 
 function getColor(value, max_transportation_number){
-    console.log(max_transportation_number);
     var hue = Math.floor((max_transportation_number - value) * 120 / max_transportation_number).toString(10)
     var saturation = Math.abs(value - 75)/20;
     return ["hsl(",hue,","+saturation+"%,70%)"].join("");
@@ -244,6 +241,9 @@ function createGraph(json_data, transportation_ranges) {
         .translateExtent([[0, 0], [width, height]])
         .on("zoom", zoomed);
 
+    function wheeled() {
+        console.log(d3.event);
+    }
     function zoomed() {
         d3.select('#factory_transp_container').select("svg")
             .attr('transform', d3.event.transform);
@@ -287,6 +287,9 @@ function createGraph(json_data, transportation_ranges) {
                     .style("pointer-events", "all")
                     .attr("fill", '#dbe9ee')
     });
+    svgContainer
+        .on("wheel",wheeled);
+
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
         var dest = value[1].split(".")[0];
@@ -306,7 +309,7 @@ function createGraph(json_data, transportation_ranges) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Distance: "+distance+"m , Transportation Time: "+trtime+" min")
+                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Total distance: "+(distance*times).toFixed(2)+" m , Transportation Time: "+moment.duration(times*trtime)+" min")
 
             })
             .on("mouseout", function (d) {
