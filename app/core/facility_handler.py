@@ -7,6 +7,15 @@ import json
 import os
 
 
+class DBInaccessibleError(Exception):
+    """ Custom exception
+
+    Failed to fetch data from a DB
+
+    """
+    pass
+
+
 class FacilityHandler(object):
     """ High level handler for a Facility class
 
@@ -51,7 +60,10 @@ class FacilityHandler(object):
             else:
                 self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
                 self.populate_facility(self.conf["facility_source_path"])
-                res = self.insert_all_transp_records(date_boundaries)
+                try:
+                    res = self.insert_all_transp_records(date_boundaries)
+                except DBConnectionFailed:
+                    raise DBInaccessibleError
                 self.self_edges_weight = res[0]
                 self.date_from = res[1]
                 self.date_to = res[2]
@@ -70,7 +82,6 @@ class FacilityHandler(object):
         with open(path_to_source) as f:
             src = json.load(f)
             self.add_info = src["distances"]  # it's a list
-
 
         # create graph nodes (initialize departments)
         for dep_src in src["departments"]:
