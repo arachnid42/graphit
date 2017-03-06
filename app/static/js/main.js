@@ -130,16 +130,20 @@ function createInfoTable(json_data, max_transportation_value) {
     $.tablesorter.clearTableBody(table[0]);
     $.each(json_data['edges'], function (key,value) {
         if (value[4]['distance'] === undefined){
-            value[4]['distance'] = '-';
+            value[4]['distance'] = 0;
             value[4]['time'] = '-';
+        }
+        var total_trtime= moment.duration(value[4]['time']*value[3], "minutes");
+        if(isNaN(value[4]['distance']*value[3])){
+          //  value[4]['distance']*value[3] = '-';
         }
         color = getColor(value[2], max_transportation_value);
         append_str += "<tr><td style='background-color:" + d3.color(color) +"'></td>" +
             "<td>"+value[0].split(".")[0]+"</td>" +
             "<td>"+value[3]+"</td>" +
             "<td>"+value[2]+"</td>" +
-            "<td>"+value[4]['distance']+"</td>" +
-            "<td>"+value[4]['time']+"</td>" +
+            "<td>"+(value[4]['distance']*value[3]).toFixed(2)+"</td>" +
+            "<td>"+total_trtime.hours()+' h '+total_trtime.minutes()+' min '+"</td>" +
             "<td>"+value[1].split(".")[0]+"</td></tr>";
     });
     table.append(append_str).trigger('update');
@@ -307,13 +311,13 @@ function createGraph(json_data, transportation_ranges) {
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
         var dest = value[1].split(".")[0];
-        var trtime = value[4]['time'];
+        var trtime = moment.duration(value[4]['time'], "minutes");
         var distance = value[4]['distance'];
         var times = value[3];
         var color2 = getColor(value[2],transportation_ranges[0]);
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
-            .style("stroke-width", 3)
+            .style("stroke-width", 3.5)
             .attr("value", value[2])
             .attr("x1", xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
             .attr("y1", yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
@@ -321,10 +325,9 @@ function createGraph(json_data, transportation_ranges) {
             .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
             .on("mouseover", function (d) {
                 var value = d3.select(this).attr("value");
-                var total_trtime = moment.duration(trtime*times, "minutes");
                 d3.select('.viz_info_text')
                     .style("font-style", "normal")
-                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Total distance: "+(distance*times).toFixed(2)+" m , Total transportation Time: "+total_trtime.hours()+" h "+total_trtime.minutes()+" min")
+                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Distance: "+distance+" m , Transportation Time: "+trtime.minutes()+" min "+trtime.seconds()+" sec")
 
             })
             .on("mouseout", function (d) {
