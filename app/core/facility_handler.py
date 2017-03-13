@@ -106,12 +106,14 @@ class FacilityHandler(object):
 
         """
 
+        print(self.conf['mi_mp_query'] % mi_filter)
+
         if not mi_filter:
             mpp = MPParser(self.conf['server'], self.conf['db'], self.conf['uid'], self.conf['pass'],
                            self.conf['mp_query'], self.conf['peg_query'], debug=True)
         else:
             mpp = MPParser(self.conf['server'], self.conf['db'], self.conf['uid'], self.conf['pass'],
-                           self.conf['mp_mi_query'] % mi_filter, self.conf['peg_query'], debug=True)
+                           self.conf['mi_mp_query'] % mi_filter, self.conf['peg_query'], debug=True)
         res = mpp.parse()  # get parsed transportation
         date_format = "%Y-%m-%d %X"
         self_edges_weight = 0

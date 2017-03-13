@@ -89,13 +89,17 @@ function createDateRangePicker(data) {
 }
 
 function getVizualizationSortedByMainItem(){
+    if(current_end_date == null || current_start_date == null){
+        current_start_date = INITIAL_START_DATE;
+        current_end_date = INITIAL_END_DATE;
+    }
     $("#apply_button").click(function () {
         var main_item = document.getElementById("main_item").value;
         toggleLoading(1, 180);
-        $.getJSON($SCRIPT_ROOT+"/get_main_item_filtered_data", {
-            main_item: main_item,
-            start: current_end_date,
-            end: current_end_date
+        $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
+            start: current_start_date,
+            end: current_end_date,
+            main_item: main_item
         }, function (data) {
             if('status' in data){
                 console.log('status');
