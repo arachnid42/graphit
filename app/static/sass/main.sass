@@ -37,14 +37,36 @@ body
   padding-bottom: 0
   margin-bottom: 0
   opacity: 0
-  display: flex
+  display: inline-block
 
   #viz_options
+    float: right
     display: table
-    margin-left: auto
+    height: 100%
     margin-right: 2%
     background-color: #07F906
-    @include vert_center
+    //@include vert_center
+
+    #main_item_filter_container, #dep_filter_container, #date_filter_container, #apply_button_container
+      height: 100%
+      margin-left: 1%
+      vertical-align: middle
+      display: table-cell
+
+    //#dep_filter_container
+    //  height: 100%
+    //  vertical-align: middle
+    //  display: table-cell
+    //
+    //#date_filter_container
+    //  height: 100%
+    //  vertical-align: middle
+    //  display: table-cell
+    //
+    //#apply_button_container
+    //  height: 100%
+    //  vertical-align: middle
+      display: table-cell
 
     button
       background-color: $primary_color
@@ -59,13 +81,6 @@ body
       .ui-button-icon-secondary
         display: none
 
-
-
-
-  div
-    padding-left: 4%
-    padding-right: 4%
-    @include vert_center
   a
     text-decoration: none
     color: $page_background
@@ -77,6 +92,7 @@ body
       color: $page_background
 
   img
+    float: left
     margin-left: 1%
     margin-right: 1%
     height: 70%
@@ -85,10 +101,15 @@ body
   #header_text
     background-color: $header_fill_color
     height: 100%
-    padding-bottom: 1px
+    float: left
     color: $page_background
     font-size: 1vw
     font-family: 'Lato'
+
+    #h_txt
+      padding-left: 8%
+      padding-right: 8%
+      @include vert_center
 
     &:hover
       background-color: $header_hover_color
