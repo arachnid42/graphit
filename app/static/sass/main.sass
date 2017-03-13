@@ -44,42 +44,44 @@ body
     display: table
     height: 100%
     margin-right: 2%
-    background-color: #07F906
-    //@include vert_center
 
     #main_item_filter_container, #dep_filter_container, #date_filter_container, #apply_button_container
       height: 100%
-      margin-left: 1%
       vertical-align: middle
       display: table-cell
 
-    //#dep_filter_container
-    //  height: 100%
-    //  vertical-align: middle
-    //  display: table-cell
-    //
-    //#date_filter_container
-    //  height: 100%
-    //  vertical-align: middle
-    //  display: table-cell
-    //
-    //#apply_button_container
-    //  height: 100%
-    //  vertical-align: middle
-      display: table-cell
+      div
+        margin-left: 2%
+        margin-right: 2%
 
-    button
-      background-color: $primary_color
-      color: $page_background
-      border-color: $page_background
-      min-width: 0
+    #main_item_filter_container
+      input
+        height: 100%
 
-      &:hover
-        background-color: $primary_darker_color
-        border-color: #3d3d3d
+    #dep_filter_container
+      #dep_filter_select
+        height: 100%
 
-      .ui-button-icon-secondary
-        display: none
+    #date_filter_container
+      button
+        background-color: $primary_color
+        color: $page_background
+        border-color: $page_background
+        min-width: 0
+        height: 100%
+
+        &:hover
+          background-color: $primary_darker_color
+          border-color: #3d3d3d
+
+        .ui-button-icon-secondary
+          display: none
+
+
+    #apply_button_container
+      #apply_button
+        height: 100%
+        background-color: #5f3f3f
 
   a
     text-decoration: none
