@@ -5,7 +5,7 @@ import json
 class JSONAssembler(object):
     """ Assembles visualization data JSON on request """
 
-    def __init__(self, conf_path, force_rebuild=False, date_boundaries=None):
+    def __init__(self, conf_path, force_rebuild=False, date_boundaries=None, mi_filter=None, dep_filter=None):
         """ Init method
 
         Fetch cached facility version and initialize
@@ -16,6 +16,10 @@ class JSONAssembler(object):
         :param force_rebuild - boolean flag to force rebuild
                both facility instance and JSON file. In other
                words - ignore cached version and override them
+        :param date_boundaries - (<start>, <end>) list of string dates to filter on.
+               Datetime format: "%Y-%m-%d %X" e.g. 2015-05-25 18:00:00
+        :param mi_filter: string main item to filter on
+        :param dep_filter: string department label to filter on
 
         """
 
@@ -25,7 +29,8 @@ class JSONAssembler(object):
 
         # init/restore Facility class
         try:
-            self.fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild, date_boundaries=date_boundaries)
+            self.fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild,
+                                      date_boundaries=date_boundaries, mi_filter=mi_filter, dep_filter=dep_filter)
             self.facility = self.fh.facility
             self.viz_json_dump_path = self.fh.conf['viz_json_dump_path']
         except:

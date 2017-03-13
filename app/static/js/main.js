@@ -1,6 +1,7 @@
-var START_DATE = null;
-var END_DATE = null;
+var INITIAL_START_DATE = null;
+var INITIAL_END_DATE = null;
 var SCALE = 0.945;
+var current_start_date = null, current_end_date = null;
 
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
@@ -9,8 +10,8 @@ $( document ).ready(function() {
             console.log('status');
             $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
         }else {
-            START_DATE = data['date_boundaries'][0].split(" ")[0];
-            END_DATE = data['date_boundaries'][1].split(" ")[0];
+            INITIAL_START_DATE = data['date_boundaries'][0].split(" ")[0];
+            INITIAL_END_DATE = data['date_boundaries'][1].split(" ")[0];
             getVisualization(data);
             toggleLoading(0, 100);
         }
@@ -23,14 +24,15 @@ function getVisualization(data) {
     createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
     createStatisticsTable(data);
     createDateRangePicker(data);
+    getVizualizationSortedByMainItem(data);
 }
 
 function createDateRangePicker(data) {
     $("#e4").daterangepicker({
                  presetRanges: [{
                      text: 'Full range',
-                     dateStart: function() { return moment(START_DATE) },
-                     dateEnd: function() { return moment(END_DATE) }
+                     dateStart: function() { return moment(INITIAL_START_DATE) },
+                     dateEnd: function() { return moment(INITIAL_END_DATE) }
                  }, {
                      text: 'Previous year',
                      dateStart: function() { return moment().subtract(1, "years") },
@@ -62,11 +64,13 @@ function createDateRangePicker(data) {
                  datepickerOptions : {
                      numberOfMonths : 3,
                      dateFormat: 'yy-mm-dd',
-                     minDate: START_DATE,
-                     maxDate: END_DATE,
+                     minDate: INITIAL_START_DATE,
+                     maxDate: INITIAL_END_DATE,
          },
             change: function(event, data) {
                 var selectedDateRange = JSON.parse($("#e4").val());
+                current_start_date = selectedDateRange[0];
+                current_end_date = selectedDateRange[1];
                 toggleLoading(1, 180);
                 $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
                     start: selectedDateRange['start'],
@@ -82,6 +86,28 @@ function createDateRangePicker(data) {
                     }});
             }
         });
+}
+
+function getVizualizationSortedByMainItem(){
+    $("#apply_button").click(function () {
+        var main_item = document.getElementById("main_item").value;
+        toggleLoading(1, 180);
+        $.getJSON($SCRIPT_ROOT+"/get_main_item_filtered_data", {
+            main_item: main_item,
+            start: current_end_date,
+            end: current_end_date
+        }, function (data) {
+            if('status' in data){
+                console.log('status');
+                $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
+            }else {
+                d3.select("svg").remove();
+                getVisualization(data);
+                toggleLoading(0, 100);
+            }
+        })
+    })
+
 }
 
 function createStatisticsTable(json_data){
@@ -332,11 +358,11 @@ function createGraph(json_data, transportation_ranges) {
             .range([0, 255]);
 
         // CHANGE COLORS
-        //var color2 = getColor(value[2],transportation_ranges[0]);
+        var color2 = getColor(value[2],transportation_ranges[0]);
         console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
 
         svgContainer.append("line")
-            .style("stroke", 'rgb['+Math.ceil(get_color(distance))+',0,0]')
+            .style("stroke", d3.color(color2))
             .style("stroke-width", 3.5)
             .attr("value", value[2])
             .attr("x1", xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))

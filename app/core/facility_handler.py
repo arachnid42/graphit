@@ -29,7 +29,8 @@ class FacilityHandler(object):
 
     """
 
-    def __init__(self, path_to_conf_file, facility_instance=None, force_rebuild=False, date_boundaries=None):
+    def __init__(self, path_to_conf_file, facility_instance=None, force_rebuild=False, date_boundaries=None,
+                 mi_filter=None, dep_filter=None):
         """ Initialize facility
 
         It checks whether cached version of facility object exists
@@ -43,6 +44,8 @@ class FacilityHandler(object):
         :param facility_instance - Facility class instance to initialize with
         :param date_boundaries - (<start>, <end>) list of string dates to filter on.
                Datetime format: "%Y-%m-%d %X" e.g. 2015-05-25 18:00:00
+        :param mi_filter: string main item to filter on
+        :param dep_filter: string department label to filter on
 
         """
 
@@ -61,7 +64,7 @@ class FacilityHandler(object):
                 self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
                 self.populate_facility(self.conf["facility_source_path"])
                 try:
-                    res = self.insert_all_transp_records(date_boundaries)
+                    res = self.insert_all_transp_records(date_boundaries, mi_filter, dep_filter)
                 except:
                     raise DBInaccessibleError
                 self.self_edges_weight = res[0]
@@ -91,18 +94,24 @@ class FacilityHandler(object):
             dep = Department(dep_src["label"], *p_vect)
             self.facility.add_department(dep)
 
-    def insert_all_transp_records(self, date_boundaries=None):
+    def insert_all_transp_records(self, date_boundaries=None, mi_filter=None, dep_filter=None):
         """ Insert all transportation records from parser into facility instance
 
         :param date_boundaries - (<start>, <end>) list of string dates to filter on.
                Datetime format: "%Y-%m-%d %X" e.g. 2015-05-25 18:00:00
+        :param mi_filter: string main item to filter on
+        :param dep_filter: string department label to filter on
 
         :return: list [<int_self_edges_weight>, <str_lower_date>, <str_upper_date>]
 
         """
 
-        mpp = MPParser(self.conf['server'], self.conf['db'], self.conf['uid'], self.conf['pass'],
-                       self.conf['mp_query'], self.conf['peg_query'], debug=True)
+        if not mi_filter:
+            mpp = MPParser(self.conf['server'], self.conf['db'], self.conf['uid'], self.conf['pass'],
+                           self.conf['mp_query'], self.conf['peg_query'], debug=True)
+        else:
+            mpp = MPParser(self.conf['server'], self.conf['db'], self.conf['uid'], self.conf['pass'],
+                           self.conf['mp_mi_query'] % mi_filter, self.conf['peg_query'], debug=True)
         res = mpp.parse()  # get parsed transportation
         date_format = "%Y-%m-%d %X"
         self_edges_weight = 0
@@ -127,6 +136,10 @@ class FacilityHandler(object):
             # filter out data errors
             if not self.facility.get_department_by_label(rec[0]) or not self.facility.get_department_by_label(rec[1]):
                 continue
+            # filter by department (if dep_filter is not None)
+            if dep_filter:
+                if not (rec[0] == dep_filter or rec[1] == dep_filter):
+                    continue
             if date_boundaries and not datetime.strptime(date_boundaries[0], date_format) <= rec[2] \
                     <= datetime.strptime(date_boundaries[1], date_format):
                 continue
