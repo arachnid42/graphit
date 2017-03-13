@@ -2,10 +2,10 @@ var INITIAL_START_DATE = null;
 var INITIAL_END_DATE = null;
 var SCALE = 0.945;
 var current_start_date = null, current_end_date = null;
+var current_chosen_department = null;
 
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
-        console.log()
         if('status' in data){
             console.log('status');
             $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
@@ -24,16 +24,20 @@ function getVisualization(data) {
     createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
     createStatisticsTable(data);
     createDateRangePicker(data);
-    getVizualizationSortedByMainItem(data);
     appendDepartmnetsToDropList(data);
+    getVizualizationSortedByMainItem(data);
 }
 
 function appendDepartmnetsToDropList(data) {
     $('#dep_filter_select').empty();
-    $('#dep_filter_select').append('<option value=ALL>ALL</option>');
+    $('#dep_filter_select').append('<option value=ALL >ALL</option>');
+    console.log(current_chosen_department);
     $.each(data['facility'], function (key, value) {
-        console.log(key);
-        $('#dep_filter_select').append('<option value='+key+'>'+key+'</option>')
+        if (key === current_chosen_department){
+            $('#dep_filter_select').append('<option value='+key+' selected="selected">'+key+'</option>')
+        }else {
+            $('#dep_filter_select').append('<option value=' + key + '>' + key + '</option>')
+        }
     })
 }
 
@@ -81,10 +85,18 @@ function createDateRangePicker(data) {
                 var selectedDateRange = JSON.parse($("#e4").val());
                 current_start_date = selectedDateRange[0];
                 current_end_date = selectedDateRange[1];
+                var main_item = document.getElementById('main_item').value;
+                var chosen_department = document.getElementById('dep_filter_select').value;
+                current_chosen_department = chosen_department;
+                if(chosen_department == 'ALL'){
+                    chosen_department = ''
+                }
                 toggleLoading(1, 180);
                 $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
                     start: selectedDateRange['start'],
-                    end: selectedDateRange['end']
+                    end: selectedDateRange['end'],
+                    main_item: main_item,
+                    department: chosen_department
                 }, function (data) {
                     if('status' in data){
                         console.log('status');
@@ -106,20 +118,21 @@ function getVizualizationSortedByMainItem(){
     $("#apply_button").click(function () {
         var main_item = document.getElementById("main_item").value;
         var chosen_department = document.getElementById("dep_filter_select").value;
-        if(chosen_department == 'ALL'){
+        current_chosen_department = chosen_department;
+        if (chosen_department == 'ALL') {
             chosen_department = '';
         }
         toggleLoading(1, 180);
-        $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
+        $.getJSON($SCRIPT_ROOT + "/get_data_filtered", {
             start: current_start_date,
             end: current_end_date,
             main_item: main_item,
             department: chosen_department
         }, function (data) {
-            if('status' in data){
+            if ('status' in data) {
                 console.log('status');
-                $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
-            }else {
+                $(".overlay_div").empty().append("<img src='static/res/error.png'><br>" + data['status'])
+            } else {
                 d3.select("svg").remove();
                 getVisualization(data);
                 toggleLoading(0, 100);
@@ -158,12 +171,6 @@ function toggleLoading(opacity, speed){
     if(!opacity) overlay.hide();
 }
 
-function toggleVizRebuildOverlays(opacity) {
-    var overlay = $(".gen_overlay");
-    if(opacity) overlay.show();
-    overlay.stop().fadeTo(180, opacity);
-    if(!opacity) overlay.hide();
-}
 
 function createInfoTable(json_data, max_transportation_value) {
     var color = 0;
@@ -365,7 +372,7 @@ function createGraph(json_data, transportation_ranges) {
         .on("wheel",wheeled);
 
     var distance_range_arr = getMinMaxTotalDistance(json_data['edges']);
-    console.log(distance_range_arr)
+    //console.log(distance_range_arr)
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
         var dest = value[1].split(".")[0];
@@ -378,7 +385,7 @@ function createGraph(json_data, transportation_ranges) {
 
         // CHANGE COLORS
         var color2 = getColor(value[2],transportation_ranges[0]);
-        console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
+        //console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
 
         svgContainer.append("line")
             .style("stroke", d3.color(color2))

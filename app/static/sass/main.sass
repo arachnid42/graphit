@@ -40,46 +40,72 @@ body
   display: inline-block
 
   #viz_options
+    //width: 36.5%
     float: right
     display: table
     height: 100%
     margin-right: 2%
-    background-color: #07F906
-    //@include vert_center
 
     #main_item_filter_container, #dep_filter_container, #date_filter_container, #apply_button_container
-      height: 100%
-      margin-left: 1%
+      //height: 100%
       vertical-align: middle
       display: table-cell
 
-    //#dep_filter_container
-    //  height: 100%
-    //  vertical-align: middle
-    //  display: table-cell
-    //
-    //#date_filter_container
-    //  height: 100%
-    //  vertical-align: middle
-    //  display: table-cell
-    //
-    //#apply_button_container
-    //  height: 100%
-    //  vertical-align: middle
-      display: table-cell
+      div
+        margin-left: 2%
+        margin-right: 2%
 
-    button
-      background-color: $primary_color
-      color: $page_background
-      border-color: $page_background
-      min-width: 0
+    #main_item_filter_container
+      div
+        height: 56%
+        input
+          padding: 0
+          margin: 0
+          height: 100%
 
-      &:hover
-        background-color: $primary_darker_color
-        border-color: #3d3d3d
+    #dep_filter_container
+      div
+        height: 56%
+        #dep_filter_select
+          height: 100%
 
-      .ui-button-icon-secondary
-        display: none
+          &:hover
+            cursor: pointer
+
+    #date_filter_container
+      *
+        height: 56%
+
+      button
+        background-color: #FFF
+        color: #aaa
+        border-color: #dcdcdc
+        min-width: 0
+        height: 100%
+
+        &:hover
+          background-color: #f4f4f4
+
+        .ui-button-icon-secondary
+          display: none
+
+
+    #apply_button_container
+      #apply_button
+        height: 56%
+        background-color: $header_fill_color
+        border-radius: 3px
+
+        &:hover
+          background-color: $header_hover_color
+          cursor: pointer
+
+        #apply_text
+          @include vert_center
+          font-family: Arial
+          color: $page_background
+          margin-left: 20%
+          margin-right: 20%
 
   a
     text-decoration: none
