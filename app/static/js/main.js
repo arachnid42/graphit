@@ -1,6 +1,7 @@
-var START_DATE = null;
-var END_DATE = null;
+var INITIAL_START_DATE = null;
+var INITIAL_END_DATE = null;
 var SCALE = 0.945;
+var current_start_date = null, current_end_date = null;
 
 $( document ).ready(function() {
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
@@ -9,8 +10,8 @@ $( document ).ready(function() {
             console.log('status');
             $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
         }else {
-            START_DATE = data['date_boundaries'][0].split(" ")[0];
-            END_DATE = data['date_boundaries'][1].split(" ")[0];
+            INITIAL_START_DATE = data['date_boundaries'][0].split(" ")[0];
+            INITIAL_END_DATE = data['date_boundaries'][1].split(" ")[0];
             getVisualization(data);
             toggleLoading(0, 100);
         }
@@ -23,14 +24,15 @@ function getVisualization(data) {
     createInfoTable(data, getMaxAndMinTransportationNumbers(data)[0]);
     createStatisticsTable(data);
     createDateRangePicker(data);
+    getVizualizationSortedByMainItem(data);
 }
 
 function createDateRangePicker(data) {
     $("#e4").daterangepicker({
                  presetRanges: [{
                      text: 'Full range',
-                     dateStart: function() { return moment(START_DATE) },
-                     dateEnd: function() { return moment(END_DATE) }
+                     dateStart: function() { return moment(INITIAL_START_DATE) },
+                     dateEnd: function() { return moment(INITIAL_END_DATE) }
                  }, {
                      text: 'Previous year',
                      dateStart: function() { return moment().subtract(1, "years") },
@@ -62,11 +64,13 @@ function createDateRangePicker(data) {
                  datepickerOptions : {
                      numberOfMonths : 3,
                      dateFormat: 'yy-mm-dd',
-                     minDate: START_DATE,
-                     maxDate: END_DATE,
+                     minDate: INITIAL_START_DATE,
+                     maxDate: INITIAL_END_DATE,
          },
             change: function(event, data) {
                 var selectedDateRange = JSON.parse($("#e4").val());
+                current_start_date = selectedDateRange[0];
+                current_end_date = selectedDateRange[1];
                 toggleLoading(1, 180);
                 $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
                     start: selectedDateRange['start'],
@@ -82,6 +86,32 @@ function createDateRangePicker(data) {
                     }});
             }
         });
+}
+
+function getVizualizationSortedByMainItem(){
+    if(current_end_date == null || current_start_date == null){
+        current_start_date = INITIAL_START_DATE;
+        current_end_date = INITIAL_END_DATE;
+    }
+    $("#apply_button").click(function () {
+        var main_item = document.getElementById("main_item").value;
+        toggleLoading(1, 180);
+        $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
+            start: current_start_date,
+            end: current_end_date,
+            main_item: main_item
+        }, function (data) {
+            if('status' in data){
+                console.log('status');
+                $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
+            }else {
+                d3.select("svg").remove();
+                getVisualization(data);
+                toggleLoading(0, 100);
+            }
+        })
+    })
+
 }
 
 function createStatisticsTable(json_data){
@@ -224,16 +254,14 @@ function getMaxAndMinTransportationNumbers(json_data) {
     return [max_transportation_number, min_transportation_number]
 }
 
-function generateLineColor(number, max_transportation_number) {
-    var scale_number = ((max_transportation_number-number)/max_transportation_number);
-    if (scale_number < 50) {
-        var r = Math.floor(255 * (scale_number/ 50));
-        var g = 255;
-    } else {
-        var r = 255;
-        var g = Math.floor((255 * ((50 - scale_number % 50) / 50)))
-    }
-    return [r,g,0]
+function generateTotalDistanceColor(data) {
+
+    
+}
+function generateLineColor(number, max_total_distance, min_total_distance) {
+    var a = 0, b = 255;
+    var r = Math.ceil(((number - min_total_distance)/(max_total_distance-min_total_distance))*(b-a)+a)
+    return r
 }
 
 function getColor(value, max_transportation_number){
@@ -241,6 +269,19 @@ function getColor(value, max_transportation_number){
     var saturation = Math.abs(value - 75)/20;
     return ["hsl(",hue,","+saturation+"%,70%)"].join("");
 }
+
+function getMinMaxTotalDistance(edges){
+    var distances = [];
+    $.each(edges, function(key, value){
+        if(!isNaN(value[4]['distance'])) {
+            distances.push(value[3] * value[4]['distance'])
+        }else{
+            distances.push(0)
+        }
+    });
+    return [Math.min.apply(null, distances), Math.max.apply(null, distances)]
+}
+
 
 function createGraph(json_data, transportation_ranges) {
     var height = document.getElementById("factory_transp_container").offsetHeight;
@@ -308,13 +349,22 @@ function createGraph(json_data, transportation_ranges) {
     svgContainer
         .on("wheel",wheeled);
 
+    var distance_range_arr = getMinMaxTotalDistance(json_data['edges']);
+    console.log(distance_range_arr)
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
         var dest = value[1].split(".")[0];
         var trtime = moment.duration(value[4]['time'], "minutes");
         var distance = value[4]['distance'];
         var times = value[3];
+        var get_color = d3.scaleLinear()
+            .domain([distance_range_arr[0], distance_range_arr[1]])
+            .range([0, 255]);
+
+        // CHANGE COLORS
         var color2 = getColor(value[2],transportation_ranges[0]);
+        console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
+
         svgContainer.append("line")
             .style("stroke", d3.color(color2))
             .style("stroke-width", 3.5)
@@ -343,7 +393,7 @@ function createGraph(json_data, transportation_ranges) {
             .attr("cx", xLinearScale(value['points']['centroid'][0]))
             .attr("cy", yLinearScale(value['points']['centroid'][1]))
             .attr('r', 5)
-            .attr("fill", "#444444")
+            .attr("fill", "#444444");
         svgContainer.append('text')
             .style("fill", "#444444")
             .attr("x", xLinearScale(value['points']['centroid'][0]))
