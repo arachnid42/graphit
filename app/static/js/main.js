@@ -25,6 +25,16 @@ function getVisualization(data) {
     createStatisticsTable(data);
     createDateRangePicker(data);
     getVizualizationSortedByMainItem(data);
+    appendDepartmnetsToDropList(data);
+}
+
+function appendDepartmnetsToDropList(data) {
+    $('#dep_filter_select').empty();
+    $('#dep_filter_select').append('<option value=ALL>ALL</option>');
+    $.each(data['facility'], function (key, value) {
+        console.log(key);
+        $('#dep_filter_select').append('<option value='+key+'>'+key+'</option>')
+    })
 }
 
 function createDateRangePicker(data) {
@@ -95,11 +105,16 @@ function getVizualizationSortedByMainItem(){
     }
     $("#apply_button").click(function () {
         var main_item = document.getElementById("main_item").value;
+        var chosen_department = document.getElementById("dep_filter_select").value;
+        if(chosen_department == 'ALL'){
+            chosen_department = '';
+        }
         toggleLoading(1, 180);
         $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
             start: current_start_date,
             end: current_end_date,
-            main_item: main_item
+            main_item: main_item,
+            department: chosen_department
         }, function (data) {
             if('status' in data){
                 console.log('status');

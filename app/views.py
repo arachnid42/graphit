@@ -24,7 +24,8 @@ def get_data_filtered():
     date_from = request.args.get('start', None, type=str) + dummy_time_1
     date_to = request.args.get('end', None, type=str) + dummy_time_2
     main_item = request.args.get('main_item', None, type=str)
-    ja = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True, date_boundaries=[date_from, date_to], mi_filter=main_item)
+    department = request.args.get('department', None, type=str)
+    ja = JSONAssembler(app.root_path+'/core/config.json', force_rebuild=True, date_boundaries=[date_from, date_to], mi_filter=main_item, dep_filter=department)
     if ja.init_failed:
         return '{"status": "Error: DB Connection Failed"}'
     return ja.get_viz_json()
