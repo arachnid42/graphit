@@ -71,10 +71,12 @@ function createDateRangePicker(data) {
                 var selectedDateRange = JSON.parse($("#e4").val());
                 current_start_date = selectedDateRange[0];
                 current_end_date = selectedDateRange[1];
+                var main_item = document.getElementById('main_item').value;
                 toggleLoading(1, 180);
                 $.getJSON($SCRIPT_ROOT+"/get_data_filtered", {
                     start: selectedDateRange['start'],
-                    end: selectedDateRange['end']
+                    end: selectedDateRange['end'],
+                    main_item: main_item
                 }, function (data) {
                     if('status' in data){
                         console.log('status');
