@@ -29,6 +29,11 @@
         <div id="header">
             <img src="{{ url_for('static', filename='res/upper_logo.png') }}">
             <a href="{{ url_for('index') }}"><div id="header_text"><div>METEC-PRODOPT PROJECT</div></div></a>
+            <div id="viz_options">
+                <div id="date_filter_container">
+                        <span><input id="e4" name="e4"></span>
+                </div>
+            </div>
         </div>
         <div id="viz_container">
             <div id="factory_transp_container" class="svg-content">
@@ -42,19 +47,7 @@
                 </div>
             </div>
             <div id="info_container">
-                <div id="date_filter_container">
-                    <div id="d_f_header">
-                        <div>Date Filter Properties</div>
-                    </div>
-                    <div id="date_picker_container">Choose date range to apply:
-                        <span><input id="e4" name="e4"></span>
-                    </div>
-
-                </div>
                 <div id="transp_table_container">
-                    <div id="transp_table_header_text">
-                        <div>Transportation Info Table</div>
-                    </div>
                     <div id="inner_table_container">
                         <table class="tablesorter" cellspacing="1">
                             <thead id="#my_fixable_table_header">
