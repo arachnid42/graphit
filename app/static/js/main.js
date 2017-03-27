@@ -186,7 +186,7 @@ function createInfoTable(json_data, max_transportation_value) {
             value[4]['distance'] = 0;
             value[4]['time'] = '-';
         }
-        var total_trtime= moment.duration(value[4]['time']*value[3], "minutes");
+        var total_trtime= moment.duration(value[4]['time']*value[3], "seconds");
         if(isNaN(value[4]['distance']*value[3])){
           //  value[4]['distance']*value[3] = '-';
         }
@@ -392,10 +392,23 @@ function createGraph(json_data, transportation_ranges) {
         .on("wheel",wheeled);
 
     var distance_range_arr = getMinMaxTotalDistance(json_data['edges']);
+    svgContainer.append("svg:defs").append("svg:marker")
+        .attr("id", "triangle")
+        .attr("refX", 0.5)
+        .attr("refY", 0.5)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "auto")
+      .append("path")
+        .attr("d", "m 0,-2 l -2,-11 l -11, -2 m -2,0")
+        .style("fill", "red");
+
     $.each(json_data['edges'], function(key, value){
         var src = value[0].split(".")[0];
         var dest = value[1].split(".")[0];
-        var trtime = moment.duration(value[4]['time'], "minutes");
+        console.log(value[4]['time']);
+        var trtime = moment.duration(value[4]['time'], 'seconds');
+        console.log(trtime)
         var distance = value[4]['distance'];
         var times = value[3];
         var get_color = d3.scaleLinear()
@@ -407,8 +420,8 @@ function createGraph(json_data, transportation_ranges) {
         var color = d3.rgb(colorSortedByTotalDistance, 0, 0);
         var color2 = getColor(value[2],transportation_ranges[0]);
         //console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
-        console.log(colorSortedByTotalDistance);
         gContainer.append("line")
+            .attr("class", "arrow")
             .style("stroke", d3.color(color2))
             .style("stroke-width", 3.5)
             .attr("value", value[2])
@@ -416,6 +429,7 @@ function createGraph(json_data, transportation_ranges) {
             .attr("y1", yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
             .attr("x2", xLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
             .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
+            .attr("marker-end", "url(#triangle)")
             .on("mouseover", function (d) {
                 var value = d3.select(this).attr("value");
                 d3.select('.viz_info_text')
@@ -427,8 +441,7 @@ function createGraph(json_data, transportation_ranges) {
                     d3.select('.viz_info_text')
                         .style("font-style","italic")
                         .text('no additional info to display');
-                });
-
+                })
 
     });
     $.each(json_data['facility'],function (key, value) {
