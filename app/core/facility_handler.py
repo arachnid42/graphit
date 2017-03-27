@@ -63,10 +63,10 @@ class FacilityHandler(object):
             else:
                 self.facility = Facility(self.conf["facility_boundaries"][0], self.conf["facility_boundaries"][1])
                 self.populate_facility(self.conf["facility_source_path"])
-                try:
-                    res = self.insert_all_transp_records(date_boundaries, mi_filter, dep_filter)
-                except:
-                     raise DBInaccessibleError
+                # try:
+                res = self.insert_all_transp_records(date_boundaries, mi_filter, dep_filter)
+                # except:
+                #      raise DBInaccessibleError
                 self.self_edges_weight = res[0]
                 self.date_from = res[1]
                 self.date_to = res[2]
@@ -146,16 +146,15 @@ class FacilityHandler(object):
                     <= datetime.strptime(date_boundaries[1], date_format):
                 continue
             try:
-                created_nodes = self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
+                created_node = self.facility.add_transp_record(rec[0]+'.centroid', rec[1]+'.centroid', int(rec[3]))
                 extra_data = self.find_distance_and_time_info(rec[0], rec[1])
                 distance, time = extra_data if extra_data else [None, None]
-                for node in created_nodes:
-                    if len(node.info_dict) > 0:
-                        continue
-                    if distance:
-                        node.add_info("distance", distance)
-                    if time:
-                        node.add_info("time", time)
+                if len(created_node.info_dict) > 0:
+                    continue
+                if distance:
+                    created_node.add_info("distance", distance)
+                if time:
+                    created_node.add_info("time", time)
             except SelfEdgesNotSupported:
                 self_edges_weight += int(rec[3])
 

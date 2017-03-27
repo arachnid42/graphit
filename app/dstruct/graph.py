@@ -365,7 +365,7 @@ class Graph(object):
         :raises EdgeInsertionFailed, BadEdgeWeight
         """
 
-        if self.__is_connected(node_a, node_b) and self.__is_connected(node_b, node_a):
+        if self.__is_connected(node_a, node_b) and (self.is_directed or self.__is_connected(node_b, node_a)):
             if self.aggregate_weight:
                 edge_node = self.__get_edge(node_a, node_b)
                 edge_node.weight = edge_node.weight + weight

@@ -70,7 +70,8 @@ class TransportationGraph(Graph):
 
     def __init__(self):
         """ Constructor to initialize all the necessary fields """
-        super(TransportationGraph, self).__init__(coordinates=True, explicit_weight=True, aggregate_weight=True)
+        super(TransportationGraph, self).__init__(directed=True, coordinates=True, explicit_weight=True,
+                                                  aggregate_weight=True)
         self.departments = []
 
     def add_department(self, department):
