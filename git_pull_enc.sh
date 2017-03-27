@@ -33,4 +33,3 @@ git pull origin ${BRANCH}
 for file in "${FILES_TO_DECRYPT[@]}"; do
     gpg --batch --yes --passphrase ${ENC_KEY} --output ${file::-4} -d ${file}
 done
-
