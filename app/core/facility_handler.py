@@ -66,7 +66,7 @@ class FacilityHandler(object):
                 try:
                     res = self.insert_all_transp_records(date_boundaries, mi_filter, dep_filter)
                 except:
-                    raise DBInaccessibleError
+                     raise DBInaccessibleError
                 self.self_edges_weight = res[0]
                 self.date_from = res[1]
                 self.date_to = res[2]

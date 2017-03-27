@@ -3,12 +3,12 @@
         <title> Visualization | Metec-ProdOpt project </title>
         <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/theme.blue.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jq.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.comiseo.daterangepicker.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='res/favicon-32x32.png') }}" sizes="32x32" />
         <script type=text/javascript>
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -31,13 +31,13 @@
             <a href="{{ url_for('index') }}"><div id="header_text"><div id="h_txt">METEC-PRODOPT PROJECT</div></div></a>
             <div id="viz_options">
                 <div id="main_item_filter_container">
-                      <div><input id="main_item" type="text" name="main_item_input" placeholder="Main item filter..."></div>
+                      <div><input id="main_item" class="ui-corner-all" type="text" name="main_item_input" placeholder="Main item filter..."></div>
                 </div>
                 <div id="dep_filter_container">
-                     <select id="dep_filter_select"></select>
+                     <select id="dep_filter_select" class="ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all ddrop"></select>
                 </div>
                 <div id="date_filter_container">
-                    <div><span><input id="e4" name="e4"></span></div>
+                    <div><span><input class="ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset" id="e4" name="e4"></span></div>
                 </div>
                 <div id="apply_button_container">
                     <div id="apply_button"><div id="apply_text">Apply</div></div>

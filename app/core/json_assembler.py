@@ -30,11 +30,11 @@ class JSONAssembler(object):
         # init/restore Facility class
         try:
             self.fh = FacilityHandler(conf_path, force_rebuild=self.force_rebuild,
-                                      date_boundaries=date_boundaries, mi_filter=mi_filter, dep_filter=dep_filter)
+                              date_boundaries=date_boundaries, mi_filter=mi_filter, dep_filter=dep_filter)
             self.facility = self.fh.facility
             self.viz_json_dump_path = self.fh.conf['viz_json_dump_path']
         except:
-            self.init_failed = True
+             self.init_failed = True
 
     def get_viz_json(self):
         """ Assemble visualization JSON or get a cached version

@@ -5,8 +5,9 @@ var current_start_date = null, current_end_date = null;
 var current_chosen_department = null;
 
 $( document ).ready(function() {
-    //$('#main_item').addClass("ui-corner-all");
+    $('main_item').addClass("ui-corner-all");
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
+        console.log(data)
         if('status' in data){
             console.log('status');
             $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
@@ -31,7 +32,7 @@ function getVisualization(data) {
 
 function appendDepartmnetsToDropList(data) {
     $('#dep_filter_select').empty();
-    $('#dep_filter_select').append('<option value=ALL >ALL</option>');
+    $('#dep_filter_select').append('<option value=ALL >All</option>');
     $.each(data['facility'], function (key, value) {
         if (key === current_chosen_department){
             $('#dep_filter_select').append('<option value='+key+' selected="selected">'+key+'</option>')
@@ -189,7 +190,6 @@ function createInfoTable(json_data, max_transportation_value) {
         if(isNaN(value[4]['distance']*value[3])){
           //  value[4]['distance']*value[3] = '-';
         }
-        console.log(total_trtime.days())
         if(total_trtime.days() != 0) {
             color = getColor(value[2], max_transportation_value);
             append_str += "<tr><td style='background-color:" + d3.color(color) + "'></td>" +
