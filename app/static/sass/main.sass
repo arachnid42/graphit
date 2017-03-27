@@ -6,6 +6,12 @@ body
   margin: 0 auto
   padding: 0
 
+*:focus
+  outline: none
+  -moz-box-shadow: none
+  -webkit-box-shadow: none
+  box-shadow: none
+
 #full_page_overlay
   position: fixed
   z-index: 3
@@ -40,20 +46,15 @@ body
   display: inline-block
 
   #viz_options
-    //width: 36.5%
+    //background-color: #07F906
     float: right
     display: table
     height: 100%
     margin-right: 2%
 
     #main_item_filter_container, #dep_filter_container, #date_filter_container, #apply_button_container
-      //height: 100%
       vertical-align: middle
       display: table-cell
-
-      div
-        margin-left: 2%
-        margin-right: 2%
 
     #main_item_filter_container
       div
@@ -66,6 +67,12 @@ body
     #dep_filter_container
       div
         height: 56%
+
+      .ddrop
+        background: #ffffff
+        color: #666
+        height: 56%3
+
         #dep_filter_select
           height: 100%
 
@@ -92,20 +99,24 @@ body
 
     #apply_button_container
       #apply_button
+        display: table
+        text-align: center
         height: 56%
+        width: 60px
         background-color: $header_fill_color
         border-radius: 3px
+        -moz-border-radius: 3px
+        -webkit-border-radius: 3px
 
         &:hover
           background-color: $header_hover_color
           cursor: pointer
 
         #apply_text
-          @include vert_center
+          display: table-cell
+          vertical-align: middle
           font-family: Arial
           color: $page_background
-          margin-left: 20%
-          margin-right: 20%
 
   a
     text-decoration: none
@@ -128,13 +139,13 @@ body
     background-color: $header_fill_color
     height: 100%
     float: left
+    padding-left: 1.3%
+    padding-right: 1.3%
     color: $page_background
     font-size: 1vw
     font-family: 'Lato'
 
     #h_txt
-      padding-left: 8%
-      padding-right: 8%
       @include vert_center
 
     &:hover

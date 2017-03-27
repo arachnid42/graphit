@@ -5,6 +5,7 @@ var current_start_date = null, current_end_date = null;
 var current_chosen_department = null;
 
 $( document ).ready(function() {
+    $('main_item').addClass("ui-corner-all");
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
         if('status' in data){
             console.log('status');
@@ -30,7 +31,7 @@ function getVisualization(data) {
 
 function appendDepartmnetsToDropList(data) {
     $('#dep_filter_select').empty();
-    $('#dep_filter_select').append('<option value=ALL >ALL</option>');
+    $('#dep_filter_select').append('<option value=ALL >All</option>');
     console.log(current_chosen_department);
     $.each(data['facility'], function (key, value) {
         if (key === current_chosen_department){
