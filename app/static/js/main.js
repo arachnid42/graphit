@@ -347,7 +347,7 @@ function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale,
             //console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
              svgContainer.append("svg:defs").append("svg:marker")
                 .attr("id", "triangle")
-                .attr("refX", 4)
+                .attr("refX", 12)
                 .attr("refY", 2)
                 .attr("markerWidth", 5)
                 .attr("markerHeight", 5)
