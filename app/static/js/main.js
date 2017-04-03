@@ -319,11 +319,76 @@ function getMinMaxTotalDistance(edges){
     return [Math.min.apply(null, distances), Math.max.apply(null, distances)]
 }
 
+function createDepartments(data, xLinearScale, yLinearScale, gContainer) {
+    $.each(data['facility'],function (key, value) {
+                gContainer.append('polygon')
+                    .style("stroke-width", 5)
+                    .attr("points", scalePoints(data,key, xLinearScale, yLinearScale))
+                    .attr("stroke", '#444444')
+                    .style("pointer-events", "all")
+                    .attr("fill", '#dbe9ee')
+    });
+}
+
+function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale, distance_range_arr, transportation_ranges) {
+    $.each(data['edges'], function(key, value){
+            var src = value[0].split(".")[0];
+            var dest = value[1].split(".")[0];
+            var trtime = moment.duration(value[4]['time'], 'seconds');
+            var distance = value[4]['distance'];
+            var times = value[3];
+            var get_color = d3.scaleLinear()
+                .domain([distance_range_arr[0], distance_range_arr[1]])
+                .range([0, 255]);
+            // CHANGE COLORS
+            //var colorSortedByTotalDistance = generateLineColor(times*distance, distance_range_arr[0], distance_range_arr[1]);
+            //var color = d3.rgb(colorSortedByTotalDistance, 0, 0);
+            var color2 = getColor(value[2],transportation_ranges[0]);
+            //console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
+             svgContainer.append("svg:defs").append("svg:marker")
+                .attr("id", "triangle")
+                .attr("refX", 4)
+                .attr("refY", 2)
+                .attr("markerWidth", 5)
+                .attr("markerHeight", 5)
+                .attr("orient", "auto")
+              .append("path")
+                .attr("d", "M0,0 L0,4 L4,2 z")
+                .style("fill", "black");
+            gContainer.append("line")
+                .attr("class", "arrow")
+                .style("stroke", d3.color(color2))
+                .style("stroke-width", 3.5)
+                .attr("value", value[2])
+                .attr("x1", xLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
+                .attr("y1", yLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
+                .attr("x2", xLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
+                .attr("y2", yLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
+                .attr("marker-end", "url(#triangle)")
+                //.curved('cardinal')
+                .on("mouseover", function (d) {
+                    var value = d3.select(this).attr("value");
+                    d3.select('.viz_info_text')
+                        .style("font-style", "normal")
+                        .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Distance: "+distance+" m , Transportation Time: "+trtime.minutes()+" min "+trtime.seconds()+" sec")
+
+                })
+                .on("mouseout", function (d) {
+                        d3.select('.viz_info_text')
+                            .style("font-style","italic")
+                            .text('no additional info to display');
+                    })
+
+    });
+
+}
 
 function createGraph(json_data, transportation_ranges) {
     var height = document.getElementById("factory_transp_container").offsetHeight;
     var width = document.getElementById("factory_transp_container").offsetWidth;
     var max_x_y = findMaxXandY(json_data);
+    var edges = json_data['edges'];
+    var facility = json_data['facility'];
     var xLinearScale = d3.scaleLinear()
         .domain([0, max_x_y[0]])
         .range([(1-SCALE)*width,width*SCALE]);
@@ -337,14 +402,6 @@ function createGraph(json_data, transportation_ranges) {
         .translateExtent([[0, 0], [width, height]])
         .on("zoom", zoomed);
 
-    function wheeled() {
-        console.log(d3.event);
-    }
-    function zoomed() {
-        d3.select('#factory_transp_container').select("g")
-            .attr('transform', d3.event.transform);
-    }
-
     var svgContainer = d3.select("#factory_transp_container")
         .append("svg")
         .attr('height',height)
@@ -356,6 +413,11 @@ function createGraph(json_data, transportation_ranges) {
         .attr('height', height)
         .attr('width', width)
         .call(zoom);
+
+    function zoomed() {
+        d3.select('#factory_transp_container').select("g")
+            .attr('transform', d3.event.transform);
+    }
 
     d3.select("#reset")
         .on("click", resetted);
@@ -380,70 +442,12 @@ function createGraph(json_data, transportation_ranges) {
         gContainer.call(zoom.scaleBy(gContainer, 0.66));
     }
 
-    $.each(json_data['facility'],function (key, value) {
-                gContainer.append('polygon')
-                    .style("stroke-width", 5)
-                    .attr("points", scalePoints(json_data,key, xLinearScale, yLinearScale))
-                    .attr("stroke", '#444444')
-                    .style("pointer-events", "all")
-                    .attr("fill", '#dbe9ee')
-    });
-    gContainer
-        .on("wheel",wheeled);
-
     var distance_range_arr = getMinMaxTotalDistance(json_data['edges']);
-    svgContainer.append("svg:defs").append("svg:marker")
-        .attr("id", "triangle")
-        .attr("refX", 0.5)
-        .attr("refY", 0.5)
-        .attr("markerWidth", 5)
-        .attr("markerHeight", 5)
-        .attr("orient", "auto")
-      .append("path")
-        .attr("d", "m 0,-2 l -2,-11 l -11, -2 m -2,0")
-        .style("fill", "red");
+    createDepartments(json_data, xLinearScale, yLinearScale, gContainer);
+    createEdges(json_data,gContainer, svgContainer, xLinearScale, yLinearScale, distance_range_arr, transportation_ranges);
+    var edges = json_data['edges'];
+    var facility_data = json_data['facility'];
 
-    $.each(json_data['edges'], function(key, value){
-        var src = value[0].split(".")[0];
-        var dest = value[1].split(".")[0];
-        console.log(value[4]['time']);
-        var trtime = moment.duration(value[4]['time'], 'seconds');
-        console.log(trtime)
-        var distance = value[4]['distance'];
-        var times = value[3];
-        var get_color = d3.scaleLinear()
-            .domain([distance_range_arr[0], distance_range_arr[1]])
-            .range([0, 255]);
-
-        // CHANGE COLORS
-        var colorSortedByTotalDistance = generateLineColor(times*distance, distance_range_arr[0], distance_range_arr[1]);
-        var color = d3.rgb(colorSortedByTotalDistance, 0, 0);
-        var color2 = getColor(value[2],transportation_ranges[0]);
-        //console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
-        gContainer.append("line")
-            .attr("class", "arrow")
-            .style("stroke", d3.color(color2))
-            .style("stroke-width", 3.5)
-            .attr("value", value[2])
-            .attr("x1", xLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
-            .attr("y1", yLinearScale(json_data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
-            .attr("x2", xLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
-            .attr("y2", yLinearScale(json_data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
-            .attr("marker-end", "url(#triangle)")
-            .on("mouseover", function (d) {
-                var value = d3.select(this).attr("value");
-                d3.select('.viz_info_text')
-                    .style("font-style", "normal")
-                    .text(src+" - "+dest+": Quantity: "+value+", Times: "+times+", Distance: "+distance+" m , Transportation Time: "+trtime.minutes()+" min "+trtime.seconds()+" sec")
-
-            })
-            .on("mouseout", function (d) {
-                    d3.select('.viz_info_text')
-                        .style("font-style","italic")
-                        .text('no additional info to display');
-                })
-
-    });
     $.each(json_data['facility'],function (key, value) {
         gContainer.append('circle')
             .attr("cx", xLinearScale(value['points']['centroid'][0]))
