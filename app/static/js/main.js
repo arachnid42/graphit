@@ -7,7 +7,6 @@ var current_chosen_department = null;
 $( document ).ready(function() {
     $('main_item').addClass("ui-corner-all");
     $.getJSON($SCRIPT_ROOT+"/get_data", function (data) {
-        console.log(data)
         if('status' in data){
             console.log('status');
             $(".overlay_div").empty().append("<img src='static/res/error.png'><br>"+ data['status'])
@@ -178,29 +177,29 @@ function createInfoTable(json_data, max_transportation_value) {
     var append_str = '';
     var table = $('table');
     $.tablesorter.clearTableBody = function (table) {
-                $('tbody', table).empty();
+        $('tbody', table).empty();
     };
     $.tablesorter.clearTableBody(table[0]);
-    $.each(json_data['edges'], function (key,value) {
-        if (value[4]['distance'] === undefined){
+    $.each(json_data['edges'], function (key, value) {
+        if (value[4]['distance'] === undefined) {
             value[4]['distance'] = 0;
             value[4]['time'] = '-';
         }
-        var total_trtime= moment.duration(value[4]['time']*value[3], "seconds");
-        if(isNaN(value[4]['distance']*value[3])){
-          //  value[4]['distance']*value[3] = '-';
+        var total_trtime = moment.duration(value[4]['time'] * value[3], "seconds");
+        if (isNaN(value[4]['distance'] * value[3])) {
+            //  value[4]['distance']*value[3] = '-';
         }
-        if(total_trtime.days() != 0) {
+        if (total_trtime.days() != 0) {
             color = getColor(value[2], max_transportation_value);
             append_str += "<tr><td style='background-color:" + d3.color(color) + "'></td>" +
                 "<td>" + value[0].split(".")[0] + "</td>" +
                 "<td>" + value[3] + "</td>" +
                 "<td>" + value[2] + "</td>" +
                 "<td>" + (value[4]['distance'] * value[3]).toFixed(2) + "</td>" +
-                "<td>" + total_trtime.days() + ' d ' +total_trtime.hours() + ' h ' + total_trtime.minutes() + ' min ' + "</td>" +
+                "<td>" + total_trtime.days() + ' d ' + total_trtime.hours() + ' h ' + total_trtime.minutes() + ' min ' + "</td>" +
                 "<td>" + value[1].split(".")[0] + "</td></tr>";
-        }else{
-             color = getColor(value[2], max_transportation_value);
+        } else {
+            color = getColor(value[2], max_transportation_value);
             append_str += "<tr><td style='background-color:" + d3.color(color) + "'></td>" +
                 "<td>" + value[0].split(".")[0] + "</td>" +
                 "<td>" + value[3] + "</td>" +
@@ -212,9 +211,26 @@ function createInfoTable(json_data, max_transportation_value) {
     });
     table.append(append_str).trigger('update');
     $(".tablesorter").tablesorter({
-        headers: { 0: { sorter: false}},
+        headers: {0: {sorter: false}},
         theme: 'blue',
-        sortList: [[3,0]]
+        sortList: [[3, 0]]
+    });
+    var rows = $('table tbody tr');
+    rows.hover(function () {
+        var src_dep = $(this).find("td").eq(1).html();
+        var dest_dep = $(this).find("td").eq(6).html();
+        var src_circle = d3.select('#' + src_dep);
+        src_circle.style("fill", "blue");
+        var dest_circle = d3.select('#' + dest_dep);
+        dest_circle.style("fill", "blue")
+    },
+    function () {
+        var src_dep = $(this).find("td").eq(1).html();
+        var dest_dep = $(this).find("td").eq(6).html();
+        var src_circle = d3.select('#' + src_dep);
+        src_circle.style("fill", "black");
+        var dest_circle = d3.select('#' + dest_dep);
+        dest_circle.style("fill", "black")
     });
 }
 /*
@@ -331,6 +347,7 @@ function createDepartments(data, xLinearScale, yLinearScale, gContainer) {
 }
 
 function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale, distance_range_arr, transportation_ranges) {
+    console.log(data)
     $.each(data['edges'], function(key, value){
             var src = value[0].split(".")[0];
             var dest = value[1].split(".")[0];
@@ -345,6 +362,16 @@ function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale,
             //var color = d3.rgb(colorSortedByTotalDistance, 0, 0);
             var color2 = getColor(value[2],transportation_ranges[0]);
             //console.log(generateLineColor(distance, distance_range_arr[0], distance_range_arr[1]));
+            var offset = 0;
+            for(var i=0; i<data['edges'].length; i++ ) {
+                if (data.edges[i][0].split('.')[0] == dest && data.edges[i][1].split('.')[0] == src) {
+                    offset = 1
+                }
+            }
+            if($('[src="'+dest+'"]').length == 0){
+                offset = -2
+            }
+            // arrowhead config
              svgContainer.append("svg:defs").append("svg:marker")
                 .attr("id", "triangle")
                 .attr("refX", 12)
@@ -353,19 +380,24 @@ function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale,
                 .attr("markerHeight", 5)
                 .attr("orient", "auto")
               .append("path")
+                 // triangle
                 .attr("d", "M0,0 L0,4 L4,2 z")
                 .style("fill", "black");
+            // appending our lines between departments
             gContainer.append("line")
                 .attr("class", "arrow")
+                .attr("src", src)
+                .attr("dest", dest)
+                .attr("offset", offset)
                 .style("stroke", d3.color(color2))
                 .style("stroke-width", 3.5)
                 .attr("value", value[2])
-                .attr("x1", xLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][0]))
-                .attr("y1", yLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][1]))
-                .attr("x2", xLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][0]))
-                .attr("y2", yLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][1]))
+                .attr("x1", xLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][0]) + offset)
+                .attr("y1", yLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][1]) + offset)
+                .attr("x2", xLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][0]) + offset)
+                .attr("y2", yLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][1]) + offset)
+                // add marker to the line
                 .attr("marker-end", "url(#triangle)")
-                //.curved('cardinal')
                 .on("mouseover", function (d) {
                     var value = d3.select(this).attr("value");
                     d3.select('.viz_info_text')
@@ -446,13 +478,13 @@ function createGraph(json_data, transportation_ranges) {
     createDepartments(json_data, xLinearScale, yLinearScale, gContainer);
     createEdges(json_data,gContainer, svgContainer, xLinearScale, yLinearScale, distance_range_arr, transportation_ranges);
     var edges = json_data['edges'];
-    var facility_data = json_data['facility'];
-
     $.each(json_data['facility'],function (key, value) {
-        gContainer.append('circle')
-            .attr("cx", xLinearScale(value['points']['centroid'][0]))
-            .attr("cy", yLinearScale(value['points']['centroid'][1]))
-            .attr('r', 5)
+        gContainer.append('rect')
+            .attr("id", key)
+            .attr("x", xLinearScale(value['points']['centroid'][0])-6)
+            .attr("y", yLinearScale(value['points']['centroid'][1])-6)
+            .attr('width', 12)
+            .attr('height', 12)
             .attr("fill", "#444444");
         gContainer.append('text')
             .style("fill", "#444444")
