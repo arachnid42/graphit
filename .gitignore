@@ -14,3 +14,5 @@ nohup.out
 .sass-cache/
 app/parse/*.py
 app/log/
+*.csv
+.~lock*
