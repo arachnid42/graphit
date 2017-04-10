@@ -216,13 +216,28 @@ function createInfoTable(json_data, max_transportation_value) {
         sortList: [[3, 0]]
     });
     var rows = $('table tbody tr');
+    var arc1_generated_color, arc2_generated_color = null;
     rows.hover(function () {
         var src_dep = $(this).find("td").eq(1).html();
         var dest_dep = $(this).find("td").eq(6).html();
         var src_circle = d3.select('#' + src_dep);
         src_circle.style("fill", "blue");
         var dest_circle = d3.select('#' + dest_dep);
-        dest_circle.style("fill", "blue")
+        dest_circle.style("fill", "blue");
+        var src_dest_line = $('[src="'+src_dep+'"][dest="'+dest_dep+'"]');
+        var edge_color = d3.select(src_dest_line[0]).style("stroke");
+        if(edge_color != "rgb(0, 0, 255)"){
+            arc1_generated_color = edge_color;
+        }
+        if($('[src="'+dest_dep+'"][dest="'+src_dep+'"]')[0] != null){
+            var dest_dep_line =  $('[src="'+dest_dep+'"][dest="'+src_dep+'"]');
+            var twin_edge_color = d3.select(dest_dep_line[0]).style("stroke");
+            if(twin_edge_color != "rgb(0, 0, 255)"){
+                arc2_generated_color = twin_edge_color;
+            }
+           d3.select(dest_dep_line[0]).style("stroke", "blue")
+        }
+        d3.select(src_dest_line[0]).style("stroke", "blue");
     },
     function () {
         var src_dep = $(this).find("td").eq(1).html();
@@ -230,7 +245,13 @@ function createInfoTable(json_data, max_transportation_value) {
         var src_circle = d3.select('#' + src_dep);
         src_circle.style("fill", "black");
         var dest_circle = d3.select('#' + dest_dep);
-        dest_circle.style("fill", "black")
+        dest_circle.style("fill", "black");
+        var src_dep_line = $('[src="'+src_dep+'"][dest="'+dest_dep+'"]');
+        d3.select(src_dep_line[0]).style("stroke", arc1_generated_color);
+        if(arc2_generated_color != null){
+            dest_dep_line = $('[src="'+dest_dep+'"][dest="'+src_dep+'"]');
+            d3.select(dest_dep_line[0]).style("stroke", arc2_generated_color);
+        }
     });
 }
 /*
@@ -347,7 +368,6 @@ function createDepartments(data, xLinearScale, yLinearScale, gContainer) {
 }
 
 function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale, distance_range_arr, transportation_ranges) {
-    console.log(data)
     $.each(data['edges'], function(key, value){
             var src = value[0].split(".")[0];
             var dest = value[1].split(".")[0];
