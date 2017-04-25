@@ -304,7 +304,7 @@ function draw_color_legend(arr){
 function scalePoints(json_data, key, xLinearScale, yLinearScale){
     var points = [];
     $.each(json_data['facility'][key]['boundaries'], function (key, value) {
-        var scaled_x_y = [xLinearScale(value[0]),yLinearScale(value[1])];
+        var scaled_x_y = [xLinearScale(value[0])*SCALE, yLinearScale(value[1])*SCALE];
         points.push(scaled_x_y);
     });
     return points
@@ -412,10 +412,10 @@ function createEdges(data, gContainer, svgContainer, xLinearScale, yLinearScale,
                 .style("stroke", d3.color(color2))
                 .style("stroke-width", 3.5)
                 .attr("value", value[2])
-                .attr("x1", xLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][0]) + offset)
-                .attr("y1", yLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][1]) + offset)
-                .attr("x2", xLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][0]) + offset)
-                .attr("y2", yLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][1]) + offset)
+                .attr("x1", xLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][0])*SCALE + offset)
+                .attr("y1", yLinearScale(data['facility'][value[0].split('.')[0]]['points']['centroid'][1])*SCALE + offset)
+                .attr("x2", xLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][0])*SCALE + offset)
+                .attr("y2", yLinearScale(data['facility'][value[1].split('.')[0]]['points']['centroid'][1])*SCALE + offset)
                 // add marker to the line
                 .attr("marker-end", "url(#triangle)")
                 .on("mouseover", function (d) {
@@ -456,6 +456,7 @@ function createGraph(json_data, transportation_ranges) {
 
     var svgContainer = d3.select("#factory_transp_container")
         .append("svg")
+        .attr("viewBox", "0 0 "+xLinearScale(max_x_y[0])+" "+yLinearScale(max_x_y[1])+"")
         .attr('height',height)
         .attr('width', width)
         .call(zoom);
@@ -501,15 +502,15 @@ function createGraph(json_data, transportation_ranges) {
     $.each(json_data['facility'],function (key, value) {
         gContainer.append('rect')
             .attr("id", key)
-            .attr("x", xLinearScale(value['points']['centroid'][0])-6)
-            .attr("y", yLinearScale(value['points']['centroid'][1])-6)
+            .attr("x", xLinearScale(value['points']['centroid'][0])*SCALE-6)
+            .attr("y", yLinearScale(value['points']['centroid'][1])*SCALE-6)
             .attr('width', 12)
             .attr('height', 12)
             .attr("fill", "#444444");
         gContainer.append('text')
             .style("fill", "#444444")
-            .attr("x", xLinearScale(value['points']['centroid'][0]))
-            .attr("y", yLinearScale(value['points']['centroid'][1]))
+            .attr("x", xLinearScale(value['points']['centroid'][0])*SCALE)
+            .attr("y", yLinearScale(value['points']['centroid'][1])*SCALE)
             .attr("font-size", "15px")
             .attr("dy", "-.85em")
             .attr("font-family", "Lato")
