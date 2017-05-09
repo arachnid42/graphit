@@ -1,4 +1,4 @@
-# metec-prodopt
+# metec-prodopt [ PROJECT DISCONTINUED ] 
 ## Acknowledgement
 This project is in development as part of our internship at Metec company which kindly granted their permission to show it as our term project. All data used in this project was taken from Metec’s production planning software.
 
